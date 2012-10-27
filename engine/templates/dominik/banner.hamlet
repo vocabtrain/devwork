@@ -1,0 +1,5 @@
+<p id="top_titleicon" class="navbar-text pull-left">
+    <img class="icon-myself" src=#{staticServer "images/icon_myself.png"}>
+    Dominik Köppl
+<ul class="nav">
+    <li><a href=@{ DKHomeR}><i class="icon-home icon-white"></i> Home</a>

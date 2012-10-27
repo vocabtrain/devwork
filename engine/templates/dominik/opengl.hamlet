@@ -1,0 +1,31 @@
+<h1>3D Programmierung in OpenGL mit freeglut und OpenIL
+<div id="maincontentbody">
+    <p>
+        Dieser Vortrag führt die Zuhörer in die graphischen Gestaltungsmöglichkeiten der OpenGL-Bibliothek ein.
+        Neben der Verwendung von OpenGL mit der Schnittstelle GLUT wird zudem auf die Bildverarbeitung mit OpenIL eingegangen, 
+        mit der es möglich ist, Bilder in die dreidimensionale Landschaft zu bringen.
+
+    <ul>
+        <li><a href=#{staticServer "/script/glut_skript.pdf"}>Das Folienskript zum Vortrag</a>
+        <li><a href=#{staticServer "/script/glut_skript.tex"}>Der Quellcode zum Folienskript</a>
+        <li><a href=#{staticServer "/pkg/bsp_glut.tar.bz2"}>Beispiele aus der Vorlesung</a>
+
+    <div style="float:right">
+        <object width="520" height="412" type="application/x-shockwave-flash" data=#{staticServer "video/colormap.swf"}>
+            <param name="loop" value="true" />
+            <param name="menu" value="true" />
+        <br>
+        <object width="520" height="346" type="application/x-shockwave-flash" data=#{staticServer "video/textures.swf"}>
+            <param name="loop" value="true" />
+            <param name="menu" value="true" />
+
+    <h2>Flash-Videos
+    <ul>
+        <li><a href=#{staticServer "video/colormap.swf"}>Die Colormap</a>
+        <li><a href=#{staticServer "video/textures.swf"}>Texturendemo</a>
+
+    <h2>Mitschnitt
+    <ul>
+        <li><a href="http://thepiratebay.org/torrent/5433337/Einfuhrung_in_OpenGL">Magnet Link</a>
+        <li><a href=#{staticServer "video/opengl_vortrag.torrent"}>Torrent</a>
+        <li><a href=#{staticServer "video/opengl_vortrag.mkv"}>volles Video</a>

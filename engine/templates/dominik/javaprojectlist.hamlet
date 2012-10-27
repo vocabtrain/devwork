@@ -1,0 +1,8 @@
+<h1>Java-Projekte
+<div id="maincontentbody">
+    <p>Die folgenden Projekte wurden von ihren Entwicklern frei zur Verfügung gestellt, und können als Applet direkt gestartet werden 
+    <div id="javaprojektliste">Projektliste
+        <ul>
+            $forall project <- getJavaProjects
+                <li>
+                    <a href=@{JavaProjectR $ javaProjectId project}>#{javaProjectName project}

@@ -1,0 +1,14 @@
+<h1>Projekte
+<div id="maincontentbody">
+
+    <p>Die folgenden Projekte wurden von ihren Entwicklern frei zur Verfügung gestellt, und können hier heruntergeladen werden
+    <div id="qtprojektliste">Projektliste
+        $forall project <- getQtProjects
+            <h2>#{qtProjectName project}
+            <a href=#{staticServer "qtgallery/"}#{qtProjectName project}.jpg>
+                <img class="project" alt="" src=#{staticServer "qtgallery/"}#{qtProjectName project}_thumb.jpg>
+            <p>#{qtProjectDescription project}
+            <br>
+            <br>
+            <a href=#{staticServer "qtprojects/"}#{qtProjectArchive project}>Das Project "#{qtProjectName project}" herunterladen
+            <p class="clearme">

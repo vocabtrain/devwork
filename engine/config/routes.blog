@@ -1,0 +1,2 @@
+/blog BlogR GET POST
+/blog/#EntryId EntryR GET POST

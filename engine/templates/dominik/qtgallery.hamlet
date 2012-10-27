@@ -1,0 +1,9 @@
+<h1>Bildergalerie
+<div id="maincontentbody">
+    <p>Die folgenden Bilder sind Screenshots von Projekten, die hier im Qt-Kurs erstellt wurden
+
+    $forall pic <- pictures
+        <div class="galerieimg">
+            <a href=#{staticServer "qtgallery/"}#{pic}.jpg>
+                <img alt="" src=#{staticServer "qtgallery/"}#{pic}_thumb.jpg>
+    <p class="clearme">

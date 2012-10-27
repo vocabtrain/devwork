@@ -1,0 +1,13 @@
+<meta charset=utf-8>
+<title>#{pageTitle pc} :: #{sheetTitle sheet}
+<meta name="robots" content="all"/>
+<meta name="description" content="This is the private homepage of Dominik K&#246;ppl."/>
+<meta name="author" content="Dominik K&#246;ppl"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href=#{staticServer "images/favicon_057.png"}>
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href=#{staticServer "images/favicon_144.png"}>
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href=#{staticServer "images/favicon_114.png"}>
+<link rel="apple-touch-icon-precomposed" sizes="72x72"   href=#{staticServer "images/favicon_072.png"}>
+<link rel="apple-touch-icon-precomposed"                 href=#{staticServer "images/favicon_057.png"}>
+<script>
+    document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');

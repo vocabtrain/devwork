@@ -1,0 +1,36 @@
+<div class="hero-unit">
+    <h1>Hello, world!
+    <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting 
+ of content. Use it as a starting point to create something more unique.
+    <p>
+    <a class="btn btn-primary btn-large">
+        Learn more &raquo;
+
+<div class="row">
+    <div class="span4">
+        <h2>Heading
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum 
+        <p>
+            <a class="btn" href="#">
+                View details &raquo;
+
+    <div class="span4">
+        <h2>Heading
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum 
+        <p>
+            <a class="btn" href="#">
+                View details &raquo;
+
+    <div class="span4">
+        <h2>Heading
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum 
+        <p>
+            <a class="btn" href="#">
+                View details &raquo;
+
+    <div class="span4">
+        <h2>Heading
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum 
+        <p>
+            <a class="btn" href="#">
+                View details &raquo;

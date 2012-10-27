@@ -1,0 +1,8 @@
+cron/lucene_indexer/bin
+engine/static
+engine/dist
+*.class
+*~
+*.o
+*.so
+*.hi

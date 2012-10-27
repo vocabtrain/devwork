@@ -1,0 +1,24 @@
+Default: &defaults
+  user: postgres
+  password: 
+  host: localhost
+  port: 5432
+  database: devwork
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: devwork_test
+  <<: *defaults
+
+Staging:
+  database: devwork_staging
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: devwork_production
+  poolsize: 100
+  <<: *defaults

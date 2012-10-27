@@ -1,0 +1,32 @@
+<h1>Übungen zur Einführung in die Programmiersprache Java
+
+<div id="maincontentbody">
+
+    <h2>Textunterlagen
+
+    Hier können folgende Dateien für den Kurs heruntergeladen und verwendet werden:
+    <table summary="Die Textunterlagen des Java Kurses" title="Textunterlagen" class="table table-hover table-striped">
+        <colgroup>
+            <col width="40%">
+            <col width="40%">
+        <thead>
+            <tr>
+                <th>PDF
+                <th>LaTeX
+        <tfoot>
+            <tr>
+                <td colspan="2">Um die TeX-Dateien compilieren zu können, benötigen Sie die <a href=#{staticServer "pkg/tex_includes.tar.bz2"}>zusätzlichen TeX-Includedateien</a>
+        <tbody>
+            $forall num <- worksheets
+                <tr>
+                    <td><a href=#{staticServer "/script/"}java_blatt#{showTenth num}.pdf>Übungsblatt #{num} (pdf)</a>
+                    <td><a href=#{staticServer "/script/"}java_blatt#{showTenth num}.tex>Übungsblatt #{num} (tex)</a>
+
+            <tr>
+                <td><a href=#{staticServer "/script/java_skript.pdf"}>Skript (pdf)</a>
+                <td><a href=#{staticServer "/script/java_skript.tex"}>Skript (tex)</a>
+
+    <h2>Vorlesungsbeispiele
+    <ul>
+        <li><a href=#{staticServer "/pkg/bsp_java.tar.bz2"}>Java Vorlesungsbeispiele</a>
+        <li><a href=#{staticServer "/pkg/loesungen_java.tar.bz2"}>Lösungen zu den Übungsaufgaben</a>

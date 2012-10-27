@@ -1,0 +1,167 @@
+<h1>C++ - Programmierung: <br/>Grundlagen und Anwendungen mit der Qt-Klassenbibliothek
+<div class="container-fluid" id="mainbodycontent">
+    <div class="row-fluid">
+        <div class="span10">
+
+            <div class="hero-unit">
+                Dieser Kurs richtet sich an alle, die bereits Vorkenntnisse in der Programmiersprache <em>C</em> erworben haben.
+                Idealerweise wird ein Besuch unseres Grundkurses <em>Programmieren in C und C++</em> empfohlen, der Qt-Kurs kann aber auch völlig unabhängig davon besucht werden.
+                Er verfolgt zwei Ziele:
+                <ul>
+                    <li>Erlernen der objektorientierten Programmiertechniken von C++
+                    <li>Einüben dieser Techniken am Beispiel einer fertigen Klassenbibliothek
+                <img src=#{staticServer "/images/"}cppqt.gif alt="c++-qt" style="float:right"/>
+
+            <section id="Vorwort">
+                <h2>Vorwort
+                Als Klassenbibliothek haben wir <em>Qt</em> ausgewählt -
+                vielen ist sicherlich das Desktop Environment <em>KDE</em> auf Linux bekannt, welches auf der Qt Bibliothek basiert.
+                Somit bekommen Sie im Kurs zusätzlich eine
+                praxisorientierte Einführung in die grundlegenden Techniken
+                der <abbr title="graphical user interface">GUI</abbr>-Programmierung.
+                Mit Qt können Sie leicht plattformübergreifende graphische Anwendungen
+                erstellen - es ist für die  meisten Unix-ähnlichen
+                Betriebssysteme (SunOS, Linux, Mac OS X etc. )
+                sowie für MS-Windows in drei verschiedenen Lizenzen erhältlich:
+                <ul>
+                    <li><abbr title="GNU General Public License">GPL</abbr>
+                    <li><abbr title="GNU Lesser General Public License">LGPL</abbr>
+                    <li>kommerzielle Version mit Support
+
+            <section id="Voraussetzungen">
+                <h2>Voraussetzungen und Vorkenntnisse für den Besuch dieser Veranstaltung
+
+                <img src=#{staticServer "/images/"}/kursbilder/SDC10329.JPG alt="Die Laptop-Crew" style="float:right; width: 25%;"/>
+                <ul>
+                    <li><strong>Passable Programmierkenntnisse in C</strong> (Der Umgang mit <strong>Pointer</strong> sollte vertraut sein)
+                    <li>Ein Linux-Account wird für die Verwendung der Linux Rechner benötigt.
+                    <li>Keine Angst vor Linux/Unix - Wir verwenden die Linux-Rechner im CIP Pool mit der <abbr title="GNU Compiler Collection">gcc</abbr> (Umgang mit dem Gnu C Compiler sollte ja schon aus einem C Kurs bekannt sein).
+                    <li>Alternativ darf ein eigener Windows-Rechner (vorzugsweise Notebook/Laptop) mitgebracht werden, da alle verwendeten Werkzeuge plattformübergreifend und OpenSource sind.
+                    <li>Englischkenntnisse, da die Dokumentation nur in Englisch verfügbar ist.
+
+            <section id="Scheinanforderungen">
+                <h2>Scheinanforderungen
+                <p>Als Scheinkriterium gelten folgende Punkte:
+                <ul>
+                    <li>Anwesenheit in den Übungen
+                    <li>Erstellen eines kleinen Abschlußprojektes
+
+
+            <section id="Gliederung">
+                <h2>Gliederung
+
+                <ol>
+                    <li>C++ (1. Woche)
+                        <img src=#{staticServer "/images/"}cpp.png alt="c++" style="float:right; width: 20%;"/>
+                        <ul>
+                            <li>Grundlagen der Programmiersprache C++ und Unterschiede zur Sprache C
+                            <li>Objektorientierte Programmierung
+                                <ul>
+                                    <li>Klassen
+                                    <li>Vererbung
+                                    <li>Virtuelle Funktionen
+                                    <li>Templates
+                                    <li>Exceptions
+
+                    <li>Programmieren mit Qt (2. Woche)
+                    <img src=#{staticServer "/images/"}Qt_logostrap_CMYK.png alt="qt" style="float:right; width: 20%">
+                    <ul>
+                        <li>Einführung in die GUI-Techniken
+                        <li>Lizenzen
+                        <li>Signal-Slot-Mechanismus
+                        <li>QPainter - Malen/Animationen
+                        <li>viele weitere GUI-Elemente
+                        <li>Der Qt-Designer (GUI-Programmierung mit Drag &amp; Drop)
+                        <li>Internationalisierung mit Qt-Linguist
+
+            <section id="Projekt">
+            <h2>Projekt
+            <img src=#{staticServer "/images/"}/kursbilder/SDC10312.JPG alt="Das BlackJack läuft!" style="float:right; width: 25%;"/>
+            <p>
+                Die erworbenen Kenntnisse sollen im Rahmen eines kleinen Projekts vorgeführt werden.
+                Dazu kann man alleine oder zu zweit an einem Projekt arbeiten, welches bis zum Kursende abgeschlossen sein sollte.
+                Es bestehen keinerlei Vorgaben bei der Wahl der Projekte.
+                Meist werden aber gerne kleine Spiele programmiert. <br/>
+                Zusätzlich zum Quelltext soll eine kurze Dokumentation des Projekts erstellt werden. Diese kann man im Projektverzeichnis als einfache Textdatei mit dem Namen <kbd>DESC</kbd> ablegen.
+                Schließlich sollte man noch einen Screenshot vom fertigen Programm mitsenden (am Besten im JPEG-Format), und im Projektverzeichnis eine Datei <kbd>AUTHORS</kbd> anlegen, welche die Autorennamen beinhaltet.
+
+            <p>
+                Das Ganze (also <strong>Quelltext</strong>, Beschreibung und Screenshot - <em>nicht</em> die ausführbare Datei!) 
+                bitte nach dem Kurs an mich als Attachment mailen.<br/>
+                In der Mail bitte die Namen aller Projekt-Beteiligten aufführen!
+
+            <section id="Literatur">
+                <h2>Literatur
+                <img src=#{staticServer "/images/"}/kursbilder/SDC10322.JPG alt="Teamarbeit" style="float:right; width: 15%;"/>
+
+                <h3>Literatur zu C++
+                Neben diversen völlig ausreichenden Skripten aus dem Internet und / oder dem
+                Skript von der Uni Hannover (zu beziehen über den Infostand)
+                ist folgende ausführlichere Literatur zu empfehlen:
+                <ul>
+                    <li>Bjarne Stroustroup: "The C++ Programming Language", Addison Wesley 1999
+                        <br>
+                        Bjarne Stroustroup: "Die C++ Programmiersprache", Addison Wesley, 1998
+                    <li>Ira Pohl: "C++ for C Programmers", Third Edition, Addison Wesley, 1999
+                    <li>Bruce Eckel: "In C++ denken", Markt und Technik 1998
+                        <br>
+                        Bruce Eckel: "Thinking in C++", Prentice Hall
+                    <li>Ulrich Breymann: "C++, eine Einführung", Hanser 1999
+
+                Eine aktuelle Liste an guter Literatur wird auf der <a href="http://www.physik.uni-regensburg.de/studium/edverg/ckurs/">Homepage des C/C++-Kurses</a> und der Kurshomepage <a href="http://www.uni-regensburg.de/EDV/kurs_info/brf09510/kurs_info/cpp.phtml">Techniken der generischen und objektorientierten Programmierung mit C++</a> gepflegt.
+                Ein Tipp für alle, die sich ein Buch kaufen wollen: Nicht vor
+                englischen Büchern zurückschrecken! Ein Großteil der
+                brauchbaren Dokumentation (z.B. der assistant von Qt) ist sowieso englisch, man muss sich dann nicht
+                ständig an neue Begriffe gewöhnen.
+
+
+                <h3>Literatur zu Qt
+
+                Eine ausführliche aktuelle Liste guter Bücher stellt die <a href="http://www.qtsoftware.com/developer/books">Qt-Homepage</a> bereit.
+                Ich empfehle das Buch von Jasmin Blanchette und Mark Summerfield: "C++ GUI Programming with Qt 4 (2nd Edition) - The official C++/Qt book", Prentice Hall PTR.
+                Das <a href="http://www.qtrac.eu/C++-GUI-Programming-with-Qt-4-1st-ed.zip">nicht überabeitete Buch</a> (also in der 1. Verfassung) gibt es frei verfügbar zum download.
+
+            <section id="Links">
+                <h2>Nützliche Links
+                <ul>
+                    <li>Zur Progammierung in C++
+                        <ul>
+                            <li><a href="http://wwwinfo.cern.ch/asd/lhc++/RW/stdlibcr/classref.htm">Referenz zur Standard-C++-Library</a>
+                            <li><a href="http://www.cplusplus.com/">Dokumentation zu den standardisierten C/C++-Funktionen und Klassen</a>
+
+                    <li>Dokumentation zu Qt
+                        <ul>
+                            <li>Der Hersteller <a href="http://www.qtsoftware.com/">Qt Software</a>
+                            <li><a href="http://doc.qt.nokia.com/latest/">Qt Dokumentation des Herstellers</a>
+                            <li>Die Dokumentation kann nach einer Installation von Qt direkt mit dem Programm <em>assistant</em> betrachtet werden.
+
+                    <li>Dokumentation zu KDE
+                        <ul>
+                            <li><a href="http://www.kde.de/">Die Homepage des Desktop Environments KDE</a>
+                            <li><a href="http://techbase.kde.org/">Entwicklerportal des KDE-Projektes - reichhaltig an Tutorien und Dokumentation</a>
+
+                    <li>Programmierumgebungen
+                        <ul>
+                            <li>Vorzugsweise eignet sich der <a href="http://qt.nokia.com/products/developer-tools/">Qt Creator</a> am Besten für die Qt/C++ Entwicklung
+                            <li>Wer nicht auf Eclipse verzichten möchte, und gerne etwas Installationsaufwand in Kauf nimmt, sei mit der <a href="http://www.eclipse.org/">Eclipse IDE for C/C++ Developers</a> mit <a href="http://qt.nokia.com/developer/eclipse-integration/">Qt Integration</a> gut bedient.
+                            <li>Daneben gibt es noch <a href="http://www.kdevelop.org/">KDevelop</a> als integrierte Entwicklungsumgebung unter Linux für Qt/KDE Programmierung
+                            <li>Klassisch lässt sich auch mit 
+                                <a href="http://www.vim.org/">
+                                    <abbr title="VIsual editor iMproved">Vim
+                                bzw. 
+                                <a href="http://www.gnu.org/software/emacs/">
+                                    <abbr title="Editor MACroS">Emacs
+                                programmieren.
+
+
+
+        <div class="span2 bs-docs-sidebar" data-spy="affix" data-offset-top="200">
+            <ul class="nav nav-list bs-docs-sidenav affix-top">
+                <li><a href="#Vorwort"><i class="icon-chevron-right"></i> Vorwort</a>
+                <li><a href="#Voraussetzungen"><i class="icon-chevron-right"></i> Voraussetzungen</a>
+                <li><a href="#Scheinanforderungen"><i class="icon-chevron-right"></i> Scheinanforderungen</a>
+                <li><a href="#Gliederung"><i class="icon-chevron-right"></i> Gliederung</a>
+                <li><a href="#Projekt"><i class="icon-chevron-right"></i> Projekt</a>
+                <li><a href="#Literatur"><i class="icon-chevron-right"></i> Literatur</a>
+                <li><a href="#Links"><i class="icon-chevron-right"></i> Nützliche Links</a>
+

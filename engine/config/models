@@ -1,0 +1,15 @@
+User
+	email Text
+    nick Text Maybe
+    password Text Maybe
+    UniqueUser email
+Entry
+	title Text
+	posted UTCTime
+	content Html
+	user UserId
+Comment
+	entry EntryId
+	posted UTCTime
+	content Html
+	text Textarea

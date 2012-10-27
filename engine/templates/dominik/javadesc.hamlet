@@ -1,0 +1,118 @@
+<h1>Einführung in die Programmiersprache Java (Semesterkurs, 2 SWSt V, 1 SWSt Ü, 5 LPs)
+
+<div class="container-fluid" id="maincontentbody">
+    <div class="row-fluid">
+        <div class="span10">
+
+            <div class="hero-unit">
+                Dieser Kurs ist eine semesterbegleitende Veranstaltung für Studenten, die sich etwas an die Computerprogrammierung herangetastet haben.
+                Kernthema ist die objektorientierte Arbeitsweise in der Programmiersprache Java. 
+                Neben den wichtigsten Bausteinen lernen Sie Lösungsansätze für die pragmatische Softwareentwicklung kennen. 
+                Wünschenswert, aber nicht erforderlich, sind Kenntnisse einer prozeduralen Programmiersprache wie C oder Pascal. 
+                Für den Kurs werden wir uns mit der Entwicklungsumbegung <em>Eclipse</em> vertraut machen, welches bereits in unserem Linux-CIP-Pool vorinstalliert ist, und sich ggf. auch über dem USB-Stick einfach starten lässt. 
+
+            <section id="Voraussetzungen">
+                <h2>Voraussetzungen und Vorkenntnisse für den Besuch dieser Veranstaltung
+                <img src="#{staticServer "images/duke_fly.jpeg"}" alt="Mit Java abstarten!" style="float:right"/>
+                <p>
+                    Voraussetzung für den Besuch dieser Veranstaltung ist ein selbständiger Umgang mit dem Rechner.
+                    Dazu kann der eigene Heimrechner oder die Rechner des CIP-Pools verwendet werden.
+                    Wir werden für den Kurs auf das frei zugängliche Softwarepaket <a href="http://www.eclipse.org/">Eclipse</a> zugreifen, 
+                    welches unter den Betriebssystemen Windows, Linux und Mac OS läuft.
+                    Ihre Computerkenntnisse sollten also schon soweit vorhanden sein, dass Sie diese Software ohne weitere Probleme installieren können.
+                    Auf dem universitätseigenen REX-Linux-Betriebssystem ist Eclipse bereits vorinstalliert.
+
+
+            <section id="Vorlesungsinhalte">
+                <h2>Vorlesungsinhalte
+                <img src=#{staticServer "images/duke_thinking.jpeg"} alt="" style="float:left"/>
+                <ul>
+                    <li>Einleitung: Literatur; Entstehungsgeschichte von Java; Programmierparadigmen
+                    <li>Einführung in die Entwicklungsumgebung Eclipse
+                    <li>Prozedurale Programmierung (was Java und C gemeinsam haben): Variablen, Datentypen, Programmablauf
+                    <li>Objektorientierte Programmierung (was Java und C++ gemeinsam haben): Klassen, Vererbung, Kapselung
+                    <li>Fortgeschrittene Themen (was an Java eigen ist): Polymorphie, Ausnahmebehandlung, Templatisierung
+                    <li>Programmierung graphischer Oberflächen mit <em>Swing</em>
+                    <li>Kleiner Exkurs in die Applet-Entwicklung mit der Klasse <em>JApplet</em>
+             <section id="Uebungen">
+                <h2>Regeln für die Übungen
+                <img src=#{staticServer "images/duke_writing.jpeg"} alt="" style="float:left"/>
+                <p>
+                    Zum tieferen Verständnis des Stoffes ist das kontinuierliche Lösen von
+                    Übungsaufgaben unerläßlich. Daher sollten Sie alle Übungsaufgaben möglichst
+                    selbst rechnen. Um Sie dazu zu motivieren, gelten für die Übungen folgende Regeln:
+                <ul>
+                    <li>Die Übungsaufgaben können sinnvollerweise am Rechner erarbeitet werden. Bringen Sie Ihre Lösungen mit einem tragbaren Speichermedium (z.B. USB-Stick) mit, um diese in der Übung erklären zu können.
+                    <li>Pro Woche wird es ein Übungsblatt mit ca. 3 Aufgaben geben.
+                    <li>Zu Beginn der Übung kreuzen Sie an, welche Aufgaben Sie präsentieren können. Unter "Präsentieren" verstehen wir eine vollständige Erklärung des Problems und des Lösungsweges. Wer seine Lösung zu präsentieren hat, wird per Zufallsprinzip entschieden.
+                    <li>Im Laufe des Semesters müssen Sie zu mindestens 66% aller Übungsaufgaben ein Kreuz machen.
+                    <li>Sollten Sie eine Aufgabe, zu der Sie ein Kreuz gemacht haben, nicht erklären/lösen können, erhalten Sie einen Minuspunkt. Dafür gilt:
+                        <ul>
+                            <li>Bei zwei Minuspunkten gilt das Modul als nicht bestanden.
+                            <li>Einen Minuspunkt können Sie sich leisten.
+                    <li>Sie können die Übungsaufgaben gern mit anderen Studenten diskutieren, sollten aber sicherstellen, daß Sie den Lösungsweg wirklich verstanden haben.
+             <section id="Scheinanforderungen">
+                <h2>Erfolgskriterien
+                <ul>
+                    <li>Regelmäßige Anwesenheit bei der Vorlesung und aktive Teilnahme an den Übungen nach obigen Regeln
+                    <li>Über die vorlesungsfreie Zeit soll ein Abschlußprojekt in selbständiger Arbeit geschrieben werden, in dem das Erlernte nochmals vertieft und angewandt wird.
+                    Das Abschlußprojekt besteht aus einem compilier- und ausführbaren Javaprogramm mitsamt Quellcode und Dokumentation. 
+                    Das Projekt ist bis Anfang des nächsten Semesters abzugeben - vorzugsweise per E-Mail an dominik.koeppl _at_ stud.uni-regensburg.de zu versenden. 
+                    Das Thema der Arbeit darf hierbei frei gewählt werden. 
+                    <li>Der "Schein" (die FlexNow-Verbuchung) wird unbenotet sein.
+                    <li>FlexNow-Studenten müssen sich in den ersten Kurstagen für den Kurs in FlexNow! anmelden. Papierscheine werden nur noch für Diplom- und FH-Studenten ausgestellt.
+
+
+            <section id="Projekt">
+                <h2>Projekt
+                <img src=#{staticServer "images/duke_godzilla.jpeg"} alt="" style="float:right"/>
+                <p>
+                    Die erworbenen Kenntnisse sollen im Rahmen eines kleinen Projekts vorgeführt werden. 
+                    Dazu kann man sich über die Semensterferien die Zeit nehmen, sich nochmals intensiv mit den Thema zu beschäftigen.
+                    Das Projekt wird in selbständiger Einzelarbeit angefertigt, und sollte zu Beginn des neuen Semesters abgegeben werden.
+                    Es bestehen keinerlei Vorgaben bei der Wahl der Projekte. 
+                    Meist werden aber gerne kleine Spiele programmiert. <br/>
+                    Zusätzlich zum Quelltext soll eine kurze Dokumentation des Projekts erstellt werden. 
+                    Diese kann man im Projektverzeichnis als einfache Textdatei mit dem Namen <kbd>DESC</kbd> ablegen.
+                    Schließlich sollte man noch einen Screenshot vom fertigen Programm mitsenden (am Besten im JPEG-Format), 
+                    und im Projektverzeichnis eine Datei <kbd>AUTHORS</kbd> anlegen, welche die Autorennamen beinhaltet.
+                <p>
+                    Das Ganze (also <strong>Quelltext</strong>, Beschreibung und Screenshot - <em>nicht</em> die ausführbaren Class-Dateien!) bitte an mich als Attachment mailen.
+
+            <section id="Eclipse">
+                <h2>Eclipse
+                <p>
+                    Eclipse ist eine <acronym title="integrierte Entwicklungsumgebung">IDE</acronym>, welche auf die Entwicklung von Java/C++ Programmen abgestimmt ist.
+                    Wir verwenden Eclipse, da es zum einen sehr bekannt, zum anderen auch sehr leistungsfähig ist.
+                    Wegen seiner Plugin-Technologie kann man in Eclipse sogar Apps für die Android-Plattform schreiben.
+                    Unter der 
+                    <a href="http://www.eclipse.org/downloads">Dowloadpage von Eclipse
+                    finden Sie das Paket 
+                    <em>Eclipse IDE for Java Developers
+                    (oder alternativ 
+                    <em>Eclipse Classic
+                    ), welches Sie frei herunterladen können.
+
+            <section id="Literatur">
+                <h2>Literatur
+                <ul>
+                    <li>Bruce Eckel: Thinking in Java - Prentice Hall; 4 edition (February 20, 2006)
+                    <li>Christian Ullenboom: Java ist auch eine Insel - Galileo Computing; 8. Auflage (28. Januar 2009) 
+                        (<a href="http://openbook.galileocomputing.de/javainsel8/">http://openbook.galileocomputing.de/javainsel8/</a>)
+
+            <section id="Links">
+                <h2>Nützliche Links
+                <ul>
+                    <li><a href="http://download.oracle.com/javase/6/docs/api/index.html">Java Standard Edition 6 API Referenz</a>
+
+
+        <div class="span2 bs-docs-sidebar" data-spy="affix" data-offset-top="200">
+            <ul class="nav nav-list bs-docs-sidenav affix-top">
+                <li><a href="#Voraussetzungen"><i class="icon-chevron-right"></i> Voraussetzungen</a>
+                <li><a href="#Vorlesungsinhalte"><i class="icon-chevron-right"></i> Vorlesungsinhalte</a>
+                <li><a href="#Uebungen"><i class="icon-chevron-right"></i> Regeln für die Übungen</a>
+                <li><a href="#Scheinanforderungen"><i class="icon-chevron-right"></i> Scheinanforderungen</a>
+                <li><a href="#Projekt"><i class="icon-chevron-right"></i> Projektarbeit</a>
+                <li><a href="#Eclipse"><i class="icon-chevron-right"></i> Die Entwicklungsumgebung Eclipse</a>
+                <li><a href="#Literatur"><i class="icon-chevron-right"></i> Literatur</a>
+                <li><a href="#Links"><i class="icon-chevron-right"></i> Nützliche Links</a>
