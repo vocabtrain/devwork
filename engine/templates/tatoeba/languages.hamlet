@@ -1,4 +1,0 @@
-$forall language <- languages
-    <language>^{language}
-    
-

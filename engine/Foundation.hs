@@ -175,6 +175,24 @@ instance RenderMessage App FormMessage where
 getExtra :: Handler Extra
 getExtra = fmap (appExtra . settings) getYesod
 
+instance YesodBreadcrumbs App where
+	breadcrumb HomeR = return("Start", Nothing)
+
+	breadcrumb DKHomeR = return("Kurshomepage", Just HomeR)
+	breadcrumb QtDescR = return("Qt Kurs", Just DKHomeR)
+	breadcrumb QtDossierR = return("Qt Unterlagen", Just QtDescR)
+	breadcrumb QtProjectListR = return("Qt Projekte", Just QtDescR)
+	breadcrumb QtGalleryR = return("Qt Galerie", Just QtDescR)
+	breadcrumb QtOpenGLR = return("Qt OpenGL", Just QtDescR)
+	breadcrumb OpenGLR = return("OpenGL", Just DKHomeR)
+	breadcrumb JavaDescR = return("Java Kurs", Just DKHomeR)
+	breadcrumb JavaDossierR = return("Java Unterlagen", Just JavaDescR)
+	breadcrumb JavaProjectListR = return("Java Projekte", Just JavaDescR)
+	breadcrumb (JavaProjectR _) = return("", Just JavaProjectListR) 
+
+	breadcrumb _ = return("", Nothing)
+
+
 -- Note: previous versions of the scaffolding included a deliver function to
 -- send emails. Unfortunately, there are too many different options for us to
 -- give a reasonable default. Instead, the information is available on the
@@ -202,6 +220,7 @@ globalLayout sheet = do
 	master <- getYesod
 	mmsg <- getMessage
 	pc <- widgetToPageContent $ sheetContent sheet
+	(page_title, page_parents) <- breadcrumbs
 
 	PageContent title headTags bodyTags <- widgetToPageContent $ do
 		toWidgetHead $(hamletFile "templates/skeleton/head.hamlet")
@@ -210,7 +229,7 @@ globalLayout sheet = do
 		addScript $ StaticR js_bootstrap_js
 		addStylesheet $ StaticR css_bootstrap_docs_css
 		addStylesheet $ StaticR css_main_css
---		addStylesheet $ StaticR css_normalize_css
+		addStylesheet $ StaticR css_normalize_css
 		addScriptRemote $ ("http://code.jquery.com/jquery-latest.js" :: Text)
 	hamletToRepHtml $(hamletFile "templates/skeleton/overall.hamlet")
 

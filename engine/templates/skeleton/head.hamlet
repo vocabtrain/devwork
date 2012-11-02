@@ -1,5 +1,10 @@
 <meta charset=utf-8>
-<title>#{pageTitle pc} :: #{sheetTitle sheet}
+<title>
+    $if Data.Text.null page_title
+        #{pageTitle pc}
+    $else
+        #{page_title}
+    :: #{sheetTitle sheet}
 <meta name="robots" content="all"/>
 <meta name="description" content="This is the private homepage of Dominik K&#246;ppl."/>
 <meta name="author" content="Dominik K&#246;ppl"/>

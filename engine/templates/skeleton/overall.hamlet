@@ -27,6 +27,17 @@ $newline never
                                 ^{banner}
         $maybe msg <- mmsg
             <div #message>#{msg}
+        <div #breadcrumbs>
+            <ul .breadcrumb>
+                $forall parent <- page_parents
+                    <li>
+                        <a href=@{fst parent}>#{snd parent}
+                        <span .divider>/
+                <li .active>
+                    $if Data.Text.null page_title
+                        #{pageTitle pc}
+                    $else
+                        #{page_title}
         <div id="wrapper">
             $maybe nav <- sheetNav sheet
                 <div class="container-fluid">

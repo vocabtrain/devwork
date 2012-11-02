@@ -14,13 +14,13 @@ tatoeba/query TatoebaQueryRandomR GET
 vocabtrain/booksupply VocabtrainBookSupplyR POST                                                                                                      
 
 koeppldo DKHomeR GET
+koeppldo/qt QtDescR GET
 koeppldo/qt/dossier QtDossierR GET
-koeppldo/qt/desc QtDescR GET
 koeppldo/qt/projects QtProjectListR GET
+koeppldo/java JavaDescR GET
 koeppldo/java/dossier JavaDossierR GET
 koeppldo/java/projects JavaProjectListR GET
 koeppldo/java/project/#Int JavaProjectR
-koeppldo/java/desc JavaDescR GET
 koeppldo/qt/gallery QtGalleryR GET
 koeppldo/opengl OpenGLR GET
 koeppldo/qt/opengl QtOpenGLR GET
