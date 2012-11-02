@@ -25,7 +25,7 @@ myLayout widget = globalLayout $ SheetLayout {
 getQtProjectListR :: GHandler App App RepHtml
 getQtProjectListR  = myLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtprojectlist.hamlet") 
-	addStylesheetRemote $ (staticServer "styles/gallery.css")
+	addStylesheet $ StaticR css_gallery_css
 
 handleJavaProjectR :: Int -> GHandler App App RepHtml
 handleJavaProjectR projectId
@@ -46,8 +46,7 @@ getOpenGLR  = myLayout $ do
 getQtGalleryR :: GHandler App App RepHtml
 getQtGalleryR  = myLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtgallery.hamlet")
-	addStylesheetRemote $ staticServer "styles/gallery.css"
-		where pictures = getQtGalleryImages
+	addStylesheet $ StaticR css_gallery_css
 
 getQtDescR :: GHandler App App RepHtml
 getQtDescR  = myLayout $ do
@@ -56,12 +55,10 @@ getQtDescR  = myLayout $ do
 getQtOpenGLR :: GHandler App App RepHtml
 getQtOpenGLR  = myLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtopengl.hamlet") 
-		where worksheets = [1..12] :: [Int]
 
 getQtDossierR :: GHandler App App RepHtml
 getQtDossierR  = myLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtkurs.hamlet") 
-		where worksheets = [1..8] :: [Int]
 
 getJavaDescR :: GHandler App App RepHtml
 getJavaDescR  = myLayout $ do
@@ -78,4 +75,3 @@ javaProjectList = do
 getJavaDossierR :: GHandler App App RepHtml
 getJavaDossierR = myLayout $ do
 	toWidget $(whamletFile "templates/dominik/javakurs.hamlet") 
-		where worksheets = [1..13] :: [Int]

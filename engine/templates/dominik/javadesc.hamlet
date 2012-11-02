@@ -13,7 +13,7 @@
 
             <section id="Voraussetzungen">
                 <h2>Voraussetzungen und Vorkenntnisse für den Besuch dieser Veranstaltung
-                <img src="#{staticServer "images/duke_fly.jpeg"}" alt="Mit Java abstarten!" style="float:right"/>
+                <img src="@{StaticR img_java_duke_fly_jpeg}" alt="Mit Java abstarten!" style="float:right"/>
                 <p>
                     Voraussetzung für den Besuch dieser Veranstaltung ist ein selbständiger Umgang mit dem Rechner.
                     Dazu kann der eigene Heimrechner oder die Rechner des CIP-Pools verwendet werden.
@@ -25,7 +25,7 @@
 
             <section id="Vorlesungsinhalte">
                 <h2>Vorlesungsinhalte
-                <img src=#{staticServer "images/duke_thinking.jpeg"} alt="" style="float:left"/>
+                <img src=@{StaticR img_java_duke_thinking_jpeg} alt="" style="float:left"/>
                 <ul>
                     <li>Einleitung: Literatur; Entstehungsgeschichte von Java; Programmierparadigmen
                     <li>Einführung in die Entwicklungsumgebung Eclipse
@@ -36,7 +36,7 @@
                     <li>Kleiner Exkurs in die Applet-Entwicklung mit der Klasse <em>JApplet</em>
              <section id="Uebungen">
                 <h2>Regeln für die Übungen
-                <img src=#{staticServer "images/duke_writing.jpeg"} alt="" style="float:left"/>
+                <img src=@{StaticR img_java_duke_writing_jpeg} alt="" style="float:left"/>
                 <p>
                     Zum tieferen Verständnis des Stoffes ist das kontinuierliche Lösen von
                     Übungsaufgaben unerläßlich. Daher sollten Sie alle Übungsaufgaben möglichst
@@ -65,7 +65,7 @@
 
             <section id="Projekt">
                 <h2>Projekt
-                <img src=#{staticServer "images/duke_godzilla.jpeg"} alt="" style="float:right"/>
+                <img src=@{StaticR img_java_duke_godzilla_jpeg} alt="" style="float:right"/>
                 <p>
                     Die erworbenen Kenntnisse sollen im Rahmen eines kleinen Projekts vorgeführt werden. 
                     Dazu kann man sich über die Semensterferien die Zeit nehmen, sich nochmals intensiv mit den Thema zu beschäftigen.

@@ -27,7 +27,7 @@
                                 <br>
                                 86159 Augsburg
             <div class="span2">
-                <img src=#{staticServer "images/myself.jpg"} alt="Photo" >
+                <img src=@{StaticR img_dominik_myself_jpg} alt="Photo" >
 
     <br>
     <h2>Veranstaltungen

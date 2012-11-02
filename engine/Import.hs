@@ -7,7 +7,6 @@ module Import
     , module Data.Monoid
     , module Control.Applicative
 	, module Generated
-	, staticServer
     , Text
 #if __GLASGOW_HASKELL__ < 704
     , (<>)
@@ -34,8 +33,4 @@ infixr 5 <>
 (<>) :: Monoid m => m -> m -> m
 (<>) = mappend
 #endif
-
-
-staticServer :: Text -> Text
-staticServer str = Data.Text.concat [ "http://web403.webbox555.server-home.org/drake/", str ]
 

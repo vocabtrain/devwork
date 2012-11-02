@@ -1,15 +1,15 @@
 ^{javaProjectList}
 <h2>#{javaProjectName project}
     <div id={javaprojektapplet}>
-        <object type="application/x-java-applet" classid="java:#{javaProjectClass project}" width="#{javaProjectWidth project}" height="#{javaProjectHeight project}" archive="#{staticServer "javaprojects/"}#{javaProjectArchive project}">
-        <param name="archive" value="#{staticServer "javaprojects/"}#{javaProjectArchive project}"/>
+        <object type="application/x-java-applet" classid="java:#{javaProjectClass project}" width="#{javaProjectWidth project}" height="#{javaProjectHeight project}" archive=@{StaticR $ javaProjectArchive project}>
+        <param name="archive" value=@{StaticR $ javaProjectArchive project}/>
         <param name="bgcolor" value="ffffff" />
         <object classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93" width="#{javaProjectWidth project}" height="#{javaProjectHeight project}">
             <param name="code" value="#{javaProjectClass project}" />
-            <param name="archive" value="#{javaProjectArchive project}"/>
+            <param name="archive" value=@{StaticR $ javaProjectArchive project}/>
             <param name="bgcolor" value="ffffff" />
             <p>Lade das Projekt #{javaProjectName project}
 <div id="javaprojektdesc">
-    <object data="#{staticServer "javaprojects/"}#{javaProjectDescription project}" type="text/plain" width="100%" style="height: 10em">
-        <a href="#{staticServer "javaprojects/"}#{javaProjectDescription project}">Projektbeschreibung</a>
+    <object data=@{StaticR $ javaProjectDescription project} type="text/plain" width="100%" style="height: 10em">
+        <a href=@{StaticR $ javaProjectDescription project}>Projektbeschreibung</a>
 <p class="clearme">

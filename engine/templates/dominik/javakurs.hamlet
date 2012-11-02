@@ -15,18 +15,18 @@
                 <th>LaTeX
         <tfoot>
             <tr>
-                <td colspan="2">Um die TeX-Dateien compilieren zu können, benötigen Sie die <a href=#{staticServer "pkg/tex_includes.tar.bz2"}>zusätzlichen TeX-Includedateien</a>
+                <td colspan="2">Um die TeX-Dateien compilieren zu können, benötigen Sie die <a href=@{StaticR bin_pkg_tex_includes_tar_bz2}>zusätzlichen TeX-Includedateien</a>
         <tbody>
-            $forall num <- worksheets
+            $forall wsheet <- getJavaWorkSheets
                 <tr>
-                    <td><a href=#{staticServer "/script/"}java_blatt#{showTenth num}.pdf>Übungsblatt #{num} (pdf)</a>
-                    <td><a href=#{staticServer "/script/"}java_blatt#{showTenth num}.tex>Übungsblatt #{num} (tex)</a>
+                    <td><a href=@{StaticR $ workSheetDocument wsheet}>Übungsblatt #{workSheetNumber wsheet} (pdf)</a>
+                    <td><a href=@{StaticR $ workSheetSource wsheet}>Übungsblatt #{workSheetNumber wsheet} (tex)</a>
 
             <tr>
-                <td><a href=#{staticServer "/script/java_skript.pdf"}>Skript (pdf)</a>
-                <td><a href=#{staticServer "/script/java_skript.tex"}>Skript (tex)</a>
+                <td><a href=@{StaticR bin_script_java_skript_pdf}>Skript (pdf)</a>
+                <td><a href=@{StaticR bin_script_java_skript_tex}>Skript (tex)</a>
 
     <h2>Vorlesungsbeispiele
     <ul>
-        <li><a href=#{staticServer "/pkg/bsp_java.tar.bz2"}>Java Vorlesungsbeispiele</a>
-        <li><a href=#{staticServer "/pkg/loesungen_java.tar.bz2"}>Lösungen zu den Übungsaufgaben</a>
+        <li><a href=@{StaticR bin_pkg_bsp_java_tar_bz2}>Java Vorlesungsbeispiele</a>
+        <li><a href=@{StaticR bin_pkg_loesungen_java_tar_bz2}>Lösungen zu den Übungsaufgaben</a>

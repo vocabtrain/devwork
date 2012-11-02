@@ -200,8 +200,8 @@ instance YesodBreadcrumbs App where
 --
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
 
-staticServer :: Text -> Text
-staticServer str = Data.Text.concat [ "http://web403.webbox555.server-home.org/drake/", str ]
+--staticServer :: Text -> Text
+--staticServer str = Data.Text.concat [ "http://web403.webbox555.server-home.org/drake/", str ]
 
 
 data SheetLayout sub url = SheetLayout {

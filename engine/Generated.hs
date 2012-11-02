@@ -1,33 +1,54 @@
-module Generated (getQtGalleryImages, getJavaProjects, JavaProject, javaProjectId, javaProjectName, javaProjectArchive, javaProjectClass, javaProjectWidth, javaProjectHeight, javaProjectDescription, QtProject, qtProjectId, qtProjectName, qtProjectDescription, qtProjectArchive, getQtProjects)
+module Generated
 	where
 
 import Prelude
+import Yesod (Route(..))
+import Settings.StaticFiles
+import qualified Yesod.Static
+import Data.Text (Text)
 
-data JavaProject = JavaProject { 
-	javaProjectId :: Int,
-	javaProjectName :: String,
-	javaProjectArchive :: String, 
-	javaProjectClass :: String,
-	javaProjectWidth :: Int,
-	javaProjectHeight :: Int,
-	javaProjectDescription :: String
+data GalleryImage = GalleryImage 
+	{ galleryImageSource :: Route Yesod.Static.Static
+	, galleryImageThumbnail :: Route Yesod.Static.Static
 	}
-	deriving (Read, Show, Eq)
 
-getQtGalleryImages :: [String]
+data JavaProject = JavaProject 
+	{ javaProjectId :: Int
+	, javaProjectName :: Text 
+	, javaProjectArchive :: Route Yesod.Static.Static
+	, javaProjectClass :: Text
+	, javaProjectWidth :: Int
+	, javaProjectHeight :: Int
+	, javaProjectDescription :: Route Yesod.Static.Static
+	}
 
-getQtGalleryImages = [ "bb-clock","chemie_nmrdaten","diagramm","fourwin","fress-oder-stirb","frosch","gorilla2","gorilla","phonebook","pong","potential","roulette","schiffe-versenken","snake","spinglass","sudoku","tictactoe","trainer","vokabeltrainer","whack-him"]
+data QtProject = QtProject 
+	{ qtProjectId :: Int
+	, qtProjectName :: Text 
+	, qtProjectDescription :: Text
+	, qtProjectPackage :: Route Yesod.Static.Static
+	, qtProjectGalleryImage :: GalleryImage
+	}
 
+data WorkSheet = WorkSheet 
+	{ workSheetNumber :: Int
+	, workSheetSource :: Route Yesod.Static.Static
+	, workSheetDocument :: Route Yesod.Static.Static
+	}
+data OpenGLQtLesson = OpenGLQtLesson 
+	{ openGLQtLessonNumber :: Int
+	, openGLQtLessonPackage :: Route Yesod.Static.Static
+	, openGLQtLessonLink :: Text
+	}
+getQtGalleryImages :: [GalleryImage]
+getQtGalleryImages = [ GalleryImage{galleryImageSource=img_qtgallery_bb_clock_jpg,galleryImageThumbnail=img_qtgallery_bb_clock_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_chemie_nmrdaten_jpg,galleryImageThumbnail=img_qtgallery_chemie_nmrdaten_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_diagramm_jpg,galleryImageThumbnail=img_qtgallery_diagramm_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_fourwin_jpg,galleryImageThumbnail=img_qtgallery_fourwin_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_fress_oder_stirb_jpg,galleryImageThumbnail=img_qtgallery_fress_oder_stirb_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_frosch_jpg,galleryImageThumbnail=img_qtgallery_frosch_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_gorilla2_jpg,galleryImageThumbnail=img_qtgallery_gorilla2_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_gorilla_jpg,galleryImageThumbnail=img_qtgallery_gorilla_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_particles_jpg,galleryImageThumbnail=img_qtgallery_particles_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_phonebook_jpg,galleryImageThumbnail=img_qtgallery_phonebook_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_pong_jpg,galleryImageThumbnail=img_qtgallery_pong_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_potential_jpg,galleryImageThumbnail=img_qtgallery_potential_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_roulette_jpg,galleryImageThumbnail=img_qtgallery_roulette_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_schiffe_versenken_jpg,galleryImageThumbnail=img_qtgallery_schiffe_versenken_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_snake_jpg,galleryImageThumbnail=img_qtgallery_snake_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_spinglass_jpg,galleryImageThumbnail=img_qtgallery_spinglass_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_sudoku_jpg,galleryImageThumbnail=img_qtgallery_sudoku_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_tictactoe_jpg,galleryImageThumbnail=img_qtgallery_tictactoe_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_trainer_jpg,galleryImageThumbnail=img_qtgallery_trainer_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_vokabeltrainer_jpg,galleryImageThumbnail=img_qtgallery_vokabeltrainer_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_whack_him_jpg,galleryImageThumbnail=img_qtgallery_whack_him_thumb_jpg}]
 getJavaProjects :: [JavaProject]
-getJavaProjects = [ JavaProject{javaProjectId=0,javaProjectName="dodgeracer",javaProjectArchive="dodgeracer.jar",javaProjectClass="Racer.class",javaProjectWidth=350,javaProjectHeight=400,javaProjectDescription="dodgeracer.txt"},JavaProject{javaProjectId=1,javaProjectName="eifarbe",javaProjectArchive="eifarbe.jar",javaProjectClass="Eifarbe.class",javaProjectWidth=800,javaProjectHeight=400,javaProjectDescription="eifarbe.txt"},JavaProject{javaProjectId=2,javaProjectName="schiffeversenken",javaProjectArchive="schiffeversenken.jar",javaProjectClass="MyFrame.class",javaProjectWidth=800,javaProjectHeight=600,javaProjectDescription="schiffeversenken.txt"},JavaProject{javaProjectId=3,javaProjectName="wireking",javaProjectArchive="wireking.jar",javaProjectClass="T_MAIN.class",javaProjectWidth=1060,javaProjectHeight=830,javaProjectDescription="wireking.txt"}]
-
-data QtProject = QtProject { 
-	qtProjectId :: Int,
-	qtProjectName :: String,
-	qtProjectArchive :: String, 
-	qtProjectDescription :: String
-	}
-	deriving (Read, Show, Eq)
-
+getJavaProjects = [ JavaProject{javaProjectId=0,javaProjectName="dodgeracer",javaProjectArchive=bin_projects_java_dodgeracer_jar,javaProjectClass="Racer.class",javaProjectWidth=350,javaProjectHeight=400,javaProjectDescription=bin_projects_java_dodgeracer_txt},JavaProject{javaProjectId=1,javaProjectName="eifarbe",javaProjectArchive=bin_projects_java_eifarbe_jar,javaProjectClass="Eifarbe.class",javaProjectWidth=800,javaProjectHeight=400,javaProjectDescription=bin_projects_java_eifarbe_txt},JavaProject{javaProjectId=2,javaProjectName="schiffeversenken",javaProjectArchive=bin_projects_java_schiffeversenken_jar,javaProjectClass="MyFrame.class",javaProjectWidth=800,javaProjectHeight=600,javaProjectDescription=bin_projects_java_schiffeversenken_txt},JavaProject{javaProjectId=3,javaProjectName="wireking",javaProjectArchive=bin_projects_java_wireking_jar,javaProjectClass="T_MAIN.class",javaProjectWidth=1060,javaProjectHeight=830,javaProjectDescription=bin_projects_java_wireking_txt}]
 getQtProjects :: [QtProject]
-getQtProjects = [ QtProject{qtProjectId=0,qtProjectName="chemie_nmrdaten",qtProjectArchive="chemie_nmrdaten.tar.bz2",qtProjectDescription="Liest Peaks aus NMR-Daten"},QtProject{qtProjectId=1,qtProjectName="diagramm",qtProjectArchive="diagramm.tar.bz2",qtProjectDescription="Erstellt Diagramme"},QtProject{qtProjectId=2,qtProjectName="fourwin",qtProjectArchive="fourwin.tar.bz2",qtProjectDescription="Vier gewinnt im Spieler gegen Spieler Modus"},QtProject{qtProjectId=3,qtProjectName="frosch",qtProjectArchive="frosch.tar.bz2",qtProjectDescription="Ein Clone des Atari 2600 Spiels 'Die hungrigen Frösche'"},QtProject{qtProjectId=4,qtProjectName="particles",qtProjectArchive="particles.tar.bz2",qtProjectDescription="Gravitationsimulator von Partikelteilchen mit elektromagnetischer Wechselwirkung"},QtProject{qtProjectId=5,qtProjectName="trainer",qtProjectArchive="trainer.tar.bz2",qtProjectDescription="Trainiert Bundesländern, Vokabeln, etc."}]
+getQtProjects = [ QtProject{qtProjectId=0,qtProjectName="chemie_nmrdaten",qtProjectPackage=bin_projects_qt_chemie_nmrdaten_tar_bz2,qtProjectDescription="Liest Peaks aus NMR-Daten",qtProjectGalleryImage=GalleryImage{galleryImageSource=img_qtgallery_chemie_nmrdaten_jpg,galleryImageThumbnail=img_qtgallery_chemie_nmrdaten_thumb_jpg}},QtProject{qtProjectId=1,qtProjectName="diagramm",qtProjectPackage=bin_projects_qt_diagramm_tar_bz2,qtProjectDescription="Erstellt Diagramme",qtProjectGalleryImage=GalleryImage{galleryImageSource=img_qtgallery_diagramm_jpg,galleryImageThumbnail=img_qtgallery_diagramm_thumb_jpg}},QtProject{qtProjectId=2,qtProjectName="fourwin",qtProjectPackage=bin_projects_qt_fourwin_tar_bz2,qtProjectDescription="Vier gewinnt im Spieler gegen Spieler Modus",qtProjectGalleryImage=GalleryImage{galleryImageSource=img_qtgallery_fourwin_jpg,galleryImageThumbnail=img_qtgallery_fourwin_thumb_jpg}},QtProject{qtProjectId=3,qtProjectName="frosch",qtProjectPackage=bin_projects_qt_frosch_tar_bz2,qtProjectDescription="Ein Clone des Atari 2600 Spiels 'Die hungrigen Frösche'",qtProjectGalleryImage=GalleryImage{galleryImageSource=img_qtgallery_frosch_jpg,galleryImageThumbnail=img_qtgallery_frosch_thumb_jpg}},QtProject{qtProjectId=4,qtProjectName="particles",qtProjectPackage=bin_projects_qt_particles_tar_bz2,qtProjectDescription="Gravitationsimulator von Partikelteilchen mit elektromagnetischer Wechselwirkung",qtProjectGalleryImage=GalleryImage{galleryImageSource=img_qtgallery_particles_jpg,galleryImageThumbnail=img_qtgallery_particles_thumb_jpg}},QtProject{qtProjectId=5,qtProjectName="trainer",qtProjectPackage=bin_projects_qt_trainer_tar_bz2,qtProjectDescription="Trainiert Bundesländern, Vokabeln, etc.",qtProjectGalleryImage=GalleryImage{galleryImageSource=img_qtgallery_trainer_jpg,galleryImageThumbnail=img_qtgallery_trainer_thumb_jpg}}]
+getJavaWorkSheets :: [WorkSheet]
+getJavaWorkSheets = [ WorkSheet{workSheetNumber=1,workSheetSource=bin_script_java_blatt01_tex,workSheetDocument=bin_script_java_blatt01_pdf},WorkSheet{workSheetNumber=2,workSheetSource=bin_script_java_blatt02_tex,workSheetDocument=bin_script_java_blatt02_pdf},WorkSheet{workSheetNumber=3,workSheetSource=bin_script_java_blatt03_tex,workSheetDocument=bin_script_java_blatt03_pdf},WorkSheet{workSheetNumber=4,workSheetSource=bin_script_java_blatt04_tex,workSheetDocument=bin_script_java_blatt04_pdf},WorkSheet{workSheetNumber=5,workSheetSource=bin_script_java_blatt05_tex,workSheetDocument=bin_script_java_blatt05_pdf},WorkSheet{workSheetNumber=6,workSheetSource=bin_script_java_blatt06_tex,workSheetDocument=bin_script_java_blatt06_pdf},WorkSheet{workSheetNumber=7,workSheetSource=bin_script_java_blatt07_tex,workSheetDocument=bin_script_java_blatt07_pdf},WorkSheet{workSheetNumber=8,workSheetSource=bin_script_java_blatt08_tex,workSheetDocument=bin_script_java_blatt08_pdf},WorkSheet{workSheetNumber=9,workSheetSource=bin_script_java_blatt09_tex,workSheetDocument=bin_script_java_blatt09_pdf},WorkSheet{workSheetNumber=10,workSheetSource=bin_script_java_blatt10_tex,workSheetDocument=bin_script_java_blatt10_pdf},WorkSheet{workSheetNumber=11,workSheetSource=bin_script_java_blatt11_tex,workSheetDocument=bin_script_java_blatt11_pdf},WorkSheet{workSheetNumber=12,workSheetSource=bin_script_java_blatt12_tex,workSheetDocument=bin_script_java_blatt12_pdf},WorkSheet{workSheetNumber=13,workSheetSource=bin_script_java_blatt13_tex,workSheetDocument=bin_script_java_blatt13_pdf}]
+getQtWorkSheets :: [WorkSheet]
+getQtWorkSheets = [ WorkSheet{workSheetNumber=1,workSheetSource=bin_script_qt_blatt1_tex,workSheetDocument=bin_script_qt_blatt1_pdf},WorkSheet{workSheetNumber=2,workSheetSource=bin_script_qt_blatt2_tex,workSheetDocument=bin_script_qt_blatt2_pdf},WorkSheet{workSheetNumber=3,workSheetSource=bin_script_qt_blatt3_tex,workSheetDocument=bin_script_qt_blatt3_pdf},WorkSheet{workSheetNumber=4,workSheetSource=bin_script_qt_blatt4_tex,workSheetDocument=bin_script_qt_blatt4_pdf},WorkSheet{workSheetNumber=5,workSheetSource=bin_script_qt_blatt5_tex,workSheetDocument=bin_script_qt_blatt5_pdf},WorkSheet{workSheetNumber=6,workSheetSource=bin_script_qt_blatt6_tex,workSheetDocument=bin_script_qt_blatt6_pdf},WorkSheet{workSheetNumber=7,workSheetSource=bin_script_qt_blatt7_tex,workSheetDocument=bin_script_qt_blatt7_pdf}]
+getOpenGLQtLessons :: [OpenGLQtLesson]
+getOpenGLQtLessons = [ OpenGLQtLesson{openGLQtLessonNumber=1,openGLQtLessonPackage=bin_pkg_nehe_lesson01_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=01"},OpenGLQtLesson{openGLQtLessonNumber=2,openGLQtLessonPackage=bin_pkg_nehe_lesson02_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=02"},OpenGLQtLesson{openGLQtLessonNumber=3,openGLQtLessonPackage=bin_pkg_nehe_lesson03_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=03"},OpenGLQtLesson{openGLQtLessonNumber=4,openGLQtLessonPackage=bin_pkg_nehe_lesson04_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=04"},OpenGLQtLesson{openGLQtLessonNumber=5,openGLQtLessonPackage=bin_pkg_nehe_lesson05_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=05"},OpenGLQtLesson{openGLQtLessonNumber=6,openGLQtLessonPackage=bin_pkg_nehe_lesson06_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=06"},OpenGLQtLesson{openGLQtLessonNumber=7,openGLQtLessonPackage=bin_pkg_nehe_lesson07_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=07"},OpenGLQtLesson{openGLQtLessonNumber=8,openGLQtLessonPackage=bin_pkg_nehe_lesson08_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=08"},OpenGLQtLesson{openGLQtLessonNumber=9,openGLQtLessonPackage=bin_pkg_nehe_lesson09_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=09"},OpenGLQtLesson{openGLQtLessonNumber=11,openGLQtLessonPackage=bin_pkg_nehe_lesson11_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=11"},OpenGLQtLesson{openGLQtLessonNumber=12,openGLQtLessonPackage=bin_pkg_nehe_lesson12_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=12"}]

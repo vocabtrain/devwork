@@ -10,7 +10,7 @@
                 <ul>
                     <li>Erlernen der objektorientierten Programmiertechniken von C++
                     <li>Einüben dieser Techniken am Beispiel einer fertigen Klassenbibliothek
-                <img src=#{staticServer "/images/"}cppqt.gif alt="c++-qt" style="float:right"/>
+                <img src=@{StaticR img_qt_cppqt_gif} alt="c++-qt" style="float:right"/>
 
             <section id="Vorwort">
                 <h2>Vorwort
@@ -31,7 +31,7 @@
             <section id="Voraussetzungen">
                 <h2>Voraussetzungen und Vorkenntnisse für den Besuch dieser Veranstaltung
 
-                <img src=#{staticServer "/images/"}/kursbilder/SDC10329.JPG alt="Die Laptop-Crew" style="float:right; width: 25%;"/>
+                <img src=@{StaticR img_qt_SDC10329_JPG} alt="Die Laptop-Crew" style="float:right; width: 25%;"/>
                 <ul>
                     <li><strong>Passable Programmierkenntnisse in C</strong> (Der Umgang mit <strong>Pointer</strong> sollte vertraut sein)
                     <li>Ein Linux-Account wird für die Verwendung der Linux Rechner benötigt.
@@ -52,7 +52,7 @@
 
                 <ol>
                     <li>C++ (1. Woche)
-                        <img src=#{staticServer "/images/"}cpp.png alt="c++" style="float:right; width: 20%;"/>
+                        <img src=@{StaticR img_qt_cpp_png} alt="c++" style="float:right; width: 20%;"/>
                         <ul>
                             <li>Grundlagen der Programmiersprache C++ und Unterschiede zur Sprache C
                             <li>Objektorientierte Programmierung
@@ -64,7 +64,7 @@
                                     <li>Exceptions
 
                     <li>Programmieren mit Qt (2. Woche)
-                    <img src=#{staticServer "/images/"}Qt_logostrap_CMYK.png alt="qt" style="float:right; width: 20%">
+                    <img src=@{StaticR img_qt_Qt_logostrap_CMYK_png} alt="qt" style="float:right; width: 20%">
                     <ul>
                         <li>Einführung in die GUI-Techniken
                         <li>Lizenzen
@@ -76,7 +76,7 @@
 
             <section id="Projekt">
             <h2>Projekt
-            <img src=#{staticServer "/images/"}/kursbilder/SDC10312.JPG alt="Das BlackJack läuft!" style="float:right; width: 25%;"/>
+            <img src=@{StaticR img_qt_SDC10312_JPG} alt="Das BlackJack läuft!" style="float:right; width: 25%;"/>
             <p>
                 Die erworbenen Kenntnisse sollen im Rahmen eines kleinen Projekts vorgeführt werden.
                 Dazu kann man alleine oder zu zweit an einem Projekt arbeiten, welches bis zum Kursende abgeschlossen sein sollte.
@@ -92,7 +92,7 @@
 
             <section id="Literatur">
                 <h2>Literatur
-                <img src=#{staticServer "/images/"}/kursbilder/SDC10322.JPG alt="Teamarbeit" style="float:right; width: 15%;"/>
+                <img src=@{StaticR img_qt_SDC10322_JPG} alt="Teamarbeit" style="float:right; width: 15%;"/>
 
                 <h3>Literatur zu C++
                 Neben diversen völlig ausreichenden Skripten aus dem Internet und / oder dem

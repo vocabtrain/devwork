@@ -9,7 +9,7 @@
                 <th>Seite
                 <th>Paket
         <tbody>
-            $forall num <- worksheets
+            $forall wsheet <- getOpenGLQtLessons
                 <tr>
-                    <td><a href="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=#{showTenth num}">NeHe's Lesson #{num}</a>
-                    <td><a href="#{staticServer "/pkg/nehe/"}lesson#{showTenth num}.zip">Qt-Port von Beispiel #{num}</a>
+                    <td><a href=#{openGLQtLessonLink wsheet}>NeHe's Lesson #{openGLQtLessonNumber wsheet}</a>
+                    <td><a href=@{StaticR $ openGLQtLessonPackage wsheet}>Qt-Port von Beispiel #{openGLQtLessonNumber wsheet}</a>

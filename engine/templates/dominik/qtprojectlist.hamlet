@@ -5,10 +5,10 @@
     <div id="qtprojektliste">Projektliste
         $forall project <- getQtProjects
             <h2>#{qtProjectName project}
-            <a href=#{staticServer "qtgallery/"}#{qtProjectName project}.jpg>
-                <img class="project" alt="" src=#{staticServer "qtgallery/"}#{qtProjectName project}_thumb.jpg>
+            <a href=@{StaticR $ galleryImageSource $ qtProjectGalleryImage project}>
+                <img class="project" alt="" src=@{StaticR $ galleryImageThumbnail $ qtProjectGalleryImage project}>
             <p>#{qtProjectDescription project}
             <br>
             <br>
-            <a href=#{staticServer "qtprojects/"}#{qtProjectArchive project}>Das Project "#{qtProjectName project}" herunterladen
+            <a href=@{StaticR $ qtProjectPackage project}>Das Project "#{qtProjectName project}" herunterladen
             <p class="clearme">

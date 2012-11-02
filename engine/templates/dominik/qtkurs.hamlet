@@ -14,33 +14,32 @@
                 <th>LaTeX
         <tfoot>
             <tr>
-                <td colspan="2">Um die TeX-Dateien compilieren zu können, benötigen Sie die <a href=#{staticServer "pkg/tex_includes.tar.bz2"}>zusätzlichen TeX-Includedateien</a>
+                <td colspan="2">Um die TeX-Dateien compilieren zu können, benötigen Sie die <a href=@{StaticR bin_pkg_tex_includes_tar_bz2}>zusätzlichen TeX-Includedateien</a>
         <tbody>
-            $forall num <- worksheets
+            $forall wsheet <- getQtWorkSheets
                 <tr>
-                    <td><a href=#{staticServer "/script/"}qt_blatt#{num}.pdf>Übungsblatt #{num} (pdf)</a>
-                    <td><a href=#{staticServer "/script/"}qt_blatt#{num}.tex>Übungsblatt #{num} (tex)</a>
-
+                    <td><a href=@{StaticR $ workSheetDocument wsheet}>Übungsblatt #{workSheetNumber wsheet} (pdf)</a>
+                    <td><a href=@{StaticR $ workSheetSource wsheet}>Übungsblatt #{workSheetNumber wsheet} (tex)</a>
             <tr>
-                <td><a href=#{staticServer "/script/qt_skript.pdf"}>Skript (pdf)</a>
-                <td><a href=#{staticServer "/script/qt_skript.tex"}>Skript (tex)</a>
+                <td><a href=@{StaticR bin_script_qt_skript_pdf}>Skript (pdf)</a>
+                <td><a href=@{StaticR bin_script_qt_skript_tex}>Skript (tex)</a>
             <tr>
-                <td><a href=#{staticServer "/script/qt_sourcebook.pdf"}>Quellcodebuch (pdf)</a>
-                <td><a href=#{staticServer "/script/qt_sourcebook.tex"}>Quellcodebuch (tex)</a>
+                <td><a href=@{StaticR bin_script_qt_sourcebook_pdf}>Quellcodebuch (pdf)</a>
+                <td><a href=@{StaticR bin_script_qt_sourcebook_tex}>Quellcodebuch (tex)</a>
             <tr>
-                <td><a href=#{staticServer "/script/qt_bigbook.pdf"}>Das große Buch (pdf)</a>
-                <td><a href=#{staticServer "/script/qt_bigbook.tex"}>Das große Buch (tex)</a>
+                <td><a href=@{StaticR bin_script_qt_bigbook_pdf}>Das große Buch (pdf)</a>
+                <td><a href=@{StaticR bin_script_qt_bigbook_tex}>Das große Buch (tex)</a>
 
     <h2>Vorlesungsbeispiele
     <ul>
-       <li><a href=#{staticServer "/pkg/bsp_cpp.tar.bz2"}>C++ Vorlesungsbeispiele</a>
-       <li><a href=#{staticServer "/pkg/bsp_qt.tar.bz2"}>Qt Vorlesungsbeispiele</a>
-       <li><a href=#{staticServer "/pkg/loesungen_qt.tar.bz2"}>Lösungen zu den Übungsaufgaben</a>
+       <li><a href=@{StaticR bin_pkg_bsp_cpp_tar_bz2}>C++ Vorlesungsbeispiele</a>
+       <li><a href=@{StaticR bin_pkg_bsp_qt_tar_bz2}>Qt Vorlesungsbeispiele</a>
+       <li><a href=@{StaticR bin_pkg_loesungen_qt_tar_bz2}>Lösungen zu den Übungsaufgaben</a>
 
     <h2>Videos
-    <a href=#{staticServer "/video/qtwindows.mkv"}>Installation von Qt 4.7.0 unter Windows 7
+    <a href=@{StaticR video_qtwindows_mkv}>Installation von Qt 4.7.0 unter Windows 7
     <h2>Zusätzliche Bibiotheken
-    Ich habe <a href=#{staticServer "/pkg/packages_qt.tar.bz2"}>hilfreiche Klassen im Archivbündel</a> zusammengefasst, die es nicht in Qt gibt, jedoch oft gebraucht werden.
+    Ich habe <a href=@{StaticR bin_pkg_packages_qt_tar_bz2}>hilfreiche Klassen im Archivbündel</a> zusammengefasst, die es nicht in Qt gibt, jedoch oft gebraucht werden.
     Mitsamt Beispiel sind beinhaltet
     <ul>
         <li>QCharacterView

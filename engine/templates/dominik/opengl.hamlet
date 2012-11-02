@@ -6,26 +6,26 @@
         mit der es möglich ist, Bilder in die dreidimensionale Landschaft zu bringen.
 
     <ul>
-        <li><a href=#{staticServer "/script/glut_skript.pdf"}>Das Folienskript zum Vortrag</a>
-        <li><a href=#{staticServer "/script/glut_skript.tex"}>Der Quellcode zum Folienskript</a>
-        <li><a href=#{staticServer "/pkg/bsp_glut.tar.bz2"}>Beispiele aus der Vorlesung</a>
+        <li><a href=@{StaticR bin_script_glut_skript_pdf}>Das Folienskript zum Vortrag</a>
+        <li><a href=@{StaticR bin_script_glut_skript_tex}>Der Quellcode zum Folienskript</a>
+        <li><a href=@{StaticR bin_pkg_bsp_glut_tar_bz2}>Beispiele aus der Vorlesung</a>
 
     <div style="float:right">
-        <object width="520" height="412" type="application/x-shockwave-flash" data=#{staticServer "video/colormap.swf"}>
+        <object width="520" height="412" type="application/x-shockwave-flash" data=@{StaticR video_colormap_swf}>
             <param name="loop" value="true" />
             <param name="menu" value="true" />
         <br>
-        <object width="520" height="346" type="application/x-shockwave-flash" data=#{staticServer "video/textures.swf"}>
+        <object width="520" height="346" type="application/x-shockwave-flash" data=@{StaticR video_textures_swf}>
             <param name="loop" value="true" />
             <param name="menu" value="true" />
 
     <h2>Flash-Videos
     <ul>
-        <li><a href=#{staticServer "video/colormap.swf"}>Die Colormap</a>
-        <li><a href=#{staticServer "video/textures.swf"}>Texturendemo</a>
+        <li><a href=@{StaticR video_colormap_swf}>Die Colormap</a>
+        <li><a href=@{StaticR video_textures_swf}>Texturendemo</a>
 
     <h2>Mitschnitt
     <ul>
         <li><a href="http://thepiratebay.org/torrent/5433337/Einfuhrung_in_OpenGL">Magnet Link</a>
-        <li><a href=#{staticServer "video/opengl_vortrag.torrent"}>Torrent</a>
-        <li><a href=#{staticServer "video/opengl_vortrag.mkv"}>volles Video</a>
+        <li><a href=@{StaticR video_opengl_vortrag_torrent}>Torrent</a>
+        <li><a href=@{StaticR video_opengl_vortrag_mkv}>volles Video</a>
