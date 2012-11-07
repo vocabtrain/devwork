@@ -1,0 +1,28 @@
+<h2>Kontakt
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span6">
+            <table class="table table-hover" summary="Angaben zu einem Mitarbeiter">
+                <tbody>
+                    <tr>
+                        <th>E-Mail
+                        <td><a href="mailto:dominik.koeppl@informatik.uni-augsburg.de">dominik.koeppl@informatik.uni-augsburg.de</a>
+                    <tr>
+                        <th>Telefon
+                        <td>+49 821 598 - 2143
+                    <tr>
+                        <th>Fax
+                        <td>+49 821 598 - 2274
+                    <tr>
+                        <th>Raum
+                        <td>2001 N
+                    <tr>
+                        <th>Anschrift
+                        <td>
+                            Universität Augsburg
+                            <br>
+                            Universitätsstrasse 6a
+                            <br>
+                            86159 Augsburg
+        <div class="span2">
+            <img src=@{StaticR img_dominik_myself_jpg} alt="Photo" >

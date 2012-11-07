@@ -3,6 +3,7 @@ engine/static
 engine/dist
 *.class
 *~
+*.jar
 *.o
 *.so
 *.hi

@@ -1,8 +1,8 @@
 Default: &defaults
   host: "*4" # any IPv4 host
   port: 3000
-  approot: ""
-#  approot: "http://ursaminor.informatik.uni-augsburg.de/"
+#  approot: "http://www.devwork.org/a/"
+  approot: "http://ursaminor.informatik.uni-augsburg.de/koeppldo"
   copyright: Insert copyright statement here
   #analytics: UA-YOURCODE
 

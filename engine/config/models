@@ -13,3 +13,10 @@ Comment
 	posted UTCTime
 	content Html
 	text Textarea
+
+Book id=_id sql=Books
+	name Text sql=book_name
+	language Text sql=book_language
+	timestamp UTCTime sql=book_timestamp
+	UniqueName name
+	deriving Show

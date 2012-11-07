@@ -16,10 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 datadir=/home/niki/data/
-scriptdir=/home/niki/homepage/cron
+scriptdir=/home/niki/devwork/cron
+mkdir -p "$datadir/log"
 function dhaskell {
-	ghc -i ~/homepage/cron/MyQQ.hs -outputdir ~/data -odir ~/data -o "$datadir/`basename $1 .hs`" $1
+	ghc -i "$scriptdir/MyQQ.hs" -outputdir ~/data -odir ~/data -o "$datadir/`basename $1 .hs`" $1
 }
+dhaskell "$scriptdir/parseTatoeba.hs"
+dhaskell "$scriptdir/genSphinxConf.hs"
 
 [[ -f "$datadir/sentences.csv" ]] || wget 'http://tatoeba.org/files/downloads/sentences.csv' -O "$datadir/sentences.csv" 
 [[ -f "$datadir/links.csv" ]] || wget 'http://tatoeba.org/files/downloads/links.csv' -O  "$datadir/links.csv"
@@ -38,16 +41,17 @@ echo 'INSERT INTO `android_metadata` VALUES("en_US");' | sqlite3 "$datadir/tatoe
 echo 'DROP TABLE IF EXISTS `jpn_indices`;' | sqlite3 "$datadir/tatoeba.sqlite"
 echo 'VACUUM;' | sqlite3 "$datadir/tatoeba.sqlite"
 
-searchd --config "$scriptdir/sphinx.conf" --stopwait 
+searchd --config "$datadir/sphinx.conf" --stopwait 
 
-runhaskell "$scriptdir/parseTatoeba.hs"
-cp "$scriptdir/sphinx.conf.head"  "$scriptdir/sphinx.conf"
-runhaskell "$scriptdir/genSphinxConf.hs" >> "$scriptdir/sphinx.conf"
-searchd --config "$scriptdir/sphinx.conf" 
+./parseTatoeba
+cp "$scriptdir/sphinx.conf.head"  "$datadir/sphinx.conf"
+./genSphinxConf >> "$datadir/sphinx.conf"
+searchd --config "$datadir/sphinx.conf" 
 
 psql -U postgres -f cacheBookLanguages.sql devwork
 
-java -cp $scriptdir/lucene_indexer/lib/lucene-core-3.5.0.jar:$scriptdir/lucene_indexer/bin Main "$datadir" "$datadir/lucene"
+cd $scriptdir/tatoeba_lucene
+ant -Dsentences "$datadir/sentences.csv" -Doutputdir "$datadir/lucene" run
 
 cd "$datadir/lucene"
 mv "$datadir/tatoeba.sqlite" "$datadir/lucene/"

@@ -6,21 +6,27 @@
 
 / HomeR GET
 
-tatoeba/languages TatoebaLanguagesR GET
-tatoeba/query/#Text/#Text TatoebaQueryR
-tatoeba/query/#Text TatoebaQueryLanguageR
-tatoeba/query TatoebaQueryRandomR GET
+/tatoeba TatoebaWebServiceR GET
+/tatoeba/app TatoebaAppR GET
+/tatoeba/languages TatoebaLanguagesR GET
+/tatoeba/query/#Text/#Text TatoebaQueryR
+/tatoeba/query/#Text TatoebaQueryLanguageR
+/tatoeba/query TatoebaQueryRandomR GET
 
-vocabtrain/booksupply VocabtrainBookSupplyR POST                                                                                                      
+/vocabtrain/booksupply VocabtrainBookSupplyR POST
+/vocabtrain/download VocabtrainDownloadR POST 
 
-koeppldo DKHomeR GET
-koeppldo/qt QtDescR GET
-koeppldo/qt/dossier QtDossierR GET
-koeppldo/qt/projects QtProjectListR GET
-koeppldo/java JavaDescR GET
-koeppldo/java/dossier JavaDossierR GET
-koeppldo/java/projects JavaProjectListR GET
-koeppldo/java/project/#Int JavaProjectR
-koeppldo/qt/gallery QtGalleryR GET
-koeppldo/opengl OpenGLR GET
-koeppldo/qt/opengl QtOpenGLR GET
+/koeppldo DKHomeR GET
+/koeppldo/qt QtDescR GET
+/koeppldo/qt/dossier QtDossierR GET
+/koeppldo/qt/projects QtProjectListR GET
+/koeppldo/java JavaDescR GET
+/koeppldo/java/dossier JavaDossierR GET
+/koeppldo/java/projects JavaProjectListR GET
+/koeppldo/java/project/#Int JavaProjectR
+/koeppldo/qt/gallery QtGalleryR GET
+/koeppldo/opengl OpenGLR GET
+/koeppldo/qt/opengl QtOpenGLR GET
+/koeppldo/projects DKProjectHomeR GET
+/koeppldo/projects/annual ProjectAnnualR GET
+/koeppldo/projects/fritzcontact ProjectFritzContactR GET

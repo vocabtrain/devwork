@@ -1,0 +1,70 @@
+<h1>Tatoeba App for Android
+<div id="maincontentbody">
+
+    <p>
+        The Tatoeba app uses an offline database containing approx. 1.5 mio. example sentences of different languages.
+        Before you can use the app, you have to download the database first.
+        The app provides a search of a specific keyword from a certain language and displays all found example sentences containing this keyword in that language with all translations of this example sentence found in the database.
+
+    <h2>Download the Database
+    You can either let your device automatically download the database package and extract it, or use a manual approach.
+
+    <h3>Automatic Download
+    First, go to the prefernces and specify the database directory.
+    You can supply any path you like (but the app must have write access to this directory).
+    Then, start the Download activity in the preferences which will download and extract the database package for you.
+    Please consider, that downloading and extracting takes a long time for such a hugh size.
+    Expect to wait more than 10 minutes while extracting the sqlite-database on older devices.
+
+    <h3>Manual Download
+    <p>Fetch the zip-archive located at 
+            <a href="http://web403.webbox555.server-home.org/drake/tatoeba/tatoeba.zip">http://web403.webbox555.server-home.org/drake/tatoeba/tatoeba.zip
+    and extract its contents in a arbitrary directory on a external storage medium which can be plugged into your device (that's mostly a SD-card, 
+    but usb-sticks also work for tablets).
+    Note down this arbitrary directory because you have to specify it in the preferences of the Tatoeba-app.
+    If you open the directory, there should be a sqlite-database and a folder "sentences".
+
+    <h3>After Download
+    After the installation of the database is finished, you have to reboot your device so that the changes can take effect.
+    This is due to the fact that the ContentProvider on a fresh install already failed to launch (because there was no database), 
+    and the app cannot restart it by itself.
+    After reboot, the app should present a entry field and a combobox for selecting a language.
+    You can upgrade any time your database by using this prodecure.
+
+    <h2>Using Tatoeba for your own app
+    The Tatoeba-app offers its database for other apps by providing a ContentProvider.
+    You can access this ContentProvider easily by using Androids ContentResolver-class:
+    <ol>
+        <li>Grab a clone of the git-repository
+        <li>Locate the file "ProviderInterface.java" and copy it into your project. The file is released under the Apache License 2.0 
+            (so you can release your project under any license you like)
+        <li>You can get a Cursor by using the ContentResolver or the CursorLoader class
+    You can search the following tables:
+    <ul>
+        <li>ProviderInterface.SearchTable.CONTENT_URI - search example sentences containing certain keywords.
+        <li>ProviderInterface.LinkTable.CONTENT_URI - search for a given sentence id all sentences which are connected to this sentence 
+            (e.g. are a translation of this sentence)
+        
+    For each table, you can query the following columns:
+    <ul>
+        <li>ProviderInterface.LinkTable._ID: The id of the example sentence
+        <li>ProviderInterface.LinkTable.TEXT: The sentence itself
+        <li>ProviderInterface.LinkTable.LANGUAGE: The language coded in ISO 639-2 (T)
+    <h3>Examples
+    <pre>
+        final String[] selection = new String[] { searchString, languageOfSearch };
+        CursorLoader loader = new CursorLoader(this, ProviderInterface.SearchTable.CONTENT_URI, new String[] 
+        { ProviderInterface.LinkTable._ID, ProviderInterface.LinkTable.TEXT }, null, selection, null);
+    Searches for example sentences containing "searchString" written in the language "languageOfSearch".
+    <pre>
+        Cursor cursor = getContentResolver().query(
+        ContentUris.withAppendedId(ProviderInterface.LinkTable.CONTENT_URI, sentenceId),
+        new String[] { ProviderInterface.LinkTable._ID, ProviderInterface.LinkTable.TEXT, ProviderInterface.LinkTable.LANGUAGE }, null, null, null);
+    Searches for linked sentences of the sentence with the id "sentenceId".
+
+    <h2>Tested with
+    <ul>
+        <li>HTC Dream (G1) Android 2.2 Cyanogen
+        <li>HTC Magic Android 2.3 YoshiMod
+        <li>Vodafone 845 Android 2.1
+

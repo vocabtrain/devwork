@@ -1,0 +1,71 @@
+<h1>FritzContact</h1>
+<div id="maincontentbody">
+
+    <div style="float:right;">
+        <a href=@{StaticR img_projects_fritzcontact_screenshot_png}>
+            <img src=@{StaticR img_projects_fritzcontact_screenshot_png} style="width: 100%" alt="">
+
+    <p>
+        Newer Fritz!Box-models have the feature to provide a phone book which can be exported as a xml-file.
+        FritzContact provides the Android plattform the ability to import these contacts stored as a xml-file on a SD-card.
+        It will parse the xml-file and displays its content as a list. 
+        The user can select those contacts which shall be added to the local contact list on the phone.
+        
+    <h2>Requirements
+    <ul>
+        <li>A Fritz!Box from AVM with the ability to store contacts
+        <li>Android 2.1 or newer
+        <li>A SD-card to store the xml-file
+
+    <h2>Optional requirements</h2>
+        <ul>
+            <li>OI File Manager from OpenIntents for choosing a file on the SD-card
+            <li>OI About from OpenIntents for providing contact information
+                
+    <h2>Usage
+    <h3>Export the XML-file
+    <p>
+        Newer Fritz!Box models manage contacts by providing an internal phone book.
+        This phone book can be exported an stored in a xml-file on your local computer.
+        You can save this xml-file on the SD-card of your phone.
+
+    <h3>Installing FritzContact
+    <p>
+        Use one of the market places described below to obtain FritzContact for free.
+        You can install the app by pushing the file on the SD-card an navigating a file-browser to the apk-file.
+
+    <h3>Running FritzContact
+    <p>
+        The design is pretty straight-forward.
+        In the first screen, you have to pass the filename of the xml-file to parse. 
+        If you have installed the OI File Manager, you can use it to navigate to the file.
+        Otherwise, you can change the filepath manually.
+        The second screen will show you all contacts which could be extracted.
+        Notice that the program ommits internal contacts like '*600' for Fritz!Box's answer machine.
+        By pressing the menu-button, you can deselct/deselect all contacts.
+        Finally, you can import the contacts. 
+        The app skips all contacts with a phone number which is already listed in your contacts.
+        The new contacts are stored locally on your phone (not synced with any google account).
+        
+    <h2>Tested with
+    <ul>
+        <li>FRITZ!Box Fon WLAN 7320 (UI)
+        <li>HTC Dream (G1) Android 2.2 Cyanogen
+        <li>Vodafone 845 Android 2.1
+            
+    <h2>Versions
+    <h3>1.2
+    <p>
+        Adding someone with muliple contact addresses (mobile,home,work,...) will now only add one contact with all information 
+        instead of creating for each contact address a new contact.
+    <h3>1.1
+    <p>
+        Parsing of the xml-file from some fritz-boxes failed as some parts were empty.
+    <h2>Market Places
+    <p>
+        The app is currently not on the official Android market available.
+        But I have published the app on the following locations:
+    <ul>
+        <li><a href="http://slideme.org/application/fritzcontact">SlideME</a>
+        <li><a href="http://www.aproov.com/en-us/cat/Messaging/Phone?pid=bf4ce0e4-9b3d-98f2-0a70-8f1a0b6d0054">Aproov</a>
+        <li><a href="http://www.getjar.com/fritzcontact">GetJar</a>

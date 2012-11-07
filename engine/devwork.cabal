@@ -33,6 +33,7 @@ library
                      Handler.Vocabtrain
                      Handler.Tatoeba
                      Generated
+                     MyQQ
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -67,6 +68,7 @@ library
                  , text                          >= 0.11       && < 0.12
                  , persistent                    >= 1.0        && < 1.1
                  , persistent-postgresql     >= 1.0        && < 1.1
+                 , persistent-sqlite     >= 1.0        && < 1.1
                  , template-haskell
                  , hamlet                        >= 1.1        && < 1.2
                  , shakespeare-css               >= 1.0        && < 1.1

@@ -28,5 +28,6 @@
 
     <h2>Vorlesungsbeispiele
     <ul>
+        <li><a href=@{StaticR bin_pkg_pencil_jar}>Das Pencil-Package für die Übungen</a>
         <li><a href=@{StaticR bin_pkg_bsp_java_tar_bz2}>Java Vorlesungsbeispiele</a>
         <li><a href=@{StaticR bin_pkg_loesungen_java_tar_bz2}>Lösungen zu den Übungsaufgaben</a>

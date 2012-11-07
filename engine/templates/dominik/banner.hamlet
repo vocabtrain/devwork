@@ -2,4 +2,5 @@
     <img class="icon-myself" src=@{StaticR img_dominik_icon_myself_png}>
     Dominik Köppl
 <ul class="nav">
-    <li><a href=@{ DKHomeR}><i class="icon-home icon-white"></i> Home</a>
+    <li><a href=@{ DKHomeR}><i class="icon-book icon-white"></i> Kurse </a>
+    <li><a href=@{ DKProjectHomeR}><i class="icon-gift icon-white"></i> Projekte</a>

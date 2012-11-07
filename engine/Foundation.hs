@@ -179,6 +179,7 @@ instance YesodBreadcrumbs App where
 	breadcrumb HomeR = return("Start", Nothing)
 
 	breadcrumb DKHomeR = return("Kurshomepage", Just HomeR)
+	breadcrumb DKProjectHomeR = return("Projekthomepage", Just HomeR)
 	breadcrumb QtDescR = return("Qt Kurs", Just DKHomeR)
 	breadcrumb QtDossierR = return("Qt Unterlagen", Just QtDescR)
 	breadcrumb QtProjectListR = return("Qt Projekte", Just QtDescR)
@@ -189,6 +190,11 @@ instance YesodBreadcrumbs App where
 	breadcrumb JavaDossierR = return("Java Unterlagen", Just JavaDescR)
 	breadcrumb JavaProjectListR = return("Java Projekte", Just JavaDescR)
 	breadcrumb (JavaProjectR _) = return("", Just JavaProjectListR) 
+
+	breadcrumb ProjectAnnualR = return("Annual", Just DKProjectHomeR)
+	breadcrumb ProjectFritzContactR = return("FritzContact", Just DKProjectHomeR)
+	breadcrumb TatoebaAppR = return("Tatoeba App", Just DKProjectHomeR)
+	breadcrumb TatoebaWebServiceR = return("Tatoeba Webservice", Just DKProjectHomeR)
 
 	breadcrumb _ = return("", Nothing)
 
