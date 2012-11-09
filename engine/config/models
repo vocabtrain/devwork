@@ -14,9 +14,29 @@ Comment
 	content Html
 	text Textarea
 
-Book id=_id sql=Books
+VocabBook id=_id sql=books
 	name Text sql=book_name
 	language Text sql=book_language
-	timestamp UTCTime sql=book_timestamp
+	timestamp UTCTime default=CURRENT_TIMESTAMP sql=book_timestamp
 	UniqueName name
 	deriving Show
+VocabChapter id=_id sql=chapters
+	bookId VocabBookId sql=chapter_book_id
+	volume Text sql=chapter_volume
+VocabCard id=_id sql=cards
+	script Text sql=card_script
+	scriptComment Text Maybe sql=card_script_comment
+	speech Text Maybe sql=card_speech
+	speechComment Text Maybe sql=card_speech_comment
+	type Int sql=card_type
+VocabContent id=_id sql=content
+	chapterId VocabChapterId sql=content_chapter_id
+	cardId VocabCardId sql=content_card_id
+	UniqueContent chapterId cardId
+VocabTranslation id=_id sql=translations
+	cardId VocabCardId sql=translation_card_id
+	language Text sql=translation_language
+	content Text sql=translation_content
+	comment Text Maybe sql=translation_comment
+	UniqueTranslation cardId language
+

@@ -3,9 +3,14 @@ module Handler.Vocabtrain where
 
 import Import
 import qualified Prelude
+import qualified Data.Text as Text
 import Data.Aeson ((.:))
 import qualified Data.Aeson as JS
 import GHC.Generics
+
+import System.IO
+import System.Directory(getTemporaryDirectory, removeFile)
+import Control.Exception (catch, finally, IOException)
 
 
 import Control.Monad
@@ -16,7 +21,6 @@ import qualified Data.ByteString as BS
 import Database.Persist.GenericSql.Raw (withStmt)
 import Database.Persist.GenericSql
 import Database.Persist.Sqlite
-import Database.Persist
 
 import Data.Conduit.Lazy
 import qualified Data.Attoparsec.ByteString as JSP
@@ -90,39 +94,138 @@ postVocabtrainBookSupplyR = do
 
 data DownloadRequest = DownloadRequest 
 	{ requestBooks :: [Int]
-	--requestLanguages :: [Int]
+	, requestLanguages :: [Text]
 	} deriving (Show, Generic)
 instance JS.FromJSON DownloadRequest where
 
+typeSqlite :: ContentType
+typeSqlite = "application/x-sqlite3"
 
-postVocabtrainDownloadR :: GHandler App App RepPlain
+newtype RepOctet = RepOctet Content
+instance HasReps RepOctet where
+    chooseRep (RepOctet c) _ = return (typeOctet, c)
+newtype RepSqlite = RepSqlite Content
+instance HasReps RepSqlite where
+    chooseRep (RepSqlite c) _ = return (typeSqlite, c)
+
+postVocabtrainDownloadR :: GHandler App App RepSqlite
 postVocabtrainDownloadR = do
 	wr <- waiRequest
 	bss <- lift $ lazyConsume $ requestBody wr
-	let requestBody = BS.concat bss
-	--let mayBeDecoded = JS.decode requestBody :: Maybe DownloadRequest
-	let mayBeDecoded = JSP.parse JS.json requestBody
---	liftIO $ print mayBeDecoded
---	liftIO $ fmap $ print $ obtainParsed mayBeDecoded
---	return $ RepPlain $ toContent $ ("Error" :: Text)
+	let requestBodyString = BS.concat bss
+	let mayBeDecoded = JSP.parse JS.json requestBodyString
 	obtainParsed mayBeDecoded
---		returnParsed (Just decoded) = return $ RepPlain $ toContent $ show decoded
---		returnParsed Nothing = return $ RepPlain $ toContent $ ("Error" :: Text)
+	where
+		obtainParsed :: JSP.IResult t JS.Value -> GHandler App App RepSqlite
+		obtainParsed (JSP.Fail _ _ err) = invalidArgs [Text.pack err]
+		obtainParsed (JSP.Partial _) = invalidArgs [ "Could only parse partial"::Text ]
+		obtainParsed (JSP.Done _ res) = readRequest $ (JS.fromJSON res :: JS.Result DownloadRequest)
+
+		readRequest :: JS.Result DownloadRequest -> GHandler App App RepSqlite
+		readRequest (JS.Error err) = invalidArgs [ Text.pack err ]
+		readRequest (JS.Success request) = do
+			bookResult <- runDB $ selectList [ VocabBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+			chapterResult <- runDB $ selectList [ VocabChapterBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+			contentResult <- runDB $ selectList [ VocabContentChapterId <-. ( map entityKey chapterResult)] []
+			cardResult <- runDB $ selectList [ VocabCardId <-. ( map (vocabContentCardId . entityVal) contentResult)] []
+			translationResult <- runDB $ selectList 
+				[ VocabTranslationCardId <-. ( map entityKey cardResult), 
+				VocabTranslationLanguage <-. (requestLanguages request)] []
+			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
+				withSqliteConn (Text.pack file) (\dbh -> do
+					_ <- ($) runSqlConn' dbh $ runMigrationSilent migrateAll
+					forM_ bookResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+					forM_ chapterResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+					forM_ contentResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+					forM_ cardResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+					forM_ translationResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+					)
+				content <- liftIO $ BS.hGetContents fileh
+				return $ RepSqlite $ toContent content
+				)	
+			where
+				runSqlConn' pers conn = runSqlConn conn pers
+
+withTempFile :: String -> (FilePath -> Handle -> IO a) -> IO a
+withTempFile pattern func = do
+	tempdir <- Control.Exception.catch getTemporaryDirectory (\e -> do print $ show (e :: IOException);  return "/tmp")
+	(tempfile, temph) <- openBinaryTempFile tempdir pattern 
+	finally (func tempfile temph) (hClose temph >> removeFile tempfile)
+
+
+{-
+ -
+
+postVocabtrainDownloadR' :: GHandler App App RepPlain
+postVocabtrainDownloadR' = do
+	wr <- waiRequest
+	bss <- lift $ lazyConsume $ requestBody wr
+	let requestBodyString = BS.concat bss
+	let mayBeDecoded = JSP.parse JS.json requestBodyString
+	obtainParsed mayBeDecoded
 
 obtainParsed :: JSP.IResult t JS.Value -> GHandler App App RepPlain
 obtainParsed (JSP.Fail _ _ err) = return $ RepPlain $ toContent $ "E: " ++ err
 obtainParsed (JSP.Partial _) = return $ RepPlain $ toContent ("Could only parse partial"::Text)
-obtainParsed (JSP.Done t res) = readRequest $ (JS.fromJSON res :: JS.Result DownloadRequest)
+obtainParsed (JSP.Done _ res) = readRequest $ (JS.fromJSON res :: JS.Result DownloadRequest)
 
 readRequest :: JS.Result DownloadRequest -> GHandler App App RepPlain
 readRequest (JS.Error err) = return $ RepPlain $ toContent err
 readRequest (JS.Success request) = do
-	bookResult <- runDB $ selectList [ BookId /<-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
-	liftIO $ print (bookResult :: [Entity Book])
-	withSqliteConn ":memory:" $ runSqlConn $ do
-		runMigrationSilent migrateAll
---		mapM insert bookResult
+	bookResult <- runDB $ selectList [ VocabBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+	chapterResult <- runDB $ selectList [ VocabChapterBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+	contentResult <- runDB $ selectList [ VocabContentChapterId <-. ( map entityKey chapterResult)] []
+	cardResult <- runDB $ selectList [ VocabCardId <-. ( map (vocabContentCardId . entityVal) contentResult)] []
+	translationResult <- runDB $ selectList [ VocabTranslationCardId <-. ( map entityKey cardResult)] []
+	withSqliteConn "test.db" (\dbh -> do
+		_ <- ($) runSqlConn' dbh $ runMigrationSilent migrateAll
+		forM_ bookResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+		forM_ chapterResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+		forM_ contentResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+		forM_ cardResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+		forM_ translationResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
+		)
+
+-}
+
+--	putResult bookResult
+--	putResult chapterResult
+--	putResult translationResult
+--	forM bookResult (\bookEntity -> runSqlConn' dbh $ insert $ entityVal bookEntity)
+--	forM chapterResult (\chapterEntity -> runSqlConn' dbh $ insert $ entityVal chapterEntity)
+{-
+	liftIO $ print (bookResult :: [Entity VocabBook])
+	forM bookResult (\bookEntity -> do
+		runSqlConn' dbh $ insert $ entityVal bookEntity
+		forM chapterResult (\chapterEntity -> do
+			let a = entityKey chapterEntity
+			runSqlConn' dbh $ insert $ entityVal chapterEntity
+			
+			)
+		)
 	return $ RepPlain $ toContent ("a"::Text)
+	where
+--		runSqlConn' :: MonadCatchIO m => Connection -> SqlPersist m a -> m a
+		runSqlConn' pers conn = runSqlConn conn pers
+
+-}
+{-
+readRequest :: JS.Result DownloadRequest -> GHandler App App RepPlain
+readRequest (JS.Error err) = return $ RepPlain $ toContent err
+readRequest (JS.Success request) = do
+	bookResult <- runDB $ selectList [ BookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+	liftIO $ print (bookResult :: [Entity Book])
+	withSqliteConn "test.db" $ runSqlConn $ do
+		runMigrationSilent migrateAll
+		forM bookResult (\bookEntity -> insert $ entityVal bookEntity)
+	forM bookResult (\bookEntity -> do
+		chapterResult <- runDB $ selectList [ ChapterBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+		withSqliteConn "test.db" $ runSqlConn $ do
+			forM chapterResult (\chapterEntity -> insert $ entityVal chapterEntity)
+		)
+	
+	return $ RepPlain $ toContent ("a"::Text)
+-}
 
 				{-
 					conn <- liftIO $ connectSqlite3 "test1.db"

@@ -1,8 +1,8 @@
 
 CREATE TABLE IF NOT EXISTS books (
 _id SERIAL,
-book_name TEXT NOT NULL,
-book_language TEXT DEFAULT 'ja',
+book_name CHARACTER VARYING NOT NULL,
+book_language CHARACTER VARYING DEFAULT 'ja',
 book_timestamp timestamp with time zone default NOW(),
 constraint book_primary PRIMARY KEY(_id),
 constraint book_name_unique UNIQUE (book_name)
@@ -10,7 +10,7 @@ constraint book_name_unique UNIQUE (book_name)
 CREATE TABLE IF NOT EXISTS chapters (
 _id SERIAL,
 chapter_book_id INTEGER NOT NULL,
-chapter_volume TEXT NOT NULL,
+chapter_volume CHARACTER VARYING NOT NULL,
 constraint chapter_primary PRIMARY KEY(_id),
 constraint chapter_unique UNIQUE ( chapter_book_id, chapter_volume ),
 constraint chapter_foreign FOREIGN KEY (chapter_book_id) references books (_id)
@@ -18,10 +18,10 @@ constraint chapter_foreign FOREIGN KEY (chapter_book_id) references books (_id)
 
 CREATE TABLE IF NOT EXISTS cards (
 _id SERIAL ,
-card_script TEXT NOT NULL ,
-card_script_comment TEXT ,
-card_speech TEXT,
-card_speech_comment TEXT ,
+card_script CHARACTER VARYING NOT NULL ,
+card_script_comment CHARACTER VARYING ,
+card_speech CHARACTER VARYING,
+card_speech_comment CHARACTER VARYING ,
 card_type INT,
 constraint card_primary PRIMARY KEY(_id),
 constraint card_unique UNIQUE ( card_speech, card_script, card_script_comment, card_speech_comment)
@@ -39,10 +39,11 @@ constraint content_foreign_card foreign key (content_card_id) references cards (
 );
 
 CREATE TABLE IF NOT EXISTS translations (
-translation_card_id SERIAL,
-translation_language TEXT NOT NULL,
-translation_content TEXT NOT NULL ,
-translation_comment TEXT ,
+_id SERIAL,
+translation_card_id INTEGER NOT NULL,
+translation_language CHARACTER VARYING NOT NULL,
+translation_content CHARACTER VARYING NOT NULL ,
+translation_comment CHARACTER VARYING ,
 constraint translation_unique UNIQUE ( translation_card_id, translation_language),
 constraint translation_foreign_card foreign key (translation_card_id) references cards (_id)
 );
