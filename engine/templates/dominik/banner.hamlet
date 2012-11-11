@@ -1,5 +1,5 @@
 <p id="top_titleicon" class="navbar-text pull-left">
-    <img class="icon-myself" src=@{StaticR img_dominik_icon_myself_png}>
+    <img class="icon-myself" src=@{StaticR img_dominik_icon_myself_png} alt="Silhouette">
     Dominik Köppl
 <ul class="nav">
     <li><a href=@{ DKHomeR}><i class="icon-book icon-white"></i> Kurse </a>

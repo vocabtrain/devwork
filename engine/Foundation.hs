@@ -226,6 +226,7 @@ globalLayout sheet = do
 	master <- getYesod
 	mmsg <- getMessage
 	pc <- widgetToPageContent $ sheetContent sheet
+	maid <- maybeAuthId
 	(page_title, page_parents) <- breadcrumbs
 
 	PageContent title headTags bodyTags <- widgetToPageContent $ do

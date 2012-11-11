@@ -1,8 +1,8 @@
 <h2>Kontakt
-<div class="container-fluid">
-    <div class="row-fluid">
-        <div class="span6">
-            <table class="table table-hover" summary="Angaben zu einem Mitarbeiter">
+<div .container-fluid>
+    <div .row-fluid>
+        <div .span6>
+            <table .table .table-hover>
                 <tbody>
                     <tr>
                         <th>E-Mail
@@ -24,5 +24,5 @@
                             Universitätsstrasse 6a
                             <br>
                             86159 Augsburg
-        <div class="span2">
+        <div .span2.>
             <img src=@{StaticR img_dominik_myself_jpg} alt="Photo" >

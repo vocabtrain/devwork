@@ -17,16 +17,17 @@ $newline never
                             <span class="icon-bar">
                             <span class="icon-bar">
                             <span class="icon-bar">
-                        <a class="brand" href="#">
-                            <img src=@{StaticR img_favicon_png}>
+                        <a class="brand" href="http://www.devwork.org">
+                            <img alt="/dev/work" src=@{StaticR img_favicon_png}>
                             /dev/work
-                        <div class="nav-collapse collapse">
-                            <p class="navbar-text pull-right">
-                                Logged in as <a href="#" class="navbar-link">Anonymous</a>
+                        <div .nav-collapse .collapse>
+                            <p .navbar-text .pull-right>
+                                $maybe _ <- maid
+                                    <a href=@{AuthR LogoutR} .navbar-link>Logout
+                                $nothing
+                                    <a href=@{AuthR LoginR} .navbar-link>Login
                             $maybe banner <- sheetBanner sheet
                                 ^{banner}
-        $maybe msg <- mmsg
-            <div #message>#{msg}
         <div #breadcrumbs>
             <ul .breadcrumb>
                 $forall parent <- page_parents
@@ -38,6 +39,8 @@ $newline never
                         #{pageTitle pc}
                     $else
                         #{page_title}
+        $maybe msg <- mmsg
+            <div #message>#{msg}
         <div id="wrapper">
             $maybe nav <- sheetNav sheet
                 <div class="container-fluid">
@@ -55,9 +58,22 @@ $newline never
                     ^{bodyTags}
                     ^{pageBody pc}
 
-       <footer>
-           #{extraCopyright $ appExtra $ settings master}
-
+        <footer>
+            <i>#{extraCopyright $ appExtra $ settings master}
+            <br>
+            Soweit nicht anders explizit geäußert unterliegen die Inhalte dieser Seite der 
+            <a href="http://creativecommons.org/licenses/by/3.0/de/">CC-BY Lizenz
+            .
+            <br>
+            Powered by #
+            <a href="www.yesodweb.com/">יסוד
+            ,  written in #
+            <a href="www.haskell.org">λ
+            , layouted with #
+            <a href="http://twitter.github.com/bootstrap/">Bootstrap
+            , pics by #
+            <a href="http://glyphicons.com">GlyphIcons
+            .
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>
               if(!window.location.href.match(/localhost/)){
@@ -68,7 +84,6 @@ $newline never
                 \  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
                 })();
               }
-        \<!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.  chromium.org/developers/how-tos/chrome-frame-getting-started -->
         \<!--[if lt IE 7 ]>
             <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js">
             <script>

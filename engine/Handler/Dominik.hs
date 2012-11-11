@@ -12,6 +12,8 @@ showTenth i
 	| i < 10 = "0" ++ show i
 	| otherwise = show i
 
+getHomeR :: GHandler App App RepHtml
+getHomeR = redirect DKHomeR
 
 courseLayout :: GWidget App App () -> GHandler App App RepHtml
 courseLayout widget = globalLayout $ SheetLayout { 

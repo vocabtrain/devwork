@@ -1,6 +1,7 @@
 cron/lucene_indexer/bin
 engine/static
 engine/dist
+engine/nohup.out
 *.class
 *~
 *.jar
