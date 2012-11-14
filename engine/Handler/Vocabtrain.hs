@@ -55,7 +55,39 @@ instance JS.ToJSON BookSupply where
 		("book_translations", JS.toJSON $ bookSupplyTranslatedLanguages book)
 		]
 
+getVocabtrainBookSupplyR :: GHandler App App RepHtml
+--getVocabtrainBookSupplyR = do
+--displayBookSupply :: GHandler App App (
+getVocabtrainBookSupplyR = do
+	bookResult <- runDB $ selectList [] [] --VocabBookId ==. (Key $ toPersistValue (1::Int)) ] [] 
+	chapterResults <- forM bookResult (\bookEntity -> runDB $ selectList [VocabChapterBookId ==. (entityKey $ bookEntity)] [])
+	results <- return $ Prelude.zip bookResult chapterResults -- $ forM bookResult (\bookEntity -> return $ runDB $ selectList [VocabChapterId ==. (entityKey $ bookEntity)] []) 
+	let a = either (\_ -> ""::Text) Prelude.id $ fromPersistValue $ unKey $ entityKey $ (bookResult!!0)
 
+	defaultLayout $ toWidget $(whamletFile "templates/vocabtrain/booksupply.hamlet") 
+{-
+	defaultLayout [whamlet|
+<ul>
+$forall result <- results
+    <li>#{vocabBookName $ entityVal $ fst result}
+    <ol>
+       $forall chapterEntity <- snd result
+         <li>#{vocabChapterVolume $ entityVal chapterEntity}
+|]
+-}
+{-
+a = do
+	let bookResult = [0..1]
+	defaultLayout $ sequence $ forM bookResult (\bookEntity -> do
+--		bookName <- vocabBookName $ entityVal bookEntity
+		toWidget [whamlet|<a href=@{HomeR}>Go home!|]
+		)
+--	liftIO $ print $ map (vocabBookName . entityVal) bookResult
+	--liftIO $ print (bookResult :: [Entity bookResult])
+	--chapterResult <- runDB $ selectList [ VocabChapterBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+--	val <- VocabBookName $ entityVal $ (bookResult!!0)
+--	defaultLayout [whamlet|<a href=@{HomeR}>Go home!|]
+-}	
 
 {-getVocabtrainBookSupplyR :: Handler RepJson
 getVocabtrainBookSupplyR = jsonToRepJson $ JS.toJSON ([5]::[Int])

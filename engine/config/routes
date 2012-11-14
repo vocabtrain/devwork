@@ -13,8 +13,9 @@
 /tatoeba/query/#Text TatoebaQueryLanguageR
 /tatoeba/query TatoebaQueryRandomR GET
 
-/vocabtrain/booksupply VocabtrainBookSupplyR POST
-/vocabtrain/download VocabtrainDownloadR POST 
+/vocabtrain/booksupply VocabtrainBookSupplyR GET POST
+/vocabtrain/download VocabtrainDownloadR POST
+
 
 /koeppldo DKHomeR GET
 /koeppldo/qt QtDescR GET

@@ -233,10 +233,8 @@ globalLayout sheet = do
 		toWidgetHead $(hamletFile "templates/skeleton/head.hamlet")
 		setTitle . toHtml $ sheetTitle sheet
 		addStylesheet $ StaticR css_bootstrap_css
-		addScript $ StaticR js_bootstrap_js
 		addStylesheet $ StaticR css_bootstrap_docs_css
 		addStylesheet $ StaticR css_main_css
 		addStylesheet $ StaticR css_normalize_css
-		addScriptRemote $ ("http://code.jquery.com/jquery-latest.js" :: Text)
 	hamletToRepHtml $(hamletFile "templates/skeleton/overall.hamlet")
 

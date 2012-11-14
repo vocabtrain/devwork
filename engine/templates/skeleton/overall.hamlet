@@ -40,7 +40,7 @@ $newline never
                     $else
                         #{page_title}
         $maybe msg <- mmsg
-            <div #message>#{msg}
+            <div .alert .alert-block>#{msg}
         <div id="wrapper">
             $maybe nav <- sheetNav sheet
                 <div class="container-fluid">
@@ -66,9 +66,9 @@ $newline never
             .
             <br>
             Powered by #
-            <a href="www.yesodweb.com/">יסוד
+            <a href="http://www.yesodweb.com/">יסוד
             ,  written in #
-            <a href="www.haskell.org">λ
+            <a href="http://www.haskell.org">λ
             , layouted with #
             <a href="http://twitter.github.com/bootstrap/">Bootstrap
             , pics by #

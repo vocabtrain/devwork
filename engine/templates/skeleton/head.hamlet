@@ -18,10 +18,11 @@
 <meta name="description" content="This is the private homepage of Dominik K&#246;ppl."/>
 <meta name="author" content="Dominik K&#246;ppl"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="http://code.jquery.com/jquery-latest.js">
+<script src=@{StaticR js_bootstrap_js}>
 <link rel="shortcut icon" href=@{StaticR img_favicon_057_png}>
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href=@{StaticR img_favicon_144_png}>
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href=@{StaticR img_favicon_114_png}>
 <link rel="apple-touch-icon-precomposed" sizes="72x72"   href=@{StaticR img_favicon_072_png}>
 <link rel="apple-touch-icon-precomposed"                 href=@{StaticR img_favicon_057_png}>
-<script>
-    document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
+<script>document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
