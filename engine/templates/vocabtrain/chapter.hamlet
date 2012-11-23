@@ -1,0 +1,34 @@
+$maybe chapter <- chapterm
+    <h1>_{MsgChapterHeader $ vocabChapterVolume chapter}
+<table .table>
+    <thead>
+        <tr>
+            <th>Script
+            <th>Script Comments
+            <th>Speech
+            <th>Speech Comments
+            <th>Translations
+    <tbody>
+        $forall result <- results
+            $with card <- entityVal $ fst result
+                <tr>
+                    <td>#{vocabCardScript card}
+                    <td>
+                        $maybe scriptComment <- vocabCardScriptComment card
+                            #{scriptComment}
+                    <td>
+                        $maybe speech <- vocabCardSpeech card
+                            #{speech}
+                    <td>
+                        $maybe speechComment <- vocabCardSpeechComment card
+                            #{speechComment}
+                    <td>
+                        <table>
+                            $forall lang <- snd result
+                                <tr>
+                                    <td>#{vocabTranslationLanguage $ entityVal lang}
+                                    <td>#{vocabTranslationContent $ entityVal lang}
+                                    <td>
+                                        $maybe translationComment <- vocabTranslationComment $ entityVal lang
+                                            #{translationComment}
+

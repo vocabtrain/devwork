@@ -1,0 +1,34 @@
+<h1>_{MsgBookListHeader}
+<div id="maincontentbody">
+    ^{widgetVocabtrainBookCreate bookFormWidget bookFormEnctype}
+    <div .tabbable .tabs-left>
+        <ul .nav .nav-tabs>
+            $forall result <- results
+                <li>
+                    <a href="#book_#{either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result}" data-toggle="tab">#{vocabBookName $ entityVal $ fst result}
+        <div .tab-content>
+            $forall result <- results
+                $with bookId <- entityKey $ fst result
+                    <div .tab-pane #book_#{either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result}>
+                        <div .nav .nav-pills>
+                            <ul>
+                                <li>
+                                    <a href=@{VocabtrainBookUpdateR $ bookId}>
+                                        <i .icon-edit> 
+                                        _{MsgBookEdit}
+                                <li>
+                                    <a href=@{VocabtrainBookDeleteR $ bookId}>
+                                        <i .icon-trash> 
+                                        _{MsgBookDelete}
+                       ^{widgetVocabtrainChapterCreate' $ entityKey $ fst result}
+                        <ol>
+                            $forall chapterEntity <- snd result
+                                $with chapterId <- entityKey chapterEntity
+                                    <li>
+                                        <a href=@{VocabtrainChapterR chapterId}>
+                                            #{vocabChapterVolume $ entityVal chapterEntity}
+                                        <a href=@{VocabtrainChapterUpdateR chapterId}>
+                                            <i .icon-edit> 
+                                        <a href=@{VocabtrainChapterDeleteR chapterId}>
+                                            <i .icon-trash> 
+

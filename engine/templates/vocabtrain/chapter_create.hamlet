@@ -1,0 +1,5 @@
+<h2>_{MsgChapterNewHeader}
+<form method=post action=@{VocabtrainChapterInsertR bookId} enctype=#{chapterFormEnctype}>
+    ^{chapterFormWidget}
+    <button type=submit .btn .btn-success>_{MsgChapterNew}
+

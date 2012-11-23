@@ -1,0 +1,5 @@
+<p id="top_titleicon" class="navbar-text pull-left">
+    <img class="icon-myself" alt="Icon">
+    Vocabtrain
+<ul class="nav">
+    <li><a href=@{ VocabtrainBooksR}><i class="icon-book icon-white"></i> _{MsgBooks} </a>

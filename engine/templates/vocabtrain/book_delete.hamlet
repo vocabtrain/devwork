@@ -1,0 +1,3 @@
+<h1>_{MsgBookDeleteHeader $ vocabBookName $ fromJust book}
+<form method=post action=@{VocabtrainBookDeleteR bookId}>
+    <button type=submit .btn .btn-danger>_{MsgBookDelete}

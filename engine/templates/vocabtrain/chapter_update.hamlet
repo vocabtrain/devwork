@@ -1,0 +1,4 @@
+<h1>_{MsgChapterUpdateHeader $ vocabChapterVolume $ fromJust chapter}
+<form method=post action=@{VocabtrainChapterUpdateR chapterId}>
+    ^{chapterFormWidget}
+    <button type=submit .btn .btn-warning>_{MsgChapterUpdate}
