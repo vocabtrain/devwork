@@ -11,6 +11,7 @@ import GHC.Generics
 import System.IO
 import System.Directory(getTemporaryDirectory, removeFile)
 import Control.Exception (catch, finally, IOException)
+import Data.Maybe
 
 
 import Control.Monad
@@ -21,10 +22,314 @@ import qualified Data.ByteString as BS
 import Database.Persist.GenericSql.Raw (withStmt)
 import Database.Persist.GenericSql
 import Database.Persist.Sqlite
+import Text.Hamlet
 
 import Data.Conduit.Lazy
 import qualified Data.Attoparsec.ByteString as JSP
 import Network.Wai (requestBody)
+import Data.Time (getCurrentTime) 
+
+import Control.Arrow
+
+
+vocabLayoutSheet :: GWidget App App () -> SheetLayout App (Route App)
+vocabLayoutSheet widget = SheetLayout { 
+	  sheetTitle = "Vocabtrain"
+	, sheetNav = Nothing
+	, sheetBanner =  Just $(ihamletFile "templates/vocabtrain/banner.hamlet") 
+	, sheetContent = widget
+	}
+
+vocabLayout :: GWidget App App () -> GHandler App App RepHtml
+vocabLayout widget = globalLayout $ vocabLayoutSheet widget
+
+bookForm :: Maybe VocabBook -> AForm App App VocabBook
+bookForm mbook = VocabBook
+	<$> areq textField (fieldSettingsLabel MsgFieldName) (vocabBookName <$> mbook)
+	<*> areq (selectFieldList tatoebaLanguages) (fieldSettingsLabel MsgFieldLanguage) (vocabBookLanguage <$> mbook)
+	<*> aformM (liftIO getCurrentTime)
+	where
+		tatoebaLanguages = map (getTatoebaLanguageName &&& Prelude.id) $ [(minBound::TatoebaLanguage)..(maxBound::TatoebaLanguage)]
+
+widgetVocabtrainBookCreate :: GWidget App App () -> Enctype -> GWidget App App ()
+widgetVocabtrainBookCreate bookFormWidget bookFormEnctype = toWidget $(whamletFile "templates/vocabtrain/book_create.hamlet") 
+
+getVocabtrainBooksR :: GHandler App App RepHtml
+getVocabtrainBooksR = do
+	bookResult <- runDB $ selectList [] [] --VocabBookId ==. (Key $ toPersistValue (1::Int)) ] [] 
+	chapterResults <- forM bookResult (\bookEntity -> runDB $ selectList [VocabChapterBookId ==. (entityKey $ bookEntity)] [])
+	results <- return $ Prelude.zip bookResult chapterResults -- $ forM bookResult (\bookEntity -> return $ runDB $ selectList [VocabChapterId ==. (entityKey $ bookEntity)] []) 
+	let a = either (\_ -> ""::Text) Prelude.id $ fromPersistValue $ unKey $ entityKey $ (bookResult!!0)
+	(bookFormWidget, bookFormEnctype) <- generateFormPost $ renderDivs $ bookForm Nothing
+
+	widgetBook <- widgetToPageContent $ widgetVocabtrainBookCreate bookFormWidget bookFormEnctype
+	let vocabBookLayout widget = globalLayout $ SheetLayout { 
+				  sheetTitle = sheetTitle $ vocabLayoutSheet widget
+				, sheetNav = Just $(ihamletFile "templates/vocabtrain/navbook.hamlet")
+				, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
+				, sheetContent = sheetContent $ vocabLayoutSheet widget
+				}
+	vocabBookLayout $ toWidget $(whamletFile "templates/vocabtrain/books.hamlet") 
+
+
+
+postVocabtrainBooksR :: GHandler App App RepHtml
+postVocabtrainBooksR = do
+	((result, bookFormWidget), bookFormEnctype) <- runFormPost $ renderDivs $ bookForm Nothing
+	case result of
+		FormSuccess book -> do -- vocabLayout [whamlet|<p>#{show book}|]
+			_ <- runDB $ insert book
+			setMessageI $ MsgBookCreated $ vocabBookName book
+			redirect $ VocabtrainBooksR
+		_ -> vocabLayout $ do
+			setTitleI MsgBookPleaseCorrectEntry
+			widgetVocabtrainBookCreate bookFormWidget bookFormEnctype
+
+getVocabtrainBookDeleteR :: VocabBookId -> GHandler App App RepHtml
+getVocabtrainBookDeleteR bookId = do
+	book <- runDB $ get bookId
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/book_delete.hamlet") 
+
+postVocabtrainBookDeleteR :: VocabBookId -> GHandler App App RepHtml
+postVocabtrainBookDeleteR bookId = do
+	book <- runDB $ get bookId
+	if isJust book 
+		then do
+			_ <- runDB $ delete bookId
+			runDB $ deleteWhere [VocabChapterBookId ==. bookId]
+			setMessageI $ MsgBookDeleted $ vocabBookName $ fromJust book
+			redirect $ VocabtrainBooksR
+		else do
+			setMessageI $ MsgBookNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey bookId
+			redirect $ VocabtrainBooksR
+
+getVocabtrainBookUpdateR :: VocabBookId -> GHandler App App RepHtml
+getVocabtrainBookUpdateR bookId = do
+	book <- runDB $ get bookId
+	(bookFormWidget, bookFormEnctype) <- generateFormPost $ renderDivs $ bookForm book
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/book_update.hamlet") 
+
+postVocabtrainBookUpdateR :: VocabBookId -> GHandler App App RepHtml
+postVocabtrainBookUpdateR bookId = do
+	((result, bookFormWidget), bookFormEnctype) <- runFormPost $ renderDivs $ bookForm Nothing
+	case result of
+		FormSuccess book -> do -- vocabLayout [whamlet|<p>#{show book}|]
+			_ <- runDB $ replace bookId book
+			setMessageI $ MsgBookUpdated $ vocabBookName book
+			redirect $ VocabtrainBooksR
+		_ -> do
+			book <- runDB $ get bookId
+			vocabLayout $ do
+				setTitleI MsgBookPleaseCorrectEntry
+				toWidget $(whamletFile "templates/vocabtrain/book_update.hamlet") 
+
+chapterForm :: Maybe VocabChapter -> VocabBookId -> AForm App App VocabChapter
+chapterForm mchapter bookId = VocabChapter
+	<$> pure bookId
+	<*> areq textField (fieldSettingsLabel MsgFieldVolume) (vocabChapterVolume <$> mchapter)
+
+--widgetVocabtrainChapterCreate :: GWidget App App () -> Enctype -> GWidget App App ()
+--widgetVocabtrainChapterCreate :: VocabBookId -> GWidget App App ()
+--widgetVocabtrainChapterCreate chapterFormWidget chapterFormEnctype = toWidget $(whamletFile "templates/vocabtrain/chapter_create.hamlet") 
+widgetVocabtrainChapterCreate' :: VocabBookId -> GWidget App App ()
+widgetVocabtrainChapterCreate' bookId = do
+	(chapterFormWidget, chapterFormEnctype) <- lift $ generateFormPost $ renderDivs $ chapterForm Nothing bookId
+	widgetVocabtrainChapterCreate bookId chapterFormWidget chapterFormEnctype
+--	toWidget $(whamletFile "templates/vocabtrain/chapter_create.hamlet") 
+
+widgetVocabtrainChapterCreate :: VocabBookId -> GWidget App App () -> Enctype -> GWidget App App ()
+widgetVocabtrainChapterCreate bookId chapterFormWidget chapterFormEnctype = toWidget $(whamletFile "templates/vocabtrain/chapter_create.hamlet") 
+
+postVocabtrainChapterInsertR :: VocabBookId -> GHandler App App RepHtml
+postVocabtrainChapterInsertR bookId = do
+	((result, chapterFormWidget), chapterFormEnctype) <- runFormPost $ renderDivs $ chapterForm Nothing bookId
+	case result of
+		FormSuccess chapter -> do 
+			chapterId <- runDB $ insert chapter
+			setMessageI $ MsgChapterCreated $ vocabChapterVolume chapter
+			redirect $ VocabtrainChapterR chapterId
+		_ -> vocabLayout $ do
+			setTitleI MsgChapterPleaseCorrectEntry
+			widgetVocabtrainChapterCreate bookId chapterFormWidget chapterFormEnctype
+
+getVocabtrainChapterDeleteR :: VocabChapterId -> GHandler App App RepHtml
+getVocabtrainChapterDeleteR chapterId = do
+	chapter <- runDB $ get chapterId
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter_delete.hamlet") 
+
+postVocabtrainChapterDeleteR :: VocabChapterId -> GHandler App App RepHtml
+postVocabtrainChapterDeleteR chapterId = do
+	chapter <- runDB $ get chapterId
+	if isJust chapter 
+		then do
+			_ <- runDB $ delete chapterId
+			setMessageI $ MsgChapterDeleted $ vocabChapterVolume $ fromJust chapter
+			redirect $ VocabtrainBooksR
+		else do
+			setMessageI $ MsgChapterNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey chapterId
+			redirect $ VocabtrainBooksR
+
+getVocabtrainChapterUpdateR :: VocabChapterId -> GHandler App App RepHtml
+getVocabtrainChapterUpdateR chapterId = do
+	chapter <- runDB $ get chapterId
+	(chapterFormWidget, chapterFormEnctype) <- generateFormPost $ renderDivs $ chapterForm chapter (vocabChapterBookId $ fromJust chapter)
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter_update.hamlet") 
+
+postVocabtrainChapterUpdateR :: VocabChapterId -> GHandler App App RepHtml
+postVocabtrainChapterUpdateR chapterId = do
+	chapter <- runDB $ get chapterId
+	((result, chapterFormWidget), chapterFormEnctype) <- runFormPost $ renderDivs $ chapterForm Nothing (vocabChapterBookId $ fromJust chapter)
+	case result of
+		FormSuccess chapter' -> do 
+			_ <- runDB $ replace chapterId chapter'
+			setMessageI $ MsgChapterUpdated $ vocabChapterVolume chapter'
+			redirect $ VocabtrainChapterR chapterId
+		_ -> vocabLayout $ do
+				setTitleI MsgChapterPleaseCorrectEntry
+				toWidget $(whamletFile "templates/vocabtrain/chapter_update.hamlet") 
+
+
+getVocabtrainChapterR :: VocabChapterId -> GHandler App App RepHtml
+getVocabtrainChapterR chapterId = do
+	chapterm <- runDB $ get chapterId 
+	let chapter =  fromJust chapterm
+	bookm <- runDB $ get $ vocabChapterBookId chapter
+	let book = fromJust bookm
+	cardResults <- runDB $ rawSql
+		"SELECT ?? FROM cards JOIN content ON content_card_id = cards._id JOIN chapters ON content_chapter_id = chapters._id WHERE chapters._id = ?;"
+		[toPersistValue  chapterId]
+		:: GHandler App App [Entity VocabCard]
+	chapterResults <- runDB $ rawSql
+		"SELECT ?? FROM chapters JOIN chapters self ON chapters.chapter_book_id = self.chapter_book_id WHERE self._id = ?;"
+		[toPersistValue  chapterId]
+		:: GHandler App App [Entity VocabChapter]
+	translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [])
+	results <- return $ Prelude.zip cardResults translationResults
+	
+	widgetChapter <- widgetToPageContent $ widgetVocabtrainChapterCreate' $ vocabChapterBookId chapter
+	let vocabChapterLayout widget = globalLayout $ SheetLayout { 
+				  sheetTitle = sheetTitle $ vocabLayoutSheet widget
+				, sheetNav = Just $(ihamletFile "templates/vocabtrain/navchapter.hamlet")
+				, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
+				, sheetContent = sheetContent $ vocabLayoutSheet widget
+				}
+	vocabChapterLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter.hamlet") 
+
+
+
+translationForm :: Maybe VocabTranslation -> VocabCardId -> AForm App App VocabTranslation
+translationForm mtranslation cardId = VocabTranslation
+	<$> pure cardId
+	<*> areq (selectFieldList tatoebaLanguages) (fieldSettingsLabel MsgFieldLanguage) (vocabTranslationLanguage <$> mtranslation)
+	<*> areq textField (fieldSettingsLabel MsgFieldTranslation) (vocabTranslationContent <$> mtranslation)
+	<*> aopt textField (fieldSettingsLabel MsgFieldComment) (vocabTranslationComment <$> mtranslation)
+	where
+		tatoebaLanguages = map (getTatoebaLanguageName &&& Prelude.id) $ [(minBound::TatoebaLanguage)..(maxBound::TatoebaLanguage)]
+
+widgetVocabtrainTranslationCreate' :: VocabCardId -> VocabChapterId -> GWidget App App ()
+widgetVocabtrainTranslationCreate' cardId chapterId = do
+	(translationFormWidget, translationFormEnctype) <- lift $ generateFormPost $ renderDivs $ translationForm Nothing cardId
+	widgetVocabtrainTranslationCreate cardId chapterId translationFormWidget translationFormEnctype
+
+widgetVocabtrainTranslationCreate :: VocabCardId -> VocabChapterId -> GWidget App App () -> Enctype -> GWidget App App ()
+widgetVocabtrainTranslationCreate cardId chapterId translationFormWidget translationFormEnctype = toWidget $(whamletFile "templates/vocabtrain/translation_create.hamlet") 
+
+postVocabtrainTranslationInsertR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
+postVocabtrainTranslationInsertR cardId chapterId = do
+	((result, translationFormWidget), translationFormEnctype) <- runFormPost $ renderDivs $ translationForm Nothing cardId
+	case result of
+		FormSuccess translation -> do 
+			_ <- runDB $ insert translation
+			setMessageI $ MsgTranslationCreated $ vocabTranslationContent translation
+			redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
+		_ -> vocabLayout $ do
+			setTitleI MsgTranslationPleaseCorrectEntry
+			widgetVocabtrainTranslationCreate cardId chapterId translationFormWidget translationFormEnctype
+
+getVocabtrainTranslationDeleteR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
+getVocabtrainTranslationDeleteR translationId chapterId = do
+	translation <- runDB $ get translationId
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/translation_delete.hamlet") 
+
+postVocabtrainTranslationDeleteR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
+postVocabtrainTranslationDeleteR translationId chapterId = do
+	translation <- runDB $ get translationId
+	if isJust translation 
+		then do
+			_ <- runDB $ delete translationId
+			setMessageI $ MsgTranslationDeleted $ vocabTranslationContent $ fromJust translation
+			redirect $ VocabtrainChapterR chapterId
+		else do
+			setMessageI $ MsgTranslationNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey translationId
+			redirect $ VocabtrainChapterR chapterId
+
+getVocabtrainTranslationUpdateR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
+getVocabtrainTranslationUpdateR translationId chapterId = do
+	translation <- runDB $ get translationId
+	(translationFormWidget, translationFormEnctype) <- generateFormPost $ renderDivs $ translationForm translation (vocabTranslationCardId $ fromJust translation)
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/translation_update.hamlet") 
+
+postVocabtrainTranslationUpdateR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
+postVocabtrainTranslationUpdateR translationId chapterId = do
+	translation <- runDB $ get translationId
+	((result, translationFormWidget), translationFormEnctype) <- runFormPost $ renderDivs $ translationForm Nothing (vocabTranslationCardId $ fromJust translation)
+	case result of
+		FormSuccess translation' -> do 
+			_ <- runDB $ replace translationId translation'
+			setMessageI $ MsgTranslationUpdated $ vocabTranslationContent translation'
+			redirect $ VocabtrainChapterR chapterId
+		_ -> vocabLayout $ do
+				setTitleI MsgTranslationPleaseCorrectEntry
+				toWidget $(whamletFile "templates/vocabtrain/translation_update.hamlet") 
+
+
+
+
+{-	results <- mapM (\cardResult -> do
+			runDB $ 
+			runDB $ C.runResourceT $ withStmt
+				"SELECT translation_language from translations join cards on translation_card_id = cards._id where cards._id = ?;"
+				[entityKey $ cardResult] C.$$ CL.consume
+			) cardResults
+-}			
+--	translationResults <- selectList [VocabTranslationCardId <-. ( map (vocabContentCardId . entityVal) cardResult)] [] 
+{-	vocabLayout [whamlet|
+$forall result <- results
+   <li>#{vocabCardScript $ entityVal $ fst result}
+   $forall lang <- snd result
+      <li>#{vocabTranslationLanguage $ entityVal lang}
+|]
+-}
+{-
+	vocabLayout [whamlet|
+<ul>
+$forall result <- results
+    <li>#{vocabBookName $ entityVal $ fst result}
+    <ol>
+       $forall chapterEntity <- snd result
+         <li>#{vocabChapterVolume $ entityVal chapterEntity}
+|]
+-}
+{-
+a = do
+	let bookResult = [0..1]
+	vocabLayout $ sequence $ forM bookResult (\bookEntity -> do
+--		bookName <- vocabBookName $ entityVal bookEntity
+		toWidget [whamlet|<a href=@{HomeR}>Go home!|]
+		)
+--	liftIO $ print $ map (vocabBookName . entityVal) bookResult
+	--liftIO $ print (bookResult :: [Entity bookResult])
+	--chapterResult <- runDB $ selectList [ VocabChapterBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
+--	val <- VocabBookName $ entityVal $ (bookResult!!0)
+--	vocabLayout [whamlet|<a href=@{HomeR}>Go home!|]
+-}	
+
+{-getVocabtrainBookSupplyR :: Handler RepJson
+getVocabtrainBookSupplyR = jsonToRepJson $ JS.toJSON ([5]::[Int])
+-}
+
+--postVocabtrainBookSupplyR :: Handler RepPlain
+
 
 data BookSupply = BookSupply {
 	bookSupplyId :: Int,
@@ -55,45 +360,6 @@ instance JS.ToJSON BookSupply where
 		("book_translations", JS.toJSON $ bookSupplyTranslatedLanguages book)
 		]
 
-getVocabtrainBookSupplyR :: GHandler App App RepHtml
---getVocabtrainBookSupplyR = do
---displayBookSupply :: GHandler App App (
-getVocabtrainBookSupplyR = do
-	bookResult <- runDB $ selectList [] [] --VocabBookId ==. (Key $ toPersistValue (1::Int)) ] [] 
-	chapterResults <- forM bookResult (\bookEntity -> runDB $ selectList [VocabChapterBookId ==. (entityKey $ bookEntity)] [])
-	results <- return $ Prelude.zip bookResult chapterResults -- $ forM bookResult (\bookEntity -> return $ runDB $ selectList [VocabChapterId ==. (entityKey $ bookEntity)] []) 
-	let a = either (\_ -> ""::Text) Prelude.id $ fromPersistValue $ unKey $ entityKey $ (bookResult!!0)
-
-	defaultLayout $ toWidget $(whamletFile "templates/vocabtrain/booksupply.hamlet") 
-{-
-	defaultLayout [whamlet|
-<ul>
-$forall result <- results
-    <li>#{vocabBookName $ entityVal $ fst result}
-    <ol>
-       $forall chapterEntity <- snd result
-         <li>#{vocabChapterVolume $ entityVal chapterEntity}
-|]
--}
-{-
-a = do
-	let bookResult = [0..1]
-	defaultLayout $ sequence $ forM bookResult (\bookEntity -> do
---		bookName <- vocabBookName $ entityVal bookEntity
-		toWidget [whamlet|<a href=@{HomeR}>Go home!|]
-		)
---	liftIO $ print $ map (vocabBookName . entityVal) bookResult
-	--liftIO $ print (bookResult :: [Entity bookResult])
-	--chapterResult <- runDB $ selectList [ VocabChapterBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
---	val <- VocabBookName $ entityVal $ (bookResult!!0)
---	defaultLayout [whamlet|<a href=@{HomeR}>Go home!|]
--}	
-
-{-getVocabtrainBookSupplyR :: Handler RepJson
-getVocabtrainBookSupplyR = jsonToRepJson $ JS.toJSON ([5]::[Int])
--}
-
---postVocabtrainBookSupplyR :: Handler RepPlain
 postVocabtrainBookSupplyR :: Handler RepJson
 postVocabtrainBookSupplyR = do
 	bookSupply <- getBookSupply
@@ -126,7 +392,7 @@ postVocabtrainBookSupplyR = do
 
 data DownloadRequest = DownloadRequest 
 	{ requestBooks :: [Int]
-	, requestLanguages :: [Text]
+	, requestLanguages :: [Text] -- TODO [TatoebaLanguage]
 	} deriving (Show, Generic)
 instance JS.FromJSON DownloadRequest where
 
@@ -162,7 +428,7 @@ postVocabtrainDownloadR = do
 			cardResult <- runDB $ selectList [ VocabCardId <-. ( map (vocabContentCardId . entityVal) contentResult)] []
 			translationResult <- runDB $ selectList 
 				[ VocabTranslationCardId <-. ( map entityKey cardResult), 
-				VocabTranslationLanguage <-. (requestLanguages request)] []
+				VocabTranslationLanguage <-. ( map (read . Text.unpack) $ requestLanguages request)] []
 			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
 				withSqliteConn (Text.pack file) (\dbh -> do
 					_ <- ($) runSqlConn' dbh $ runMigrationSilent migrateAll

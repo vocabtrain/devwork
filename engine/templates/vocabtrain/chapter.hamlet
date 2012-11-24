@@ -1,5 +1,4 @@
-$maybe chapter <- chapterm
-    <h1>_{MsgChapterHeader $ vocabChapterVolume chapter}
+<h1>_{MsgChapterHeader $ vocabChapterVolume chapter}
 <table .table>
     <thead>
         <tr>
@@ -31,4 +30,18 @@ $maybe chapter <- chapterm
                                     <td>
                                         $maybe translationComment <- vocabTranslationComment $ entityVal lang
                                             #{translationComment}
+                                    <td>
+                                        <a href=@{VocabtrainTranslationUpdateR (entityKey lang) chapterId}>
+                                            <i .icon-edit> 
+                                        <a href=@{VocabtrainTranslationDeleteR (entityKey lang) chapterId}>
+                                            <i .icon-trash> 
+                        $with cardId <- either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result
+                            <div .accordion #new_translation_#{cardId}>
+                                <div .accordion-group>
+                                    <div .accordion-heading>
+                                        <a .accordion-toggle data-toggle="collapse" data-parent="#new_translation_#{cardId}" href="#new_translation_#{cardId}_inner">
+                                            _{MsgTranslationNew}
+                                    <div #new_translation_#{cardId}_inner .accordion-body .collapse>
+                                        <div .accordion-inner>
+                                            ^{widgetVocabtrainTranslationCreate' (entityKey $ fst result) chapterId}
 

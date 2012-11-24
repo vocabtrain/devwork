@@ -12,6 +12,8 @@ module Foundation
     , module Settings
     , module Model
     , getExtra
+	, widgetToHtmlUrlI
+	, hamletToHtmlUrlI
 	, SheetLayout (..)
 --	, DominikSub (..)
 --    , resourcesDominikSub
@@ -35,7 +37,7 @@ import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
-import Text.Hamlet (hamletFile)
+import Text.Hamlet (hamletFile, ihamletFile, HtmlUrlI18n)
 
 import qualified Data.Text
 import Data.Text (Text)
@@ -209,11 +211,24 @@ instance YesodBreadcrumbs App where
 --staticServer :: Text -> Text
 --staticServer str = Data.Text.concat [ "http://web403.webbox555.server-home.org/drake/", str ]
 
-
+{--
 data SheetLayout sub url = SheetLayout {
 	  sheetTitle :: String
 	, sheetNav :: Maybe (HtmlUrl url)
 	, sheetBanner :: Maybe (HtmlUrl url)
+	, sheetContent :: GWidget sub App ()
+}
+--}
+
+widgetToHtmlUrlI :: GWidget App App () -> msg -> url -> GWidget App App ()
+widgetToHtmlUrlI hu _msgRender _urlRender = hu
+hamletToHtmlUrlI :: (t2 -> t1) -> t -> t2 -> t1
+hamletToHtmlUrlI hu _msgRender _urlRender = hu _urlRender
+
+data SheetLayout sub url = SheetLayout {
+	  sheetTitle :: String
+	, sheetNav :: Maybe (HtmlUrlI18n AppMessage url)
+	, sheetBanner :: Maybe (HtmlUrlI18n AppMessage url)
 	, sheetContent :: GWidget sub App ()
 }
 
@@ -234,7 +249,7 @@ globalLayout sheet = do
 		setTitle . toHtml $ sheetTitle sheet
 		addStylesheet $ StaticR css_bootstrap_css
 		addStylesheet $ StaticR css_bootstrap_docs_css
-		addStylesheet $ StaticR css_main_css
 		addStylesheet $ StaticR css_normalize_css
-	hamletToRepHtml $(hamletFile "templates/skeleton/overall.hamlet")
+		addStylesheet $ StaticR css_main_css
+	ihamletToRepHtml $(ihamletFile "templates/skeleton/overall.hamlet")
 

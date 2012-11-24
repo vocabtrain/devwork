@@ -6,8 +6,8 @@ $newline never
 \<!--[if gt IE 8]><!-->
 <html class="no-js" lang="en"> <!--<![endif]-->
     <head>
-        ^{headTags}
-        ^{pageHead pc}
+        ^{hamletToHtmlUrlI headTags}
+        ^{hamletToHtmlUrlI $ pageHead pc}
     <body data-spy="scroll" data-target=".bs-docs-sidebar">
         <header class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar navbar-inverse navbar-fixed-top">
@@ -47,16 +47,15 @@ $newline never
                     <div class="row-fluid">
                         <div class="span2">
                             <div class="well sidebar-nav">
-                                <ul class="nav nav-list">
-                                    ^{nav}
+                                ^{nav}
                         <div id="main" class="span9">
                             <div id="maincontent">
-                                ^{bodyTags}
-                                ^{pageBody pc}
+                                ^{hamletToHtmlUrlI bodyTags}
+                                ^{hamletToHtmlUrlI $ pageBody pc}
             $nothing
                 <div #main .standalone>
-                    ^{bodyTags}
-                    ^{pageBody pc}
+                    ^{hamletToHtmlUrlI bodyTags}
+                    ^{hamletToHtmlUrlI $ pageBody pc}
 
         <footer>
             <i>#{extraCopyright $ appExtra $ settings master}

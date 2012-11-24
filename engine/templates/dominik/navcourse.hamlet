@@ -1,12 +1,13 @@
-<li><a href=@{ DKHomeR}><i class="icon-home"></i> Start</a>
-<li class="nav-header"><a href=@{ QtDescR}>C++/Qt Kurs</a>
-<li><a href=@{ QtDossierR}><i class="icon-list"></i> Kursunterlagen</a>
-<li><a href=@{ QtGalleryR}><i class="icon-picture"></i>Galerie</a>
-<li><a href=@{ QtProjectListR}><i class="icon-gift"></i>Projekte</a>
-<li><a href=@{ QtOpenGLR}><i class="icon-facetime-video"></i>OpenGL in Qt</a>
-<li><a href="http://www.open-of-course.org/courses/course/view.php?id=80"><i class="icon-user"></i>Moodle</a>
-<li class="nav-header"><a href=@{ JavaDescR}>Java Kurs</a>
-<li><a href=@{ JavaDossierR}><i class="icon-list"></i>Kursunterlagen</a>
-<li><a href=@{ JavaProjectListR}><i class="icon-gift"></i>Projekte</a>
-<li><a href="http://www.open-of-course.org/courses/course/view.php?id=81"><i class="icon-user"></i>Moodle</a>
-<li class="nav-header"><a href=@{ OpenGLR}>OpenGL-Vortrag</a>
+<ul class="nav nav-list">
+    <li><a href=@{ DKHomeR}><i class="icon-home"></i> Start</a>
+    <li class="nav-header"><a href=@{ QtDescR}>C++/Qt Kurs</a>
+    <li><a href=@{ QtDossierR}><i class="icon-list"></i> Kursunterlagen</a>
+    <li><a href=@{ QtGalleryR}><i class="icon-picture"></i>Galerie</a>
+    <li><a href=@{ QtProjectListR}><i class="icon-gift"></i>Projekte</a>
+    <li><a href=@{ QtOpenGLR}><i class="icon-facetime-video"></i>OpenGL in Qt</a>
+    <li><a href="http://www.open-of-course.org/courses/course/view.php?id=80"><i class="icon-user"></i>Moodle</a>
+    <li class="nav-header"><a href=@{ JavaDescR}>Java Kurs</a>
+    <li><a href=@{ JavaDossierR}><i class="icon-list"></i>Kursunterlagen</a>
+    <li><a href=@{ JavaProjectListR}><i class="icon-gift"></i>Projekte</a>
+    <li><a href="http://www.open-of-course.org/courses/course/view.php?id=81"><i class="icon-user"></i>Moodle</a>
+    <li class="nav-header"><a href=@{ OpenGLR}>OpenGL-Vortrag</a>

@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+datadir=/home/niki/data/
+scriptdir=/home/niki/devwork/cron
+
+
 cat <<EOF
 module Generated
 	where
@@ -9,6 +13,11 @@ import Yesod (Route(..))
 import Settings.StaticFiles
 import qualified Yesod.Static
 import Data.Text (Text)
+import Database.Persist.TH
+import Database.Persist
+import Text.Read
+import Text.ParserCombinators.ReadP hiding (choice)
+import Text.Blaze (ToMarkup)
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static
@@ -136,6 +145,55 @@ function getJavaProjects
 	echo "]"
 }
 
+function getTatoebaLanguages
+{
+	echo -n 'data TatoebaLanguage = '
+	a=()
+	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
+		a+="LANG_`echo $i | cut -d'@' -f1 | tr '[:lower:]' '[:upper:]'`"
+	done
+	echo $a | sed 's@ @\n\t | @g'
+	echo "\tderiving(Eq,Enum,Bounded)"
+##
+##instance Read
+	echo "instance Read TatoebaLanguage where "
+	echo "\treadPrec = choice $ strValMap ["
+	a=()
+	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
+		a+="(\"`echo $i | cut -d'@' -f1`\",LANG_`echo $i | cut -d'@' -f1 | tr '[:lower:]' '[:upper:]'`)"
+	done
+	echo  "\t\t$a" | sed 's@ @\n\t\t, @g'
+cat <<EOF
+		]
+		where
+			strValMap :: [(String, TatoebaLanguage)] -> [ReadPrec TatoebaLanguage]
+			strValMap = map (\(x, y) -> lift $ string x >> return y)
+EOF
+##
+##instance Show
+	echo 'instance Show TatoebaLanguage where'
+	a=()
+	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
+		a+="show(LANG_`echo $i | cut -d'@' -f1 | tr '[:lower:]' '[:upper:]'`)=\"`echo $i | cut -d'@' -f1`\""
+	done
+	echo "\t$a" | sed 's@ @\n\t@g'
+#	echo "\t\t|otherwise = \"und\""
+	
+	echo 'derivePersistField "TatoebaLanguage"'
+
+	##
+	##getTatoebaLanguageName
+	echo 'getTatoebaLanguageName :: TatoebaLanguage -> Text'
+	a=()
+	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
+		a+="getTatoebaLanguageName(LANG_`echo $i | cut -d'@' -f1 | tr '[:lower:]' '[:upper:]'`)=\"`echo $i | cut -d'@' -f2`\""
+	done
+	echo "$a" | sed 's@ @\n@g'
+#	echo "\t|otherwise = \"unknown language\""
+}
+
+getTatoebaLanguages
+
 p=`pwd`
 cd "$p/static/img/qtgallery" && getQtGalleryImages
 cd "$p/static/bin/projects/java" && getJavaProjects
@@ -143,3 +201,11 @@ cd "$p/static/bin/projects/qt" && getQtProjects
 cd "$p/static/bin/script" && getWorksheets getJavaWorkSheets 'java_blatt'
 cd "$p/static/bin/script" && getWorksheets getQtWorkSheets 'qt_blatt'
 cd "$p/static/bin/pkg/nehe" && getOpenGLQtLessons
+
+
+
+cat <<EOF
+instance ToMarkup TatoebaLanguage where
+	toMarkup = toMarkup . getTatoebaLanguageName
+EOF
+

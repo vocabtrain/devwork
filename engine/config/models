@@ -16,7 +16,7 @@ Comment
 
 VocabBook id=_id sql=books
 	name Text sql=book_name
-	language Text sql=book_language
+	language TatoebaLanguage sql=book_language
 	timestamp UTCTime default=CURRENT_TIMESTAMP sql=book_timestamp
 	UniqueName name
 	deriving Show
@@ -35,7 +35,7 @@ VocabContent id=_id sql=content
 	UniqueContent chapterId cardId
 VocabTranslation id=_id sql=translations
 	cardId VocabCardId sql=translation_card_id
-	language Text sql=translation_language
+	language TatoebaLanguage sql=translation_language
 	content Text sql=translation_content
 	comment Text Maybe sql=translation_comment
 	UniqueTranslation cardId language

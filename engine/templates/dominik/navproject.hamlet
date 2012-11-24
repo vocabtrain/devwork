@@ -1,8 +1,9 @@
-<li><a href=@{ DKProjectHomeR}><i class="icon-home"></i> Start</a>
+<ul class="nav nav-list">
+    <li><a href=@{ DKProjectHomeR}><i class="icon-home"></i> Start</a>
 
-<li class="nav-header">Tatoeba
-<li><a href=@{TatoebaWebServiceR}>Web-Service</a>
-<li><a href=@{TatoebaAppR}>Android App</a>
+    <li class="nav-header">Tatoeba
+    <li><a href=@{TatoebaWebServiceR}>Web-Service</a>
+    <li><a href=@{TatoebaAppR}>Android App</a>
 
-<li class="nav-header"><a href=@{ProjectFritzContactR}>FritzContact</a>
-<li class="nav-header"><a href=@{ProjectAnnualR}>Annual</a>
+    <li class="nav-header"><a href=@{ProjectFritzContactR}>FritzContact</a>
+    <li class="nav-header"><a href=@{ProjectAnnualR}>Annual</a>

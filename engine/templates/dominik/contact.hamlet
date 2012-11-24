@@ -19,10 +19,11 @@
                     <tr>
                         <th>Anschrift
                         <td>
-                            Universität Augsburg
-                            <br>
-                            Universitätsstrasse 6a
-                            <br>
-                            86159 Augsburg
+                            <address>
+                                Universität Augsburg
+                                <br>
+                                Universitätsstrasse 6a
+                                <br>
+                                86159 Augsburg
         <div .span2.>
             <img src=@{StaticR img_dominik_myself_jpg} alt="Photo" >

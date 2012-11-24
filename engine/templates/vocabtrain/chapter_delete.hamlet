@@ -1,3 +1,4 @@
-<h1>_{MsgChapterDeleteHeader $ vocabChapterVolume $ fromJust chapter}
 <form method=post action=@{VocabtrainChapterDeleteR chapterId}>
-    <button type=submit .btn .btn-danger>_{MsgChapterDelete}
+    <fieldset>
+        <legend>_{MsgChapterDeleteHeader $ vocabChapterVolume $ fromJust chapter}
+        <button type=submit .btn .btn-danger>_{MsgChapterDelete}

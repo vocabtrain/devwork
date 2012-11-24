@@ -3,7 +3,7 @@ module Handler.Dominik where
 
 import Import
 import qualified Prelude
-import Text.Hamlet (hamletFile)
+import Text.Hamlet (ihamletFile)
 import qualified Text.Blaze.Html
 
 
@@ -15,19 +15,27 @@ showTenth i
 getHomeR :: GHandler App App RepHtml
 getHomeR = redirect DKHomeR
 
+dominikLayoutSheet :: GWidget App App () -> SheetLayout App (Route App)
+dominikLayoutSheet widget = SheetLayout { 
+	  sheetTitle = "Dominik Köppl"
+	, sheetNav = Nothing
+	, sheetBanner =  Just $(ihamletFile "templates/dominik/banner.hamlet")
+	, sheetContent = widget
+	}
+
 courseLayout :: GWidget App App () -> GHandler App App RepHtml
 courseLayout widget = globalLayout $ SheetLayout { 
-	  sheetTitle = "Dominik Köppl"
-	, sheetNav = Just $(hamletFile "templates/dominik/navcourse.hamlet")
-	, sheetBanner =  Just $(hamletFile "templates/dominik/banner.hamlet")
-	, sheetContent = widget
+	  sheetTitle = sheetTitle $ dominikLayoutSheet widget
+	, sheetNav = Just $(ihamletFile "templates/dominik/navcourse.hamlet")
+	, sheetBanner =  sheetBanner $ dominikLayoutSheet widget
+	, sheetContent = sheetContent $ dominikLayoutSheet widget
 	}
 projectLayout :: GWidget App App () -> GHandler App App RepHtml
 projectLayout widget = globalLayout $ SheetLayout { 
-	  sheetTitle = "Dominik Köppl"
-	, sheetNav = Just $(hamletFile "templates/dominik/navproject.hamlet")
-	, sheetBanner =  Just $(hamletFile "templates/dominik/banner.hamlet")
-	, sheetContent = widget
+	  sheetTitle = sheetTitle $ dominikLayoutSheet widget
+	, sheetNav = Just $(ihamletFile "templates/dominik/navproject.hamlet")
+	, sheetBanner =  sheetBanner $ dominikLayoutSheet widget
+	, sheetContent = sheetContent $ dominikLayoutSheet widget
 	}
 
 
@@ -79,11 +87,9 @@ getJavaProjectListR  = courseLayout $ do
 	toWidget javaProjectList 
 
 dominikContact :: GWidget App App ()
-dominikContact = do
-	toWidget $(whamletFile "templates/dominik/contact.hamlet") 
+dominikContact = toWidget $(whamletFile "templates/dominik/contact.hamlet") 
 javaProjectList :: GWidget App App ()
-javaProjectList = do
-	toWidget $(whamletFile "templates/dominik/javaprojectlist.hamlet") 
+javaProjectList = toWidget $(whamletFile "templates/dominik/javaprojectlist.hamlet") 
 
 getJavaDossierR :: GHandler App App RepHtml
 getJavaDossierR = courseLayout $ do

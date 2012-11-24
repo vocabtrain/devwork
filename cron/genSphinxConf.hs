@@ -37,7 +37,7 @@ languagesWithCJK = [
 
 genLang (SqlByteString langB) =
 				"source source_" ++ lang ++ " : default {\n" ++
-				"\tsql_query = SELECT sentence_id, sentence_text FROM sentences WHERE sentence_language = '" ++ lang ++ "';\n" ++
+				"\tsql_query = SELECT sentence_id, sentence_text FROM tatoeba_sentences WHERE sentence_language = '" ++ lang ++ "';\n" ++
 				"}\n" ++
 				"index " ++ lang ++ " : " ++
 				( if elem lang languagesWithCJK
@@ -54,7 +54,7 @@ genLang (SqlByteString langB) =
 main :: IO ()
 main = do
 	dbh <- connectPostgreSQL "host=localhost dbname=devwork user=postgres"
-	langs <- quickQuery' dbh "SELECT sentence_language FROM sentences GROUP BY sentence_language" []
+	langs <- quickQuery' dbh "SELECT sentence_language FROM tatoeba_sentences GROUP BY sentence_language" []
 	forM_ langs (\lang ->
 		putStr $ genLang (lang !! 0) )
 	putStr $ "index und : common_index {\n" ++

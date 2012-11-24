@@ -22,8 +22,10 @@ function dhaskell {
 	ghc -i "$scriptdir/MyQQ.hs" -outputdir ~/data -odir ~/data -o "$datadir/`basename $1 .hs`" $1
 }
 dhaskell "$scriptdir/parseTatoeba.hs"
+dhaskell "$scriptdir/parseLanguages.hs"
 dhaskell "$scriptdir/genSphinxConf.hs"
 
+[[ -f "$datadir/ISO-639-2_utf-8.txt" ]] || wget 'http://www.loc.gov/standards/iso639-2/ISO-639-2_utf-8.txt' -O "$datadir/ISO-639-2_utf-8.txt" 
 [[ -f "$datadir/sentences.csv" ]] || wget 'http://tatoeba.org/files/downloads/sentences.csv' -O "$datadir/sentences.csv" 
 [[ -f "$datadir/links.csv" ]] || wget 'http://tatoeba.org/files/downloads/links.csv' -O  "$datadir/links.csv"
 [[ -f "$datadir/jpn_indices.csv" ]] || wget 'http://tatoeba.org/files/downloads/jpn_indices.csv' -O "$datadir/jpn_indices.csv" 
@@ -44,6 +46,9 @@ echo 'VACUUM;' | sqlite3 "$datadir/tatoeba.sqlite"
 searchd --config "$datadir/sphinx.conf" --stopwait 
 
 ./parseTatoeba
+./parseLanguages > "$datadir/available_languages.txt"
+sort -b "$datadir/available_languages.txt" | uniq > "$datadir/available_languages.txt2"
+mv "$datadir/available_languages.txt2" "$datadir/available_languages.txt"
 cp "$scriptdir/sphinx.conf.head"  "$datadir/sphinx.conf"
 ./genSphinxConf >> "$datadir/sphinx.conf"
 searchd --config "$datadir/sphinx.conf" 

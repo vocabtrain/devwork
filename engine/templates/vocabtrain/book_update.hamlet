@@ -1,4 +1,5 @@
-<h1>_{MsgBookUpdateHeader $ vocabBookName $ fromJust book}
 <form method=post action=@{VocabtrainBookUpdateR bookId}>
-    ^{bookFormWidget}
-    <button type=submit .btn .btn-warning>_{MsgBookUpdate}
+    <fieldset>
+        <legend>_{MsgBookUpdateHeader $ vocabBookName $ fromJust book}
+        ^{bookFormWidget}
+        <button type=submit .btn .btn-warning>_{MsgBookUpdate}

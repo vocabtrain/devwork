@@ -1,5 +1,6 @@
-<h2>_{MsgBookNewHeader}
 <form method=post action=@{VocabtrainBooksR} enctype=#{bookFormEnctype}>
-    ^{bookFormWidget}
-    <button type=submit .btn .btn-success>_{MsgBookNew}
+    <fieldset>
+        <legend>_{MsgBookNewHeader}
+        ^{bookFormWidget}
+        <button type=submit .btn .btn-success>_{MsgBookNew}
 
