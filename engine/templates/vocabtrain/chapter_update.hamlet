@@ -1,4 +1,4 @@
-<form method=post action=@{VocabtrainChapterUpdateR chapterId}>
+<form method=post action=@{VocabtrainChapterUpdateR chapterId} enctype=#{chapterFormEnctype}>
     <fieldset>
         <legend>_{MsgChapterUpdateHeader $ vocabChapterVolume $ fromJust chapter}
         ^{chapterFormWidget}

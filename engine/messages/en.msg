@@ -11,6 +11,7 @@ ChapterNew: Create a new chapter
 ChapterNewHeader: New chapter
 ChapterHeader title@Text: Chapter #{title}
 ChapterListHeader: Chapters
+
 Books: Books
 BookCreated title@Text: Your new book, #{title}, has been created.
 BookUpdated title@Text: The book #{title}, has been successfully updated.
@@ -39,12 +40,41 @@ TranslationUpdate: Update translation
 TranslationNew: Create a new translation
 TranslationNewHeader: New translation
 
+CardCreated title@Text: Your new card, #{title}, has been created.
+CardUpdated title@Text: The card #{title}, has been successfully updated.
+CardDeleted title@Text: The card #{title}, has been deleted.
+CardDeleteHeader title@Text: Do you really want to delete the card #{title}?
+CardUpdateHeader title@Text: Update card #{title}
+CardPleaseCorrectEntry: Your submitted entry had some errors, please correct and try again.
+CardNotFound id@Int: The card ##{id} could not be found.
+CardDelete: Delete card
+CardEdit: Edit card
+CardUpdate: Update card
+CardNew: Create a new card
+CardNewHeader: New card
+
+SearchCard: Search Card
+
+CardChaptersDeleteHeader title@Text: Remove card ,#{title}, from the chapters
+CardChaptersDelete: Remove Links
+
+VocabManipulationPermissionDenied: You have to login in order to make changes.
+
 FieldLanguage: Language
 FieldName: Name
 FieldVolume: Volume
+FieldChapters: Chapters
 FieldComment: Comment
 FieldTranslation: Translation
 
+FieldScript: Script
+FieldScriptComment: Script Comment
+FieldSpeech: Speech
+FieldSpeechComment: Speech Comment
+
+FieldCardTypePrimary: Primary Type
+FieldCardTypeSecondary: Secondary Type
+FieldCardTypeTertiary: Tertiary Type
 
 Hello: Hello
 NotAnAdmin: You must be an administrator to access this page.
@@ -75,3 +105,5 @@ PleaseCorrectComment: Your submitted comment had some errors, please correct and
 
 HomepageTitle: Yesod Blog Demo
 BlogArchiveTitle: Blog Archive
+
+

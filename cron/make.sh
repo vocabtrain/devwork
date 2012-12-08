@@ -63,10 +63,10 @@ mv "$datadir/tatoeba.sqlite" "$datadir/lucene/"
 zip -r ../tatoeba.zip .
 
 cd "$datadir"
-ftp -invd web403.webbox555.server-home.org  << EOF
-user web403f7 tatoeba
-put tatoeba.zip
-close
-bye
-
-EOF
+#ftp -invd web403.webbox555.server-home.org  << EOF
+#user web403f7 tatoeba
+#put tatoeba.zip
+#close
+#bye
+#
+#EOF

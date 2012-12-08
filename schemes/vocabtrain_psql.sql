@@ -13,7 +13,7 @@ chapter_book_id INTEGER NOT NULL,
 chapter_volume CHARACTER VARYING NOT NULL,
 constraint chapter_primary PRIMARY KEY(_id),
 constraint chapter_unique UNIQUE ( chapter_book_id, chapter_volume ),
-constraint chapter_foreign FOREIGN KEY (chapter_book_id) references books (_id)
+constraint chapter_foreign FOREIGN KEY (chapter_book_id) references books (_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS cards (
@@ -24,7 +24,7 @@ card_speech CHARACTER VARYING,
 card_speech_comment CHARACTER VARYING ,
 card_type INT,
 constraint card_primary PRIMARY KEY(_id),
-constraint card_unique UNIQUE ( card_speech, card_script, card_script_comment, card_speech_comment)
+constraint card_unique UNIQUE ( card_speech, card_script, card_script_comment, card_speech_comment) ON DELETE CASCADE
 );
 
 
@@ -34,8 +34,8 @@ content_chapter_id INTEGER NOT NULL,
 content_card_id INTEGER NOT NULL,
 constraint content_primary PRIMARY KEY(_id),
 constraint content_unique UNIQUE( content_chapter_id, content_card_id),
-constraint content_foreign_chapter foreign key (content_chapter_id) references chapters (_id),
-constraint content_foreign_card foreign key (content_card_id) references cards (_id)
+constraint content_foreign_chapter foreign key (content_chapter_id) references chapters (_id) ON DELETE CASCADE,
+constraint content_foreign_card foreign key (content_card_id) references cards (_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS translations (
@@ -45,7 +45,7 @@ translation_language CHARACTER VARYING NOT NULL,
 translation_content CHARACTER VARYING NOT NULL ,
 translation_comment CHARACTER VARYING ,
 constraint translation_unique UNIQUE ( translation_card_id, translation_language),
-constraint translation_foreign_card foreign key (translation_card_id) references cards (_id)
+constraint translation_foreign_card foreign key (translation_card_id) references cards (_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS filing (
@@ -60,10 +60,12 @@ filing_count INTEGER DEFAULT 0,
 filing_difficulty FLOAT DEFAULT 0, 
 filing_sequence INTEGER DEFAULT 12, 
 constraint filing_primary PRIMARY KEY(_id), 
-constraint filing_unique UNIQUE(filing_card_id, filing_sequence)
+constraint filing_unique UNIQUE(filing_card_id, filing_sequence),
+constraint filing_foreign_card foreign key (filing_card_id) references cards (_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS filing_data (_id SERIAL, 
+CREATE TABLE IF NOT EXISTS filing_data (
+_id SERIAL, 
 filing_timestamp INTEGER NOT NULL DEFAULT 0, 
 filing_session INTEGER NOT NULL DEFAULT 0, 
 filing_sequence INTEGER NOT NULL, 

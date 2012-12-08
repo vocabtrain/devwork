@@ -15,9 +15,11 @@ import qualified Yesod.Static
 import Data.Text (Text)
 import Database.Persist.TH
 import Database.Persist
+import qualified Data.Text as Text
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import Text.Blaze (ToMarkup)
+import Web.PathPieces
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static
@@ -207,5 +209,8 @@ cd "$p/static/bin/pkg/nehe" && getOpenGLQtLessons
 cat <<EOF
 instance ToMarkup TatoebaLanguage where
 	toMarkup = toMarkup . getTatoebaLanguageName
+instance PathPiece TatoebaLanguage where
+	fromPathPiece = read . Text.unpack
+	toPathPiece = toPathPiece . getTatoebaLanguageName
 EOF
 

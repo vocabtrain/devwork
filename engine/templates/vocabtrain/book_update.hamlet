@@ -1,4 +1,4 @@
-<form method=post action=@{VocabtrainBookUpdateR bookId}>
+<form method=post action=@{VocabtrainBookUpdateR bookId} enctype=#{bookFormEnctype}>
     <fieldset>
         <legend>_{MsgBookUpdateHeader $ vocabBookName $ fromJust book}
         ^{bookFormWidget}

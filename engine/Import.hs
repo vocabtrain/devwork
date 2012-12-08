@@ -34,5 +34,11 @@ infixr 5 <>
 (<>) = mappend
 #endif
 
+	
 
-
+{-cardTypeField :: Field sub master CardTypePrimary
+cardTypeField = selectFieldList cardTypePrimaryList
+		where
+			cardTypePrimaryList :: [(Text, CardTypePrimary)]
+			cardTypePrimaryList = map (pack . show &&& id) $ [minBound..maxBound] 
+-}

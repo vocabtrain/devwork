@@ -95,7 +95,7 @@ handleTatoebaQueryR language queryString = do
 				}
 
 	
-handleTatoebaQueryLanguageR :: Text -> Handler RepXml
+handleTatoebaQueryLanguageR :: TatoebaLanguage -> Handler RepXml
 handleTatoebaQueryLanguageR language = do
 	relation <- queryRandomSentenceIn
 	let content = toContent $ renderText def $ Document (Prologue [] Nothing []) 

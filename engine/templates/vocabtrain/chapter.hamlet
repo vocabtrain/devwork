@@ -2,15 +2,24 @@
 <table .table>
     <thead>
         <tr>
-            <th>Script
-            <th>Script Comments
-            <th>Speech
-            <th>Speech Comments
-            <th>Translations
+            <th>
+            <th>_{MsgFieldScript}
+            <th>_{MsgFieldScriptComment}
+            <th>_{MsgFieldSpeech}
+            <th>_{MsgFieldSpeechComment}
+            <th>_{MsgFieldTranslation}
     <tbody>
         $forall result <- results
             $with card <- entityVal $ fst result
                 <tr>
+                    <td>
+                        <a href=@{TatoebaQueryR (Text.pack $ show $ vocabBookLanguage $ book) $ vocabCardScript card}>
+                            <i .icon-leaf>
+                        $maybe _ <- maid
+                            <a href=@{VocabtrainCardUpdateR (entityKey $ fst result) chapterId}>
+                                <i .icon-edit>
+                            <a href=@{VocabtrainCardDeleteR (entityKey $ fst result) chapterId}>
+                                <i .icon-trash>
                     <td>#{vocabCardScript card}
                     <td>
                         $maybe scriptComment <- vocabCardScriptComment card
@@ -31,17 +40,21 @@
                                         $maybe translationComment <- vocabTranslationComment $ entityVal lang
                                             #{translationComment}
                                     <td>
-                                        <a href=@{VocabtrainTranslationUpdateR (entityKey lang) chapterId}>
-                                            <i .icon-edit> 
-                                        <a href=@{VocabtrainTranslationDeleteR (entityKey lang) chapterId}>
-                                            <i .icon-trash> 
-                        $with cardId <- either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result
-                            <div .accordion #new_translation_#{cardId}>
-                                <div .accordion-group>
-                                    <div .accordion-heading>
-                                        <a .accordion-toggle data-toggle="collapse" data-parent="#new_translation_#{cardId}" href="#new_translation_#{cardId}_inner">
-                                            _{MsgTranslationNew}
-                                    <div #new_translation_#{cardId}_inner .accordion-body .collapse>
-                                        <div .accordion-inner>
-                                            ^{widgetVocabtrainTranslationCreate' (entityKey $ fst result) chapterId}
+                                        $maybe _ <- maid
+                                            <a href=@{VocabtrainTranslationUpdateR (entityKey lang) chapterId}>
+                                                <i .icon-edit> 
+                                            <a href=@{VocabtrainTranslationDeleteR (entityKey lang) chapterId}>
+                                                <i .icon-trash> 
+                        $maybe _ <- maid
+                            $with cardId <- either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result
+                                <div .accordion #new_translation_#{cardId}>
+                                    <div .accordion-group>
+                                        <div .accordion-heading>
+                                            <a .accordion-toggle data-toggle="collapse" data-parent="#new_translation_#{cardId}" href="#new_translation_#{cardId}_inner">
+                                                _{MsgTranslationNew}
+                                        <div #new_translation_#{cardId}_inner .accordion-body .collapse>
+                                            <div .accordion-inner>
+                                                ^{widgetVocabtrainTranslationCreate' (entityKey $ fst result) chapterId}
 
+$maybe _ <- maid
+    ^{widgetVocabtrainCardCreate' chapterId}

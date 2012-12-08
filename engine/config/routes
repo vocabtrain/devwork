@@ -10,7 +10,7 @@
 /tatoeba/app TatoebaAppR GET
 /tatoeba/languages TatoebaLanguagesR GET
 /tatoeba/query/#Text/#Text TatoebaQueryR
-/tatoeba/query/#Text TatoebaQueryLanguageR
+/tatoeba/query/#TatoebaLanguage TatoebaQueryLanguageR
 /tatoeba/query TatoebaQueryRandomR GET
 
 /vocabtrain/books VocabtrainBooksR GET POST
@@ -26,6 +26,11 @@
 /vocabtrain/translation/update/#VocabTranslationId/#VocabChapterId VocabtrainTranslationUpdateR GET POST
 /vocabtrain/translation/delete/#VocabTranslationId/#VocabChapterId VocabtrainTranslationDeleteR GET POST
 
+/vocabtrain/card/search VocabtrainCardSearchR GET
+/vocabtrain/cardchapters/#VocabCardId VocabtrainCardChaptersDeleteR POST
+/vocabtrain/card/insert/#VocabChapterId VocabtrainCardInsertR POST
+/vocabtrain/card/update/#VocabCardId/#VocabChapterId VocabtrainCardUpdateR GET POST
+/vocabtrain/card/delete/#VocabCardId/#VocabChapterId VocabtrainCardDeleteR GET POST
 
 /vocabtrain/booksupply VocabtrainBookSupplyR POST
 /vocabtrain/download VocabtrainDownloadR POST

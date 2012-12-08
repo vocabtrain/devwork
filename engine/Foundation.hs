@@ -38,6 +38,7 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile, ihamletFile, HtmlUrlI18n)
+import Generated (TatoebaLanguage (..))
 
 import qualified Data.Text
 import Data.Text (Text)
@@ -85,6 +86,13 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 
 type Form x = Html -> MForm App App (FormResult x, Widget)
 
+isUser :: YesodAuth m => GHandler s m AuthResult
+isUser = do
+	mu <- maybeAuthId
+	return $ case mu of
+		Nothing -> AuthenticationRequired
+		Just _ -> Authorized
+
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
@@ -123,6 +131,10 @@ instance Yesod App where
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
+
+    -- route name, then a boolean indicating if it's a write request
+    isAuthorized _ True = isUser
+    isAuthorized _ False = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows

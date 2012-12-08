@@ -17,7 +17,7 @@
         <dd>Serves any arbitrary example sentence.
 
         <dt>
-            <a href=@{TatoebaQueryLanguageR "fra"}>@{TatoebaQueryLanguageR "fra"}
+            <a href=@{TatoebaQueryLanguageR LANG_FRA}>@{TatoebaQueryLanguageR LANG_FRA}
         <dd>Search for an arbitrary example sentence in <i>French</i>.
 
         <dt>
