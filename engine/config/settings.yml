@@ -8,7 +8,7 @@ Default: &defaults
 
 Development:
   port: 4000
-  approot: "http://ursamajor:2235"
+  approot: "http://ursamajor.informatik.uni-augsburg.de:2235"
   <<: *defaults
 
 Testing:

@@ -1,0 +1,5 @@
+<form method=get action=@{VocabtrainCardChapterAddR chapterId} enctype=#{cardSearchFormEnctype}>
+    <fieldset>
+        <legend>_{MsgCardChapterSearchHeader}
+        ^{cardSearchFormWidget}
+        <button type=submit .btn .btn-success>_{MsgCardSearch}

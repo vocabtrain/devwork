@@ -1,0 +1,6 @@
+<form method=post action=@{VocabtrainCardUpdateR cardId chapterId} enctype=#{cardFormEnctype}>
+    <fieldset>
+        <legend>_{MsgCardUpdateHeader $ vocabCardScript $ fromJust card}
+        ^{cardFormWidget}
+        <button type=submit .btn .btn-warning>_{MsgCardUpdate}
+

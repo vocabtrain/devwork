@@ -1,0 +1,8 @@
+<ul .nav .nav-list>
+    <li .nav-header>#{vocabBookName book}
+    $forall result <- chapterResults
+        <li>
+            <a href="@{VocabtrainChapterR $ entityKey result}">#{vocabChapterVolume $ entityVal result}
+$maybe _ <- maid
+    ^{hamletToHtmlUrlI $ pageBody $ widgetChapter}
+

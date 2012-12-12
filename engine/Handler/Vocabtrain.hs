@@ -22,6 +22,7 @@ import qualified Data.ByteString as BS
 import Database.Persist.GenericSql.Raw (withStmt)
 import Database.Persist.GenericSql
 import Database.Persist.Sqlite
+import Database.Persist.Store
 import Text.Hamlet
 
 import Data.Conduit.Lazy
@@ -405,11 +406,25 @@ postVocabtrainCardInsertR chapterId = do
 			((result, cardFormWidget), cardFormEnctype) <- runFormPost $ renderDivs $ cardForm Nothing
 			case result of
 				FormSuccess card -> do 
-					cardId <- runDB $ insert card
-					_ <- runDB $ insert $ VocabContent chapterId cardId
-					$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
-					setMessageI $ MsgCardCreated $ vocabCardScript card
-					redirect $ VocabtrainChapterR chapterId 
+					duplicateCards <- runDB $ selectList 
+						[ VocabCardScript ==. (vocabCardScript card)
+						, VocabCardScriptComment ==. (vocabCardScriptComment card)
+						, VocabCardSpeech ==. (vocabCardSpeech card)
+						, VocabCardSpeechComment ==. (vocabCardSpeechComment card)
+						] []
+					if length duplicateCards == 0
+						then do
+							cardId <- runDB $ insert card
+							_ <- runDB $ insert $ VocabContent chapterId cardId
+							$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
+							setMessageI $ MsgCardCreated $ vocabCardScript card
+							redirect $ VocabtrainChapterR chapterId 
+						else do
+							let dup = duplicateCards !! 0
+							_ <- runDB $ insert $ VocabContent chapterId (entityKey dup)
+							$(logInfo) $ Text.concat [ "Card added: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " To chapter ", Text.pack $ show chapterId]
+							setMessageI $ MsgCardChapterAdded $ vocabCardScript card
+							redirect $ VocabtrainChapterR chapterId 
 				_ -> vocabLayout $ do
 					setTitleI MsgCardPleaseCorrectEntry
 					widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype
@@ -438,24 +453,16 @@ postVocabtrainCardDeleteR cardId chapterId = do
 					setMessageI $ MsgCardNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey cardId
 					redirect $ VocabtrainChapterR chapterId
 
-data CardChapterRelation = CardChapterRelation {
-	  cardChapterRelationId :: VocabCardId
-	, cardChapterRelationChapters :: [VocabChapterId]
-	}
-
-
-cardChapterForm :: VocabCardId -> AForm App App CardChapterRelation
-cardChapterForm cardId = CardChapterRelation
-		<$> pure cardId
-		<*> areq (multiSelectField $ chapters cardId) (fieldSettingsLabel MsgFieldChapters) Nothing
-
-chapters :: VocabCardId -> GHandler App App (OptionList VocabChapterId)
-chapters cardId = do -- use optionsPersist ?
-	chapterResults <- runDB $ rawSql
-		"SELECT ?? FROM chapters JOIN content ON content_chapter_id = chapters._id JOIN cards ON content_card_id = cards._id WHERE cards._id = ?;"
-		[toPersistValue  cardId]
-		:: GHandler App App [Entity VocabChapter]
-	optionsPairs $ Prelude.map (vocabChapterVolume . entityVal &&& entityKey) chapterResults
+cardChapterForm :: VocabCardId -> AForm App App [VocabChapterId]
+cardChapterForm cardId = areq (multiSelectField chapters) (fieldSettingsLabel MsgFieldChapters) Nothing
+	where
+		chapters :: GHandler App App (OptionList VocabChapterId)
+		chapters = do -- use optionsPersist ?
+			chapterResults <- runDB $ rawSql
+				"SELECT ?? FROM chapters JOIN content ON content_chapter_id = chapters._id JOIN cards ON content_card_id = cards._id WHERE cards._id = ?;"
+				[toPersistValue  cardId]
+				:: GHandler App App [Entity VocabChapter]
+			optionsPairs $ Prelude.map (vocabChapterVolume . entityVal &&& entityKey) chapterResults
 
 getVocabtrainCardUpdateR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
 getVocabtrainCardUpdateR cardId chapterId = do
@@ -479,9 +486,9 @@ postVocabtrainCardChaptersDeleteR cardId = do
 			((result, cardChapterFormWidget), cardChapterFormEnctype) <- runFormPost $ renderDivs $ cardChapterForm cardId
 			case result of
 				FormSuccess cardChapters -> do 
-					_ <- runDB $ deleteCascadeWhere [VocabChapterId <-. (cardChapterRelationChapters cardChapters)]
-					-- $(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card', " old: ", Text.pack $ show card]
---					setMessageI $ MsgCardUpdated $ vocabCardScript card'
+					_ <- runDB $ deleteWhere [VocabContentChapterId <-. cardChapters, VocabContentCardId ==. cardId ]
+					$(logInfo) $ Text.concat [ "Deleted Card from Chapters: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " chapters: ", Text.pack $ show cardChapters]
+					setMessageI $ MsgCardChaptersDeleted $ vocabCardScript $ fromJust card
 					redirect $ VocabtrainBooksR
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
@@ -489,27 +496,84 @@ postVocabtrainCardChaptersDeleteR cardId = do
 
 postVocabtrainCardUpdateR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
 postVocabtrainCardUpdateR cardId chapterId = do
+	msgShow <- getMessageRender
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
-			msgShow <- getMessageRender
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
 			card <- runDB $ get cardId
 			((result, cardFormWidget), cardFormEnctype) <- runFormPost $ renderDivs $ cardForm card
 			case result of
 				FormSuccess card' -> do 
-					_ <- runDB $ replace cardId card'
-					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card', " old: ", Text.pack $ show card]
-					setMessageI $ MsgCardUpdated $ vocabCardScript card'
-					redirect $ VocabtrainChapterR chapterId
+					duplicateCards <- runDB $ selectList 
+						[ VocabCardScript ==. (vocabCardScript card')
+						, VocabCardScriptComment ==. (vocabCardScriptComment card')
+						, VocabCardSpeech ==. (vocabCardSpeech card')
+						, VocabCardSpeechComment ==. (vocabCardSpeechComment card')
+						] []
+					if length duplicateCards == 0
+						then do
+							_ <- runDB $ replace cardId card'
+							$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card', " old: ", Text.pack $ show card]
+							setMessageI $ MsgCardUpdated $ vocabCardScript card'
+							redirect $ VocabtrainChapterR chapterId
+						else invalidArgs [msgShow MsgCardUpdateToDuplicate]
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/card_update.hamlet") 
 
-getVocabtrainCardSearchR :: Handler RepHtml
-getVocabtrainCardSearchR = defaultLayout $ do
-        $(widgetFile "root/root")
+cardSearchForm :: AForm App App Text
+cardSearchForm = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) Nothing
+
+widgetVocabtrainCardChapterAddSearch' :: VocabChapterId -> GWidget App App ()
+widgetVocabtrainCardChapterAddSearch' chapterId = do
+	((_, cardSearchFormWidget), cardSearchFormEnctype) <- lift $ runFormGet $ renderDivs $ cardSearchForm
+	widgetVocabtrainCardChapterAddSearch chapterId cardSearchFormWidget cardSearchFormEnctype
+
+widgetVocabtrainCardChapterAddSearch :: VocabChapterId -> GWidget App App () -> Enctype -> GWidget App App ()
+widgetVocabtrainCardChapterAddSearch chapterId cardSearchFormWidget cardSearchFormEnctype = toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
+
+
+icontains :: EntityField v Text -> Text -> Filter v
+icontains field val = Filter field (Left $ Text.concat ["%", val, "%"]) (BackendSpecificFilter "ILIKE")
+
+icontainsMaybe :: EntityField v (Maybe Text) -> Text -> Filter v
+icontainsMaybe field val = Filter field (Left $ Just $ Text.concat ["%", val, "%"]) (BackendSpecificFilter "ILIKE")
+
+getVocabtrainCardChapterAddR :: VocabChapterId -> Handler RepHtml
+getVocabtrainCardChapterAddR chapterId = do
+	msgShow <- getMessageRender
+	maid <- maybeAuth 
+	case maid of
+		Nothing -> do
+			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
+		Just aid -> do
+			chapter <- runDB $ get chapterId
+			((result', cardSearchFormWidget), cardSearchFormEnctype) <- runFormGet $ renderDivs $ cardSearchForm
+			case result' of
+				FormSuccess searchPhrase -> do 
+					cardResults <- runDB $ selectList 
+						(     [ icontains VocabCardScript        searchPhrase ]
+						  ||. [ icontainsMaybe VocabCardSpeech   searchPhrase ]
+						) []
+					vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_list.hamlet")
+				_ -> vocabLayout $ do
+						setTitleI MsgCardPleaseCorrectEntry
+						toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
+
+postVocabtrainCardChapterInsertR :: VocabCardId -> VocabChapterId -> Handler RepHtml
+postVocabtrainCardChapterInsertR cardId chapterId = do
+	maid <- maybeAuth 
+	case maid of
+		Nothing -> do
+			msgShow <- getMessageRender
+			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
+		Just aid -> do
+			_ <- runDB $ insert $ VocabContent chapterId cardId
+			$(logInfo) $ Text.concat [ "Added link chapter<->card: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId, Text.pack $ show cardId]
+			setMessageI $ MsgCardChapterCreated 
+			redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
 
 {-	results <- mapM (\cardResult -> do
 			runDB $ 

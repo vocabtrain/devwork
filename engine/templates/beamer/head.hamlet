@@ -8,21 +8,20 @@
     A copy of the license is included in the section entitled "GNU
     Free Documentation License".
 -->
-<title>
-    $if Data.Text.null page_title
-        #{pageTitle pc}
-    $else
-        #{page_title}
-    :: #{sheetTitle sheet}
+<title>#{title}
 <meta name="robots" content="NOINDEX, NOFOLLOW"/>
 <meta name="description" content="This is the private homepage of Dominik K&#246;ppl."/>
 <meta name="author" content="Dominik K&#246;ppl"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="http://code.jquery.com/jquery-latest.js">
-<script src=@{StaticR js_bootstrap_js}>
+<link rel="stylesheet" type="text/css" media="screen, projection, print"  href="http://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css">
+<link rel="stylesheet" type="text/css" media="screen, projection, print"  href="http://www.w3.org/Talks/Tools/Slidy2/styles/w3c-blue.css">
+<link rel="stylesheet" type="text/css" media="screen, projection, print"  href="@{StaticR css_beamer_css}">
+<meta name="copyright" content="Copyright &#169; 2012 Dominik K&ouml;ppl, Institute for Databases and Information Systems">
+<meta name="duration" content="5">
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+<script type="text/javascript" src="@{StaticR js_beamer_js}">
+<script src="http://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js" charset="utf-8" type="text/javascript">
 <link rel="shortcut icon" href=@{StaticR img_favicon_057_png}>
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href=@{StaticR img_favicon_144_png}>
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href=@{StaticR img_favicon_114_png}>
 <link rel="apple-touch-icon-precomposed" sizes="72x72"   href=@{StaticR img_favicon_072_png}>
 <link rel="apple-touch-icon-precomposed"                 href=@{StaticR img_favicon_057_png}>
-<script>document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');

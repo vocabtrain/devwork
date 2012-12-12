@@ -53,10 +53,29 @@ CardUpdate: Update card
 CardNew: Create a new card
 CardNewHeader: New card
 
-SearchCard: Search Card
+CardSearch: Search Card
+CardChapterSearchHeader: Search cards to add to this chapter
+FieldSearchCard: Search Card
 
+CardChapterCreated: Successfully added card to chapter.
+CardChapterInsert: Add Card
+CardChapterAddHeader title@Text: Cards containing the keyword #{title}
 CardChaptersDeleteHeader title@Text: Remove card ,#{title}, from the chapters
 CardChaptersDelete: Remove Links
+CardChapterAdded title@Text: As the card #{title} already existed, we've merely added it to this chapter.
+CardUpdateToDuplicate: A card with this description already exists, so you cannot change this card to a duplicate.
+CardChaptersDeleted title@Text: Successfully card #{title} from selected chapters removed.
+
+TooltipVocabtrainTranslationUpdateR: Update Translation
+TooltipVocabtrainTranslationDeleteR: Delete Translation
+TooltipTatoebaQueryR: Find example sentences
+TooltipVocabtrainCardUpdate: Update Card
+TooltipVocabtrainCardDelete: Delete Card
+TooltipVocabtrainBookUpdateR: Update Book
+TooltipVocabtrainBookDeleteR: Delete Book
+TooltipVocabtrainChapterUpdateR: Update Chapter
+TooltipVocabtrainChapterDeleteR: Delete Chapter
+
 
 VocabManipulationPermissionDenied: You have to login in order to make changes.
 

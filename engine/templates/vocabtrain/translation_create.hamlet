@@ -1,0 +1,6 @@
+<form method=post action=@{VocabtrainTranslationInsertR cardId chapterId} enctype=#{translationFormEnctype}>
+    <fieldset>
+        <legend>_{MsgTranslationNewHeader}
+        ^{translationFormWidget}
+        <button type=submit .btn .btn-success>_{MsgTranslationNew}
+

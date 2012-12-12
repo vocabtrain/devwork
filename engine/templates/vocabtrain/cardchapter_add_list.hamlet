@@ -1,0 +1,27 @@
+<h1>_{MsgCardChapterAddHeader searchPhrase}
+<table .table>
+    <thead>
+        <tr>
+            <th>
+            <th>_{MsgFieldScript}
+            <th>_{MsgFieldScriptComment}
+            <th>_{MsgFieldSpeech}
+            <th>_{MsgFieldSpeechComment}
+    <tbody>
+        $forall result <- cardResults
+            $with card <- entityVal result
+                <tr>
+                    <td>
+                        $maybe _ <- maid
+                            <form method=post action=@{VocabtrainCardChapterInsertR (entityKey $ result) chapterId}>
+                                <button type=submit .btn .btn-success>_{MsgCardChapterInsert}
+                    <td>#{vocabCardScript card}
+                    <td>
+                        $maybe scriptComment <- vocabCardScriptComment card
+                            #{scriptComment}
+                    <td>
+                        $maybe speech <- vocabCardSpeech card
+                            #{speech}
+                    <td>
+                        $maybe speechComment <- vocabCardSpeechComment card
+                            #{speechComment}

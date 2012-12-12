@@ -2,6 +2,7 @@
 
 datadir=/home/niki/data/
 scriptdir=/home/niki/devwork/cron
+beamerslidesdir=templates/beamer/slides
 
 
 cat <<EOF
@@ -13,12 +14,14 @@ import Yesod (Route(..))
 import Settings.StaticFiles
 import qualified Yesod.Static
 import Data.Text (Text)
+import qualified Data.Text as Text
+import qualified Data.Char as Char
+import Text.Hamlet (hamletFile)
 import Database.Persist.TH
 import Database.Persist
-import qualified Data.Text as Text
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
-import Text.Blaze (ToMarkup)
+import Text.Blaze
 import Web.PathPieces
 
 data GalleryImage = GalleryImage 
@@ -194,6 +197,28 @@ EOF
 #	echo "\t|otherwise = \"unknown language\""
 }
 
+function beamerSlides
+{
+	echo -n 'data BeamerSlide = '
+	a=()
+	files=()
+	for i in `ls *.hamlet`; do
+		files+="$i"
+		e=`echo "$i:r" | tr '[a-z]' '[A-Z]'`
+		a+="BEAMER_SILDE_$e"
+	done
+	echo $a | sed 's@ @|@g'
+	echo "\tderiving(Show,Eq,Read,Enum,Bounded)"
+	echo "getBeamerSlideWidget :: BeamerSlide -> t -> Markup"
+
+	max="$a[(I)$a[-1]]"
+	for i in `seq 1 $max`; do
+		e=`echo "$i:r" | tr '[a-z]' '[A-Z]'`
+		echo "getBeamerSlideWidget $a[$i] = \$(hamletFile \"$beamerslidesdir/$files[$i]\")"
+	done
+}
+
+
 getTatoebaLanguages
 
 p=`pwd`
@@ -203,14 +228,26 @@ cd "$p/static/bin/projects/qt" && getQtProjects
 cd "$p/static/bin/script" && getWorksheets getJavaWorkSheets 'java_blatt'
 cd "$p/static/bin/script" && getWorksheets getQtWorkSheets 'qt_blatt'
 cd "$p/static/bin/pkg/nehe" && getOpenGLQtLessons
-
+cd "$p/$beamerslidesdir" && beamerSlides
 
 
 cat <<EOF
 instance ToMarkup TatoebaLanguage where
 	toMarkup = toMarkup . getTatoebaLanguageName
+
 instance PathPiece TatoebaLanguage where
-	fromPathPiece = read . Text.unpack
+	fromPathPiece text = case reads $ Text.unpack text of
+		[(x, "")] -> Just x
+		_ -> Nothing
 	toPathPiece = toPathPiece . getTatoebaLanguageName
+
+instance PathPiece BeamerSlide where
+	fromPathPiece text = case reads $ Text.unpack text of
+		[(x, "")] -> Just x
+		_ -> Nothing
+	toPathPiece = toPathPiece . Text.pack . show
+
+getBeamerSlideTitle :: BeamerSlide -> Text
+getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
 EOF
 

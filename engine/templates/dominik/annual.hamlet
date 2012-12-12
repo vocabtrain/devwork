@@ -1,4 +1,4 @@
-<h1>Annual</h1>
+<h1>Annual
 <div id="maincontentbody">
     <div style="float:right; width: 40%">
         <a href=@{StaticR img_projects_annual_view_jpg}>

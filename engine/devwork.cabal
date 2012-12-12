@@ -29,6 +29,7 @@ library
                      Settings.StaticFiles
                      Settings.Development
                      Handler.Dominik
+                     Handler.Beamer
                      Handler.Root
                      Handler.Vocabtrain
                      Handler.Tatoeba

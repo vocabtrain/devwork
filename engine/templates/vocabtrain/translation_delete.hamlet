@@ -1,0 +1,4 @@
+<form method=post action=@{VocabtrainTranslationDeleteR translationId chapterId}>
+    <fieldset>
+        <legend>_{MsgTranslationDeleteHeader $ vocabTranslationContent $ fromJust translation}
+        <button type=submit .btn .btn-danger>_{MsgTranslationDelete}

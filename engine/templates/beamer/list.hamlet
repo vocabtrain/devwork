@@ -1,0 +1,6 @@
+<h1>Slides
+<div id="maincontentbody">
+    <ul>
+        $forall slide <- slides
+            <li>
+                <a href="@{BeamerSlideR slide}">#{getBeamerSlideTitle slide}

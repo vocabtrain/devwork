@@ -1,0 +1,5 @@
+<form method=post action=@{VocabtrainTranslationUpdateR translationId chapterId} enctype=#{translationFormEnctype}>
+    <fieldset>
+        <legend>_{MsgTranslationUpdateHeader $ vocabTranslationContent $ fromJust translation}
+        ^{translationFormWidget}
+        <button type=submit .btn .btn-warning>_{MsgTranslationUpdate}

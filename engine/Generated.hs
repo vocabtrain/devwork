@@ -7,15 +7,15 @@ import Settings.StaticFiles
 import qualified Yesod.Static
 import Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Char as Char
+import qualified Data.List as List
+import Text.Hamlet (hamletFile)
 import Database.Persist.TH
 import Database.Persist
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
-
 import Text.Blaze
 import Web.PathPieces
-
-
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static
@@ -516,15 +516,6 @@ getTatoebaLanguageName(LANG_XHO)="Xhosa"
 getTatoebaLanguageName(LANG_YID)="Yiddish"
 getTatoebaLanguageName(LANG_YUE)="yue"
 getTatoebaLanguageName(LANG_ZSM)="zsm"
-
-instance ToMarkup TatoebaLanguage where
-	toMarkup = toMarkup . getTatoebaLanguageName
-
-
-instance PathPiece TatoebaLanguage where
-	fromPathPiece = read . Text.unpack
-	toPathPiece = toPathPiece . getTatoebaLanguageName
-
 getQtGalleryImages :: [GalleryImage]
 getQtGalleryImages = [ GalleryImage{galleryImageSource=img_qtgallery_bb_clock_jpg,galleryImageThumbnail=img_qtgallery_bb_clock_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_chemie_nmrdaten_jpg,galleryImageThumbnail=img_qtgallery_chemie_nmrdaten_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_diagramm_jpg,galleryImageThumbnail=img_qtgallery_diagramm_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_fourwin_jpg,galleryImageThumbnail=img_qtgallery_fourwin_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_fress_oder_stirb_jpg,galleryImageThumbnail=img_qtgallery_fress_oder_stirb_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_frosch_jpg,galleryImageThumbnail=img_qtgallery_frosch_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_gorilla2_jpg,galleryImageThumbnail=img_qtgallery_gorilla2_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_gorilla_jpg,galleryImageThumbnail=img_qtgallery_gorilla_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_particles_jpg,galleryImageThumbnail=img_qtgallery_particles_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_phonebook_jpg,galleryImageThumbnail=img_qtgallery_phonebook_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_pong_jpg,galleryImageThumbnail=img_qtgallery_pong_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_potential_jpg,galleryImageThumbnail=img_qtgallery_potential_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_roulette_jpg,galleryImageThumbnail=img_qtgallery_roulette_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_schiffe_versenken_jpg,galleryImageThumbnail=img_qtgallery_schiffe_versenken_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_snake_jpg,galleryImageThumbnail=img_qtgallery_snake_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_spinglass_jpg,galleryImageThumbnail=img_qtgallery_spinglass_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_sudoku_jpg,galleryImageThumbnail=img_qtgallery_sudoku_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_tictactoe_jpg,galleryImageThumbnail=img_qtgallery_tictactoe_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_trainer_jpg,galleryImageThumbnail=img_qtgallery_trainer_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_vokabeltrainer_jpg,galleryImageThumbnail=img_qtgallery_vokabeltrainer_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_whack_him_jpg,galleryImageThumbnail=img_qtgallery_whack_him_thumb_jpg}]
 getJavaProjects :: [JavaProject]
@@ -537,3 +528,24 @@ getQtWorkSheets :: [WorkSheet]
 getQtWorkSheets = [ WorkSheet{workSheetNumber=1,workSheetSource=bin_script_qt_blatt1_tex,workSheetDocument=bin_script_qt_blatt1_pdf},WorkSheet{workSheetNumber=2,workSheetSource=bin_script_qt_blatt2_tex,workSheetDocument=bin_script_qt_blatt2_pdf},WorkSheet{workSheetNumber=3,workSheetSource=bin_script_qt_blatt3_tex,workSheetDocument=bin_script_qt_blatt3_pdf},WorkSheet{workSheetNumber=4,workSheetSource=bin_script_qt_blatt4_tex,workSheetDocument=bin_script_qt_blatt4_pdf},WorkSheet{workSheetNumber=5,workSheetSource=bin_script_qt_blatt5_tex,workSheetDocument=bin_script_qt_blatt5_pdf},WorkSheet{workSheetNumber=6,workSheetSource=bin_script_qt_blatt6_tex,workSheetDocument=bin_script_qt_blatt6_pdf},WorkSheet{workSheetNumber=7,workSheetSource=bin_script_qt_blatt7_tex,workSheetDocument=bin_script_qt_blatt7_pdf}]
 getOpenGLQtLessons :: [OpenGLQtLesson]
 getOpenGLQtLessons = [ OpenGLQtLesson{openGLQtLessonNumber=1,openGLQtLessonPackage=bin_pkg_nehe_lesson01_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=01"},OpenGLQtLesson{openGLQtLessonNumber=2,openGLQtLessonPackage=bin_pkg_nehe_lesson02_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=02"},OpenGLQtLesson{openGLQtLessonNumber=3,openGLQtLessonPackage=bin_pkg_nehe_lesson03_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=03"},OpenGLQtLesson{openGLQtLessonNumber=4,openGLQtLessonPackage=bin_pkg_nehe_lesson04_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=04"},OpenGLQtLesson{openGLQtLessonNumber=5,openGLQtLessonPackage=bin_pkg_nehe_lesson05_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=05"},OpenGLQtLesson{openGLQtLessonNumber=6,openGLQtLessonPackage=bin_pkg_nehe_lesson06_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=06"},OpenGLQtLesson{openGLQtLessonNumber=7,openGLQtLessonPackage=bin_pkg_nehe_lesson07_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=07"},OpenGLQtLesson{openGLQtLessonNumber=8,openGLQtLessonPackage=bin_pkg_nehe_lesson08_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=08"},OpenGLQtLesson{openGLQtLessonNumber=9,openGLQtLessonPackage=bin_pkg_nehe_lesson09_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=09"},OpenGLQtLesson{openGLQtLessonNumber=11,openGLQtLessonPackage=bin_pkg_nehe_lesson11_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=11"},OpenGLQtLesson{openGLQtLessonNumber=12,openGLQtLessonPackage=bin_pkg_nehe_lesson12_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=12"}]
+data BeamerSlide = BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS
+	deriving(Show,Eq,Read,Enum,Bounded)
+getBeamerSlideWidget :: BeamerSlide -> t -> Markup
+getBeamerSlideWidget BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS = $(hamletFile "templates/beamer/slides/combined_pruning_level_of_better_than_graphs.hamlet")
+instance ToMarkup TatoebaLanguage where
+	toMarkup = toMarkup . getTatoebaLanguageName
+
+instance PathPiece TatoebaLanguage where
+	fromPathPiece text = case reads $ Text.unpack text of
+		[(x, "")] -> Just x
+		_ -> Nothing
+	toPathPiece = toPathPiece . getTatoebaLanguageName
+
+instance PathPiece BeamerSlide where
+	fromPathPiece text = case reads $ Text.unpack text of
+		[(x, "")] -> Just x
+		_ -> Nothing
+	toPathPiece = toPathPiece . Text.pack . show
+
+getBeamerSlideTitle :: BeamerSlide -> Text
+getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide

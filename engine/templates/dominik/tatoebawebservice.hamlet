@@ -1,7 +1,7 @@
 <h1>Tatoeba Webservice
 <div id="maincontentbody">
     <p>
-        As the
+        As the 
             <a href="http://tatoeba.org">Tatoeba-Project
         does not provide any webservice to query example sentences in any given RESTful method,
         but kindly <a href="http://tatoeba.org/eng/download_tatoeba_example_sentences">offers its database</a> as plain csv file for downloading,

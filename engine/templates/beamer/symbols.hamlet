@@ -1,0 +1,13 @@
+\\( 
+\\def\N{\mathbb{N}} 
+\\def\qed{\mathrm{q.e.d.}} 
+\\newcommand{\BTG}[1]{\mathrm{BTG}\left(#1\right)}
+\\newcommand{\abs}[1]{\left|#1\right|}
+\\newcommand{\menge}[1]{\left\{#1\right\}}
+\\newcommand{\pruninglevel}[2]{\mathrm{pl}_\{#1}\left(#2\right)}
+\\newcommand{\level}[2]{\mathrm{lvl}_\{#1}\left(#2\right)}
+\\newcommand{\domL}[2]{\mathrm{Dom}_\{#1}\left(#2\right)}
+\\newcommand{\dom}[1]{\mathrm{Dom}\left(#1\right)}
+\\newcommand{\comprun}[1]{\mathcal{M}\left(#1\right)}
+\\newcommand{\domhull}[2]{\left.#1\right.^\{(#2)}}
+\\)

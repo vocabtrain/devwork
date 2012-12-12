@@ -1,0 +1,5 @@
+<form method=post action=@{VocabtrainCardChaptersDeleteR cardId}>
+    <fieldset>
+        <legend>_{MsgCardChaptersDeleteHeader $ vocabCardScript $ fromJust card}
+        ^{cardChapterFormWidget}
+        <button type=submit .btn .btn-danger>_{MsgCardChaptersDelete}

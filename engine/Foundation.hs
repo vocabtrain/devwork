@@ -38,7 +38,7 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile, ihamletFile, HtmlUrlI18n)
-import Generated (TatoebaLanguage (..))
+import Generated (TatoebaLanguage (..), BeamerSlide (..))
 
 import qualified Data.Text
 import Data.Text (Text)
@@ -238,13 +238,13 @@ hamletToHtmlUrlI :: (t2 -> t1) -> t -> t2 -> t1
 hamletToHtmlUrlI hu _msgRender _urlRender = hu _urlRender
 
 data SheetLayout sub url = SheetLayout {
-	  sheetTitle :: String
+	  sheetTitle :: Text
 	, sheetNav :: Maybe (HtmlUrlI18n AppMessage url)
 	, sheetBanner :: Maybe (HtmlUrlI18n AppMessage url)
 	, sheetContent :: GWidget sub App ()
 }
 
-globalLayout' :: String -> GWidget sub App () -> GHandler sub App RepHtml
+globalLayout' :: Text -> GWidget sub App () -> GHandler sub App RepHtml
 globalLayout' title widget = globalLayout $ SheetLayout title Nothing Nothing widget
 
 globalLayout :: SheetLayout sub (Route App) -> GHandler sub App RepHtml

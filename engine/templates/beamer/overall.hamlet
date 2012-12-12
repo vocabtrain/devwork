@@ -1,0 +1,27 @@
+$newline never
+\<!doctype html>
+\<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+\<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+\<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+\<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en"> <!--<![endif]-->
+    <head>
+        ^{headTags}
+        ^{pageHead pc}
+    <body>
+        <div .background>
+            <img src="@{StaticR img_beamer_header_left_png}" #slide_header_left alt="Siegel">
+            <img src="@{StaticR img_beamer_header_right_png}" #slide_header_right alt="Universität Augsburg">
+        <div .slide .cover>
+            <img src="http://www.informatik.uni-augsburg.de/lehrstuehle/dbis/db/pictures/logo.png" alt="Cover page images (keys)" .cover>
+            <br .clear-all clear="all">
+            <h1>#{title}
+            <p>
+                <a href="www.informatik.uni-augsburg.de/en/chairs/dbis/db/staff/koeppl/">Dominik K&ouml;ppl
+                ,
+                &lt;
+                <a href="mailto:koeppl@informatik.uni-augsburg.de">koeppl@informatik.uni-augsburg.de
+                &gt;
+                <br>
+        ^{bodyTags}
+        ^{pageBody pc}

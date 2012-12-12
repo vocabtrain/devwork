@@ -1,0 +1,8 @@
+Vocabtrain:
+	Breadcrumbs
+	~ Card Search + Add card to chapter
+	delete on cascade
+	~ unique card ?
+	card type populate
+tatoeba: LANG_UND + routes auf TatoebaLanguage
+

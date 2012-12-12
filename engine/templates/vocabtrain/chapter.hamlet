@@ -13,12 +13,12 @@
             $with card <- entityVal $ fst result
                 <tr>
                     <td>
-                        <a href=@{TatoebaQueryR (Text.pack $ show $ vocabBookLanguage $ book) $ vocabCardScript card}>
+                        <a href=@{TatoebaQueryR (Text.pack $ show $ vocabBookLanguage $ book) $ vocabCardScript card} rel="tooltip" data-placement="bottom" title="_{MsgTooltipTatoebaQueryR}">
                             <i .icon-leaf>
                         $maybe _ <- maid
-                            <a href=@{VocabtrainCardUpdateR (entityKey $ fst result) chapterId}>
+                            <a href=@{VocabtrainCardUpdateR (entityKey $ fst result) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardUpdate}">
                                 <i .icon-edit>
-                            <a href=@{VocabtrainCardDeleteR (entityKey $ fst result) chapterId}>
+                            <a href=@{VocabtrainCardDeleteR (entityKey $ fst result) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardDelete}">
                                 <i .icon-trash>
                     <td>#{vocabCardScript card}
                     <td>
@@ -41,9 +41,9 @@
                                             #{translationComment}
                                     <td>
                                         $maybe _ <- maid
-                                            <a href=@{VocabtrainTranslationUpdateR (entityKey lang) chapterId}>
+                                            <a href=@{VocabtrainTranslationUpdateR (entityKey lang) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationUpdateR}">
                                                 <i .icon-edit> 
-                                            <a href=@{VocabtrainTranslationDeleteR (entityKey lang) chapterId}>
+                                            <a href=@{VocabtrainTranslationDeleteR (entityKey lang) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationDeleteR}">
                                                 <i .icon-trash> 
                         $maybe _ <- maid
                             $with cardId <- either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result
@@ -58,3 +58,4 @@
 
 $maybe _ <- maid
     ^{widgetVocabtrainCardCreate' chapterId}
+    ^{widgetVocabtrainCardChapterAddSearch' chapterId}

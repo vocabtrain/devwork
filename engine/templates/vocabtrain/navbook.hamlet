@@ -1,0 +1,7 @@
+<div .tabbable .tabs-left>
+    <ul .nav .nav-tabs>
+        $forall result <- results
+            <li>
+                <a href="#book_#{either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result}" data-toggle="tab">#{vocabBookName $ entityVal $ fst result}
+$maybe _ <- maid
+    ^{hamletToHtmlUrlI $ pageBody $ widgetBook}

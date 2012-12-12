@@ -9,11 +9,11 @@
                         <div .nav .nav-pills>
                             <ul .nav .nav-tabs>
                                 <li>
-                                    <a href=@{VocabtrainBookUpdateR $ bookId}>
+                                    <a href=@{VocabtrainBookUpdateR $ bookId}  rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainBookUpdateR}">
                                         <i .icon-edit> 
                                         _{MsgBookEdit}
                                 <li>
-                                    <a href=@{VocabtrainBookDeleteR $ bookId}>
+                                    <a href=@{VocabtrainBookDeleteR $ bookId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainBookDeleteR}">
                                         <i .icon-trash> 
                                         _{MsgBookDelete}
                     <h3>_{MsgChapterListHeader}
@@ -24,9 +24,9 @@
                                     <a href=@{VocabtrainChapterR chapterId}>
                                         #{vocabChapterVolume $ entityVal chapterEntity}
                                     $maybe _ <- maid
-                                        <a href=@{VocabtrainChapterUpdateR chapterId}>
+                                        <a href=@{VocabtrainChapterUpdateR chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainChapterUpdateR}">
                                             <i .icon-edit> 
-                                        <a href=@{VocabtrainChapterDeleteR chapterId}>
+                                        <a href=@{VocabtrainChapterDeleteR chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainChapterDeleteR}">
                                             <i .icon-trash> 
                     $maybe _ <- maid
                         ^{widgetVocabtrainChapterCreate' $ entityKey $ fst result}

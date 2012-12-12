@@ -1,0 +1,82 @@
+<div .slide>
+    <h1>Definition Pruning Level
+    <p>
+        Let \(\nu := (n_1,...,n_m) \in \N^m, m \in \N \) denote the dimensions of a better-than-graph \(\BTG{\nu}\), so that we
+        have a mapping \(\abs{A} \rightarrow \BTG{\nu}\) for a prefrence \((P,A)\)
+        We define the pruning level for a node \(a \in \BTG{\nu}\) as
+        \\begin{align*}
+        \\pruninglevel{P}{a} : &amp; \BTG{\nu} &amp;\rightarrow&amp; \N_0 \\
+        &amp; a &amp;\mapsto&amp; \min\menge{ l \in \N | \forall b \in \BTG{\nu} : \level{P}{b} = l \Rightarrow b \in \domL{l}{a} }
+        \\end{align*}
+        where
+        \\[ \domL{l}{a} := \menge{b \in \BTG{\nu} : b \lt_P a \wedge \level{P}{b} = l} \]
+<div .slide>
+    <h1>Main Theorem of the Combined Pruning Level Problem
+    <p>
+        For all pairs \((a,b) \in \Omega \subset \BTG{\nu}\times\BTG{\nu}\) we have
+        \\[ \pruninglevel{P}{a,b} \le \pruninglevel{P}{\comprun{a,b}} \]
+        where
+        \\[ \comprun{a,b} := ( \min\menge{a_i, b_i} )_\{1 \le i \le m} \]
+
+<div .slide>
+    <h1>Lemma: Can't combine zero
+    <p>
+        If \( \comprun{a,b} = 0 \) it is obvious that \( (a,b) \notin \Omega \)
+    <h2>Proof
+    <p>
+        For all nodes \( x \) except 0 we have \( \pruninglevel{P}{x} > 1 \), so the combined pruning level never reaches the pruning level of
+        \\( \pruninglevel{P}{0} = 1 \) 
+        .
+        \\( \qed \)
+<div .slide>
+    <h1>Considerations
+    <p>
+        With our formal definition it is obvious that:
+    <ul .incremental>
+        <li> \[ \min \menge{ \pruninglevel{P}{a}, \pruninglevel{P}{b}} \le \pruninglevel{P}{a,b} \]
+        <li> \[ \forall b \in \dom{a} \Rightarrow \pruninglevel{P}{a,b} = \pruninglevel{P}{a} \Rightarrow (a,b) \in \Omega \]
+        <li>
+            If \( \pruninglevel{P}{\comprun{a,b}} \lt \min\menge{\level{P}{a}, \level{P}{b}} \), 
+            then \((a,b) \not\in \Omega \), as nodes cannot dominate themselves.
+<div .slide>
+    <h1>Lemma: Level Swapping
+    <p>
+        If there are \(l,k = 1,...,m\) such that \(a - e_l + e_k = b\), then \( (a,b) \in \Omega \), 
+        where \(e_j \) is a tuple with zero as entries except with a one at dimension \( j \).
+    <h2>Proof
+    <p>
+        As \( \level{P}{a} = \#a = \#b = \level{P}{b} \), we can say that
+    <ul .incremental>
+        <li>
+            a is neither the top nor the botton node,
+            e.g. \( \level{P}{a} \neq 0, \level{P}{a} \neq \max(P) \)
+        <li>\( a \sim_P b \) as they are on the same level
+<div .slide>
+    <h1>Outer Dominance hull
+    <p>
+        We define the outer dominance hull as
+        \\[ \menge{ \domhull{c}{j} \in \BTG{\nu} | \exists j : \domhull{c}{j} + e_j \in \dom{a,b} \wedge \# \dom{\domhull{c}{j}} = 1 } \]
+        Obviously, we can see that there is no \( \domhull{c}{j} \) if \( \level{P_j}{a_j} - 1 \lt 0 \).
+        More verbosely, we can write
+        \\[ \domhull{c}{1} = \left( \level{P_1}{a}-1, \max P_2, ..., \max P_n \right) \]
+        \\[ \vdots \]
+        \\[ \domhull{c}{l} = \left( \max P_1, ..., \level{P_l}{a}-2, ...,  \max P_n \right) \]
+        \\[ \vdots \]
+        \\[ \domhull{c}{n} = \left( \max P_1, \max P_2, ... ,\level{P_n}{a}-1 \right) \]
+<div .slide>
+    <h1>Proofing Dominance
+    <p>
+        We will now check that all nodes dominated by the dominance hull of \((a,b)\) are already dominated by \((a,b)\).
+        For \(i \neq l\) we're done as
+        \\[ \# \domL{\level{P}{\domhull{c}{l}}+1}{\domhull{c}{l}} = 1 \]
+        and
+        \\[ \domL{\level{P}{\domhull{c}{i}}+1}{\domhull{c}{i}} \subset \dom{a} \]
+        Otherwise we can find a \(z\) that suffices
+        \\[ \domL{\level{P}{\domhull{c}{l}}+1}{\domhull{c}{l}} = \menge{z} \]
+        But then
+        \\begin{align*}
+        z &amp;= \menge{ \max P_1, ..., \level{P_l}{a}-1, ...,  \max P_n  } \\
+           &amp;= \menge{ \max P_1, ..., \level{P_l}{b}, ...,  \max P_n  } \in \dom{b}
+        \\end{align*}
+        Thus we have \( \pruninglevel{P}{a,b} = \pruninglevel{P}{\comprun{a,b}} \).
+        \\( \qed \)
