@@ -1,15 +1,17 @@
 <div .slide>
     <h1>Definition Pruning Level
-    <p>
-        Let \(\nu := (n_1,...,n_m) \in \N^m, m \in \N \) denote the dimensions of a better-than-graph \(\BTG{\nu}\), so that we
-        have a mapping \(\abs{A} \rightarrow \BTG{\nu}\) for a prefrence \((P,A)\)
-        We define the pruning level for a node \(a \in \BTG{\nu}\) as
-        \\begin{align*}
-        \\pruninglevel{P}{a} : &amp; \BTG{\nu} &amp;\rightarrow&amp; \N_0 \\
-        &amp; a &amp;\mapsto&amp; \min\menge{ l \in \N | \forall b \in \BTG{\nu} : \level{P}{b} = l \Rightarrow b \in \domL{l}{a} }
-        \\end{align*}
-        where
-        \\[ \domL{l}{a} := \menge{b \in \BTG{\nu} : b \lt_P a \wedge \level{P}{b} = l} \]
+    <ul>
+        <li>
+            Let \(\nu := (n_1,...,n_m) \in \N^m, m \in \N \) denote the dimensions of a better-than-graph \(\BTG{\nu}\), so that we
+            have a mapping \(\abs{A} \rightarrow \BTG{\nu}\) for a preference \((P,A)\).
+        <li>
+            We define the pruning level for a node \(a \in \BTG{\nu}\) as
+            \\begin{align*}
+            \\pruninglevel{P}{a} : &amp; \BTG{\nu} &amp;\rightarrow&amp; \N \\
+            &amp; a &amp;\mapsto&amp; \min\menge{ l \in \N | \forall b \in \BTG{\nu} : \level{P}{b} = l \Rightarrow b \in \domL{l}{a} }
+            \\end{align*}
+            where
+            \\[ \domL{l}{a} := \menge{b \in \BTG{\nu} : b \lt_P a \wedge \level{P}{b} = l} \]
 <div .slide>
     <h1>Main Theorem of the Combined Pruning Level Problem
     <p>
@@ -33,10 +35,10 @@
     <p>
         With our formal definition it is obvious that:
     <ul .incremental>
-        <li> \[ \min \menge{ \pruninglevel{P}{a}, \pruninglevel{P}{b}} \le \pruninglevel{P}{a,b} \]
-        <li> \[ \forall b \in \dom{a} \Rightarrow \pruninglevel{P}{a,b} = \pruninglevel{P}{a} \Rightarrow (a,b) \in \Omega \]
+        <li> \( \pruninglevel{P}{a,b} \le \min \menge{ \pruninglevel{P}{a}, \pruninglevel{P}{b}} \)
+        <li> \( \forall b \in \dom{a} \Rightarrow \pruninglevel{P}{a,b} = \pruninglevel{P}{a} \Rightarrow (a,b) \in \Omega \)
         <li>
-            If \( \pruninglevel{P}{\comprun{a,b}} \lt \min\menge{\level{P}{a}, \level{P}{b}} \), 
+            If \( \pruninglevel{P}{\comprun{a,b}} \le \min\menge{\level{P}{a}, \level{P}{b}} \), 
             then \((a,b) \not\in \Omega \), as nodes cannot dominate themselves.
 <div .slide>
     <h1>Lemma: Level Swapping
@@ -51,12 +53,15 @@
             a is neither the top nor the botton node,
             e.g. \( \level{P}{a} \neq 0, \level{P}{a} \neq \max(P) \)
         <li>\( a \sim_P b \) as they are on the same level
+        <li>
+            Proof now follows the same steps as Theorem 20 of Preisinger's Diss. 
+            "Graph-based Algorithms for Pareto Preference Query Evaluation"
 <div .slide>
     <h1>Outer Dominance hull
     <p>
-        We define the outer dominance hull as
+        We define the outer dominance hull of \((a,b)\) as
         \\[ \menge{ \domhull{c}{j} \in \BTG{\nu} | \exists j : \domhull{c}{j} + e_j \in \dom{a,b} \wedge \# \dom{\domhull{c}{j}} = 1 } \]
-        Obviously, we can see that there is no \( \domhull{c}{j} \) if \( \level{P_j}{a_j} - 1 \lt 0 \).
+        Obviously, we can see that there is no \( \domhull{c}{j} \) if \( \level{P_j}{a_j} - 1 \lt 0 \) or \( \domhull{c}{l} \) if \( \level{P_l}{a_l} - 2 \lt 0 \) respectively.
         More verbosely, we can write
         \\[ \domhull{c}{1} = \left( \level{P_1}{a}-1, \max P_2, ..., \max P_n \right) \]
         \\[ \vdots \]

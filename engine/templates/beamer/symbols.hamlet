@@ -1,5 +1,6 @@
 \\( 
 \\def\N{\mathbb{N}} 
+\\def\R{\mathbb{R}} 
 \\def\qed{\mathrm{q.e.d.}} 
 \\newcommand{\BTG}[1]{\mathrm{BTG}\left(#1\right)}
 \\newcommand{\abs}[1]{\left|#1\right|}
@@ -10,4 +11,11 @@
 \\newcommand{\dom}[1]{\mathrm{Dom}\left(#1\right)}
 \\newcommand{\comprun}[1]{\mathcal{M}\left(#1\right)}
 \\newcommand{\domhull}[2]{\left.#1\right.^\{(#2)}}
+\\newcommand{\pareto}[2]{#1 \otimes #2}
+\\newcommand{\priorto}[2]{#1 \& #2}
+\\newcommand{\intersects}[2]{#1 \cap #2}
+\\newcommand{\distance}[2]{d\left(#1,#2\right)}
+\\newcommand{\distanceH}[2]{\hat{d}\left(#1,#2\right)}
+\\newcommand{\distanceC}[2]{\check{d}\left(#1,#2\right)}
+\\newcommand{\norm}[2]{\left\|#1\right\|_\{#2}}
 \\)

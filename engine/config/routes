@@ -36,8 +36,8 @@
 /vocabtrain/booksupply VocabtrainBookSupplyR POST
 /vocabtrain/download VocabtrainDownloadR POST
 
-/koeppldo/slide/#BeamerSlide BeamerSlideR GET
-/koeppldo/slide BeamerSlidesR GET
+/slide/#BeamerSlide BeamerSlideR GET
+/slide BeamerSlidesR GET
 
 /koeppldo DKHomeR GET
 /koeppldo/qt QtDescR GET

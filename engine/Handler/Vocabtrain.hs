@@ -2,6 +2,7 @@
 module Handler.Vocabtrain where
 
 import Import
+import CardType
 import qualified Prelude
 import qualified Data.Text as Text
 import Data.Aeson ((.:))
@@ -245,6 +246,7 @@ postVocabtrainChapterUpdateR chapterId = do
 
 getVocabtrainChapterR :: VocabChapterId -> GHandler App App RepHtml
 getVocabtrainChapterR chapterId = do
+	msgShow <- getMessageRender
 	maid <- maybeAuth
 	chapterm <- runDB $ get chapterId 
 	let chapter =  fromJust chapterm
@@ -367,6 +369,23 @@ postVocabtrainTranslationUpdateR translationId chapterId = do
 -}
 
 cardForm :: Maybe VocabCard -> AForm App App VocabCard
+cardForm mcard = VocabCard 
+	<$> areq textField (fieldSettingsLabel MsgFieldScript) (vocabCardScript <$> mcard)
+	<*> aopt textField (fieldSettingsLabel MsgFieldScriptComment) (vocabCardScriptComment <$> mcard)
+	<*> aopt textField (fieldSettingsLabel MsgFieldSpeech) (vocabCardSpeech <$> mcard)
+	<*> aopt textField (fieldSettingsLabel MsgFieldSpeechComment) (vocabCardSpeechComment <$> mcard)
+	<*> areq (selectField cardTypePairs)   (fieldSettingsLabel MsgFieldCardType) (vocabCardType <$> mcard)
+	where
+		cardTypePairs = do
+			--optionsPairs $ Prelude.map (Text.pack . show &&& Prelude.id) $
+			msgShow <- getMessageRender
+			optionsPairs $ Prelude.map (getCardTypeText msgShow &&& Prelude.id) $
+				(map (\l -> toEnum $ calcCardTypeList l) $ concat $ map (\pri -> map (\l -> (fromEnum pri) : l) $ sequence $ map (\x -> [0..x]) $ getCardTypeBounds' pri) ([minBound..maxBound] :: [CardTypePrimary]) :: [CardType])
+--			createVocabCard script scriptComment speech speechComment primaryType secondaryType tertiaryType =
+--				VocabCard script scriptComment speech speechComment (CardType primaryType secondaryType tertiaryType)
+
+{-
+cardForm :: Maybe VocabCard -> AForm App App VocabCard
 cardForm mcard = createVocabCard 
 	<$> areq textField (fieldSettingsLabel MsgFieldScript) (vocabCardScript <$> mcard)
 	<*> aopt textField (fieldSettingsLabel MsgFieldScriptComment) (vocabCardScriptComment <$> mcard)
@@ -386,6 +405,7 @@ cardForm mcard = createVocabCard
 			cardTypeSecondaryList = map (Text.pack . show &&& id) $ [minBound..maxBound] 
 			cardTypeTertiaryList :: [(Text, CardTypeTertiary)]
 			cardTypeTertiaryList = map (Text.pack . show &&& id) $ [minBound..maxBound] 
+-}
 
 widgetVocabtrainCardCreate' :: VocabChapterId -> GWidget App App ()
 widgetVocabtrainCardCreate' chapterId = do
@@ -511,6 +531,7 @@ postVocabtrainCardUpdateR cardId chapterId = do
 						, VocabCardScriptComment ==. (vocabCardScriptComment card')
 						, VocabCardSpeech ==. (vocabCardSpeech card')
 						, VocabCardSpeechComment ==. (vocabCardSpeechComment card')
+						, VocabCardId !=. cardId
 						] []
 					if length duplicateCards == 0
 						then do
@@ -885,3 +906,71 @@ INSERT INTO "android_metadata" VALUES(\'en_US\');
 |]
 
 -}
+
+
+
+
+getCardTypeText :: (AppMessage -> Text) -> CardType -> Text
+getCardTypeText msgShow t = Text.intercalate " " $ map msgShow $ getCardTypeMessages t
+getCardTypeMessages :: CardType -> [AppMessage]
+getCardTypeMessages (CardTypeVerb secondary tertiary) = [toAppMessage CARDTYPE_VERB, toAppMessage secondary, toAppMessage tertiary]
+getCardTypeMessages (CardTypeAdjective secondary tertiary) = [toAppMessage CARDTYPE_ADJECTIVE, toAppMessage secondary, toAppMessage tertiary]
+getCardTypeMessages (CardTypeAdverb secondary tertiary) = [toAppMessage CARDTYPE_ADVERB, toAppMessage secondary, toAppMessage tertiary]
+getCardTypeMessages (CardTypeAdposition) = [toAppMessage CARDTYPE_ADPOSITION]
+getCardTypeMessages (CardTypeConjugation secondary) = [toAppMessage CARDTYPE_CONJUGATION, toAppMessage secondary]
+getCardTypeMessages (CardTypeAbbreviation) = [toAppMessage CARDTYPE_ABBREVIATION]
+getCardTypeMessages (CardTypeSaw) = [toAppMessage CARDTYPE_SAW]
+getCardTypeMessages (CardTypeNoun secondary) = [toAppMessage CARDTYPE_NOUN, toAppMessage secondary ]
+getCardTypeMessages _ = [toAppMessage CARDTYPE_UNKNOWN]
+
+class VerbTypeMessage a where
+	toAppMessage :: a -> AppMessage
+
+instance VerbTypeMessage VerbType where
+	toAppMessage CARDTYPE_VERB_NONE = MsgCardTypeNone
+	toAppMessage CARDTYPE_TRANSITIVE = MsgCardTypeTransitive
+	toAppMessage CARDTYPE_INTRANSITIVE = MsgCardTypeIntransitive
+	toAppMessage CARDTYPE_REFLEXIVE = MsgCardTypeReflexive
+
+instance VerbTypeMessage JapaneseVerbType where
+	toAppMessage CARDTYPE_JAPANESEVERB_NONE = MsgCardTypeNone
+	toAppMessage CARDTYPE_GODAN_DOUSHI = MsgCardTypeGodanDoushi
+	toAppMessage CARDTYPE_ICHIDAN_DOUSHI = MsgCardTypeIchidanDoushi
+	toAppMessage CARDTYPE_IRREGULAR_DOUSHI = MsgCardTypeIrregularDoushi
+
+instance VerbTypeMessage AdjectiveType where
+	toAppMessage CARDTYPE_ADJECTIVE_NONE = MsgCardTypeNone
+	toAppMessage CARDTYPE_COMPARATIVE = MsgCardTypeComparative
+	toAppMessage CARDTYPE_SUPERLATIVE = MsgCardTypeSuperlative
+
+instance VerbTypeMessage JapaneseAdjectiveType where
+	toAppMessage CARDTYPE_JAPANESEADJECTIVE_NONE = MsgCardTypeNone
+	toAppMessage CARDTYPE_NCARDTYPE_ADJECTIVE = MsgCardTypeNaAdjective
+	toAppMessage CARDTYPE_I_ADJECTIVE = MsgCardTypeIAdjective
+
+instance VerbTypeMessage ConjugationType where
+	toAppMessage CARDTYPE_CONJUGATION_NONE = MsgCardTypeNone
+	toAppMessage CARDTYPE_PREPOSITION = MsgCardTypePreposition
+	toAppMessage CARDTYPE_POSTPOSITION = MsgCardTypePostposition
+	toAppMessage CARDTYPE_PARTICLE = MsgCardTypeParticle
+
+instance VerbTypeMessage NounType where
+	toAppMessage CARDTYPE_NOUN_NONE = MsgCardTypeNone
+	toAppMessage CARDTYPE_FEMININE = MsgCardTypeFeminine
+	toAppMessage CARDTYPE_MASCULINE = MsgCardTypeMasculine
+	toAppMessage CARDTYPE_NEUTER = MsgCardTypeNeuter
+	toAppMessage CARDTYPE_FEMININE_PLURAL = MsgCardTypeFemininePlural
+	toAppMessage CARDTYPE_MASCULINE_PLURAL = MsgCardTypeMasculinePlural
+	toAppMessage CARDTYPE_NEUTER_PLURAL = MsgCardTypeNeuterPlural
+
+instance VerbTypeMessage CardTypePrimary where
+	toAppMessage CARDTYPE_UNKNOWN  = MsgCardTypeUnknown
+	toAppMessage CARDTYPE_VERB = MsgCardTypeVerb
+	toAppMessage CARDTYPE_ADJECTIVE = MsgCardTypeAdjective
+	toAppMessage CARDTYPE_ADVERB = MsgCardTypeAdverb
+	toAppMessage CARDTYPE_ADPOSITION = MsgCardTypeAdposition
+	toAppMessage CARDTYPE_CONJUGATION = MsgCardTypeConjugation
+	toAppMessage CARDTYPE_ABBREVIATION = MsgCardTypeAbbreviation
+	toAppMessage CARDTYPE_SAW = MsgCardTypeSaw
+	toAppMessage CARDTYPE_NOUN = MsgCardTypeNoun
+

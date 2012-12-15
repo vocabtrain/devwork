@@ -7,8 +7,9 @@ import Data.Text (Text, pack)
 import Database.Persist.Quasi
 import Data.Time (UTCTime, getCurrentTime)
 import Generated
+import CardType
 import Database.Persist.Store
-
+{-
 data CardTypePrimary = CARDTYPE_VERB | CARDTYPE_NOUN deriving(Enum,Show,Eq,Read, Bounded)
 data CardTypeSecondary = CARDTYPE_TRANSITIVE | CARDTYPE_INTRANSITIVE deriving(Enum,Show,Eq,Read, Bounded)
 data CardTypeTertiary = CARDTYPE_GROUPI | CARDTYPE_GROUPII deriving(Enum,Show,Eq,Read, Bounded)
@@ -31,7 +32,7 @@ instance PersistField CardType where
 	toPersistValue = toPersistValue . fromEnum
 	fromPersistValue value = either Left (Right . toEnum) (fromPersistValue value :: (Either Text Int))
 	sqlType = sqlType . fromEnum 
-
+-}
 
 -- You can define all of your database entities in the entities file.
 -- You can find more information on persistent and how to declare entities

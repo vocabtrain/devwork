@@ -25,6 +25,7 @@ library
                      Foundation
                      Import
                      Model
+                     CardType
                      Settings
                      Settings.StaticFiles
                      Settings.Development

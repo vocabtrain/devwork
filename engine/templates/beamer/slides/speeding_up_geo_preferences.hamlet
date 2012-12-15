@@ -1,0 +1,98 @@
+<div .slide>
+    <h1>Combining Routes
+    <p>
+        If we want to calculate 
+        \\[ \pareto{\mathtt{ONROUTE }\; \vec{AB}}{\mathtt{ONROUTE }\; \vec{BC}} \]
+        with two <code>ST_LineString</code>s \( \vec{AB}, \vec{BC}\), then we could combine the linestrings as 
+        \\[ \vec{AC} :=  \mathtt{ST\_LineStringAggr}\; \left( \vec{AB}, \vec{BC} \right) \]
+        and form the expression
+        \\[ \mathtt{ONROUTE} \; \vec{AC} \]
+<div .slide>
+    <h1>Combining Areas
+    <p>
+        For
+        \\[ \pareto{\mathtt{WITHIN }\; p_1 }{\mathtt{WITHIN }\; p_2} \]
+        with two intersecting polygons \(p_1, p_2 : p_1 \cap p_2 \neq \emptyset\) we could construct a new polygon
+        \\[ p := p_1 \cup p_2 \]
+        so that our preference can be simplified to
+        \\[ \mathtt{WITHIN }\; p \]
+<div .slide>
+    <h1>Pruning Filter for Net-Distances
+    <h2>Idea
+    <p> Do not calculate the net distance if it is <i>obvious</i> that \( \distance{q}{a} \ll \distance{q}{b} \).
+    <ul>
+        <li>Pre-Caching: Calculate the net distance between POIs.
+        <li>Pruning: Use the cache to determine the obvious.
+    <p>
+        <b>Problem:
+        The net-distance is a non-symmetric distance, but it holds the triangular-inequality.
+    <h2>Generating the cache
+    <ul>
+        <li>Let \(\Omega\) denote the set of points of interests (e.g. pivot elements).
+        <li>Generate a matrix of all netdistances \( \left( \distance{p_i}{p_j} \right)_\{i,j} \; \forall p_i,p_j \in \Omega \)
+        <li>Note: The matrix is non-symmetric like \( p \).
+<div .slide>
+    <h1>New (symmetric) distances
+    <ul>
+        <li>We like to introduce two new distances \( \hat{d}, \check{d} \) which will help us to measure the <i>obvious</i>.
+        <li> These distances shall have the property that
+            \\[ \distanceC{a}{b} \le \distance{a}{b} \le \distanceH{a}{b} \]
+    <p>
+        <b>Motivation
+    <ul>
+        <li>
+            We have a query point \( q \) and two points \(p_1, p_2 \in \Omega \) 
+            and want to compare  \( \distance{q}{p_1} \) and \( \distance{q}{p_2} \).
+        <li>
+            If we already know that \( \distanceH{q}{p_1} \le \distanceC{q}{p_2} \), 
+            it is obvious that \( \distance{q}{p_1} \le  \distance{q}{p_2} \).
+
+<div .slide>
+    <h1>Defining the distances
+    <ul>
+        <li>
+            For a query point \( q \) we choose the nearest pivot element of \( \Omega \) w.r.t. \( q \), e.g.
+            \\[ p := \textrm{minarg}_\{p \in \Omega} \max \menge{ \distance{p}{q}, \distance{q}{p} } \]
+        <li>
+            Now we can define our two distances which depend on \( p \).
+            The first one
+            \\[ \distanceH{q}{o} := \distance{q}{p} + \distance{p}{o} \]
+            yields our desired property as the triangulary-inequation for \( d \) holds.
+        <li>
+            For the second, exploiting again the triangulary-inequation we can define
+            \\[ \distanceC{q}{o} := \max \menge{ \distance{q}{p} - \distance{o}{p}, \distance{p}{o} - \distance{p}{q} } \]
+            In particular we have \( \norm{q - o}{2} \le \distanceC{q}{o} \) 
+            as the Euclidian metric is the smallest possible distance in terms of net metrices.
+        <li>Clearly, for all \( o \in \Omega \) we can now exploit our previously calculated net-distance-matrix.
+
+
+<div .slide>
+    <h1>Potential Geo-Preferences
+    <h2>Idea
+    <ul>
+        <li>NEARBY of multiple POIs
+        <li>Do not want to be exactly at one POI
+        <li>Instead give me a good compromise of the distances to all POIs
+    <p>
+        <b>That means:
+        I do not want extremas that we get in skyline queries.
+<div .slide>
+    <h1>Definition of Potential Geo-Preferences
+    <p>
+        Let \(P \) be a Geo-Preference (such as <code>WITHIN, ONROUTE</code>, ...).
+        We define the constructor
+        \\[ P \textrm{ POTENTIAL } o,\phi \]
+        Particularly we can use mulitple points for a <code>NEARBY</code> preference
+        \\[ NEARBY \textrm{ POTENTIAL } [(o,\phi),...] \]
+        where \( o \) is a geo object like a point or polygon and \( \phi \) the potential field of object \( o \).
+        More exactly, we're passing our new constructor a set of potential-points 
+        \\( e_i = (p_i, \phi_i) \) with \( p_i \in \R^3 \) and \( \phi_i \in C^\{\infty}_c(\R^3) \).
+        The potential preference then generates a score of the kind
+        \\[ \textrm{score}(q) := \sum_i \phi_i(q - p_i) \]
+        where \( q \in \R^3 \) is an arbitrary point.
+        In order to be able to computate this preference,
+        we'll have to restrict the set of all points \( q \).
+        Therefore we introduce a lattice \( L_d \) where \( d \) denotes the width/height.
+        In order to generate our previous uncomputable preference, we can use a potential kernel like
+        \\[ \phi(x) := e^\{-x^2} - c e^\{-2x^2} \]
+

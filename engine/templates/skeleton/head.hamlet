@@ -20,6 +20,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="http://code.jquery.com/jquery-latest.js">
 <script src=@{StaticR js_bootstrap_js}>
+<script src=@{StaticR js_main_js}>
 <link rel="shortcut icon" href=@{StaticR img_favicon_057_png}>
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href=@{StaticR img_favicon_144_png}>
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href=@{StaticR img_favicon_114_png}>

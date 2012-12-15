@@ -2,7 +2,7 @@ Default: &defaults
   host: "*4" # any IPv4 host
   port: 3000
 #  approot: "http://www.devwork.org/a/"
-  approot: "http://ursaminor.informatik.uni-augsburg.de/koeppldo"
+  approot: "http://ursaminor.informatik.uni-augsburg.de/koeppl"
   copyright: Copyright 2012,2013 Dominik Köppl, CC-BY DE 3.0
   #analytics: UA-YOURCODE
 

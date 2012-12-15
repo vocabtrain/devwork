@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+database='devwork_test'
 datadir=/home/niki/data/
 scriptdir=/home/niki/devwork/cron
 mkdir -p "$datadir/log"
@@ -45,12 +46,12 @@ echo 'VACUUM;' | sqlite3 "$datadir/tatoeba.sqlite"
 
 searchd --config "$datadir/sphinx.conf" --stopwait 
 
-./parseTatoeba
-./parseLanguages > "$datadir/available_languages.txt"
+./parseTatoeba "$database"
+./parseLanguages "$database" > "$datadir/available_languages.txt"
 sort -b "$datadir/available_languages.txt" | uniq > "$datadir/available_languages.txt2"
 mv "$datadir/available_languages.txt2" "$datadir/available_languages.txt"
 cp "$scriptdir/sphinx.conf.head"  "$datadir/sphinx.conf"
-./genSphinxConf >> "$datadir/sphinx.conf"
+./genSphinxConf "$database" >> "$datadir/sphinx.conf"
 searchd --config "$datadir/sphinx.conf" 
 
 psql -U postgres -f cacheBookLanguages.sql devwork

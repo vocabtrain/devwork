@@ -10,6 +10,7 @@ import Database.HDBC
 import Database.HDBC.PostgreSQL
 import qualified Data.Map as Map
 import Data.Maybe
+import System.Environment
 
 mapLine :: [C.ByteString] -> [(C.ByteString,C.ByteString)]
 mapLine cols 
@@ -19,10 +20,11 @@ mapLine cols
 
 main :: IO ()
 main = do
+	args <- getArgs
 	contents <- B.readFile "ISO-639-2_utf-8.txt" 
 	let langMap = Map.fromList $ concat $ map (\line -> mapLine $ (C.split '|') line) $ B.lines contents
 
-	dbh <- connectPostgreSQL "host=localhost dbname=devwork user=postgres"
+	dbh <- connectPostgreSQL $ "host=localhost dbname=" ++ (args!!0) ++ " user=postgres"
 	langs <- quickQuery' dbh "SELECT sentence_language FROM tatoeba_sentences GROUP BY sentence_language" []
 	
 	forM_ langs (\lang -> do

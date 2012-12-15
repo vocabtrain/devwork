@@ -7,6 +7,7 @@
             <th>_{MsgFieldScriptComment}
             <th>_{MsgFieldSpeech}
             <th>_{MsgFieldSpeechComment}
+            <th>_{MsgFieldCardType}
             <th>_{MsgFieldTranslation}
     <tbody>
         $forall result <- results
@@ -30,6 +31,7 @@
                     <td>
                         $maybe speechComment <- vocabCardSpeechComment card
                             #{speechComment}
+                    <td>#{getCardTypeText msgShow $ vocabCardType card}
                     <td>
                         <table>
                             $forall lang <- snd result

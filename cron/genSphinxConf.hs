@@ -8,6 +8,7 @@ import Prelude
 import System.IO 
 import Database.HDBC
 import Database.HDBC.PostgreSQL
+import System.Environment
 
 languagesWithStemmer :: [String]
 languagesWithStemmer = [
@@ -53,7 +54,8 @@ genLang (SqlByteString langB) =
 					where lang = B.toString langB
 main :: IO ()
 main = do
-	dbh <- connectPostgreSQL "host=localhost dbname=devwork user=postgres"
+	args <- getArgs
+	dbh <- connectPostgreSQL $ "host=localhost dbname=" ++ (args!!0) ++ " user=postgres"
 	langs <- quickQuery' dbh "SELECT sentence_language FROM tatoeba_sentences GROUP BY sentence_language" []
 	forM_ langs (\lang ->
 		putStr $ genLang (lang !! 0) )

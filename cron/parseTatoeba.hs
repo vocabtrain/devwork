@@ -7,6 +7,7 @@ import Database.HDBC.PostgreSQL
 import Prelude
 import System.IO 
 import MyQQ 
+import System.Environment
 
 createTables :: String
 createTables = [literal|
@@ -40,7 +41,8 @@ CREATE RULE "link_rule" AS ON INSERT TO tatoeba_links
 
 main :: IO ()
 main = do
-	dbh <- connectPostgreSQL "host=localhost dbname=devwork user=postgres"
+	args <- getArgs
+	dbh <- connectPostgreSQL $ "host=localhost dbname=" ++ (args!!0) ++ " user=postgres"
 	runRaw dbh createTables 
 	commit dbh
 

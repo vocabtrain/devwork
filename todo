@@ -3,6 +3,6 @@ Vocabtrain:
 	~ Card Search + Add card to chapter
 	delete on cascade
 	~ unique card ?
-	card type populate
+	~ card type override SHOW
 tatoeba: LANG_UND + routes auf TatoebaLanguage
 

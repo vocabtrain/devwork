@@ -76,6 +76,37 @@ TooltipVocabtrainBookDeleteR: Delete Book
 TooltipVocabtrainChapterUpdateR: Update Chapter
 TooltipVocabtrainChapterDeleteR: Delete Chapter
 
+CardTypeNone:
+CardTypeTransitive: trans.
+CardTypeIntransitive: intr.
+CardTypeReflexive: refl.
+CardTypeGodanDoushi: 五段動詞
+CardTypeIchidanDoushi: 一段動詞
+CardTypeIrregularDoushi: irreg. 動詞
+CardTypeComparative: comp.
+CardTypeSuperlative: super
+CardTypeNaAdjective: ナ
+CardTypeIAdjective: イ
+CardTypePreposition: prep.
+CardTypePostposition: postp.
+CardTypeParticle: part.
+CardTypeFeminine: fem.
+CardTypeMasculine: mas.
+CardTypeNeuter: neu.
+CardTypeFemininePlural: fem.pl.
+CardTypeMasculinePlural: mas.pl.
+CardTypeNeuterPlural: neu.pl.
+CardTypeUnknown: Unknown
+CardTypeVerb: Verb
+CardTypeAdjective: Adjective
+CardTypeAdverb: Adverb
+CardTypeAdposition: Adposition
+CardTypeConjugation: Conjugation
+CardTypeAbbreviation: Abbreviation
+CardTypeSaw: Saw
+CardTypeNoun: Noun
+
+
 
 VocabManipulationPermissionDenied: You have to login in order to make changes.
 
@@ -91,6 +122,7 @@ FieldScriptComment: Script Comment
 FieldSpeech: Speech
 FieldSpeechComment: Speech Comment
 
+FieldCardType: Type
 FieldCardTypePrimary: Primary Type
 FieldCardTypeSecondary: Secondary Type
 FieldCardTypeTertiary: Tertiary Type

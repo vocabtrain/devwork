@@ -24,7 +24,7 @@ card_speech CHARACTER VARYING,
 card_speech_comment CHARACTER VARYING ,
 card_type INT,
 constraint card_primary PRIMARY KEY(_id),
-constraint card_unique UNIQUE ( card_speech, card_script, card_script_comment, card_speech_comment) ON DELETE CASCADE
+constraint card_unique UNIQUE ( card_speech, card_script, card_script_comment, card_speech_comment)
 );
 
 

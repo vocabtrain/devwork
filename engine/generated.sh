@@ -16,6 +16,7 @@ import qualified Yesod.Static
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Char as Char
+import qualified Data.List as List
 import Text.Hamlet (hamletFile)
 import Database.Persist.TH
 import Database.Persist

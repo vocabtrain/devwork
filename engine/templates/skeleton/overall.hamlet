@@ -17,9 +17,7 @@ $newline never
                             <span class="icon-bar">
                             <span class="icon-bar">
                             <span class="icon-bar">
-                        <a class="brand" href="http://www.devwork.org">
-                            <img alt="/dev/work" src=@{StaticR img_favicon_png}>
-                            /dev/work
+                        <!-- <a class="brand" href="http://www.devwork.org"> <img alt="/dev/work" src=@{StaticR img_favicon_png}> /dev/work -->
                         <div .nav-collapse .collapse>
                             <p .navbar-text .pull-right>
                                 $maybe _ <- maid
