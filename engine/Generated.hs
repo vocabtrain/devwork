@@ -50,472 +50,224 @@ data OpenGLQtLesson = OpenGLQtLesson
 	, openGLQtLessonPackage :: Route Yesod.Static.Static
 	, openGLQtLessonLink :: Text
 	}
-data TatoebaLanguage = LANG_ACM
-	 | LANG_AFR
-	 | LANG_AIN
-	 | LANG_ANG
-	 | LANG_ARA
+data TatoebaLanguage = LANG_ARA
 	 | LANG_ARZ
-	 | LANG_AST
 	 | LANG_BEL
-	 | LANG_BEN
-	 | LANG_BER
-	 | LANG_BOS
-	 | LANG_BRE
-	 | LANG_BUL
-	 | LANG_CAT
 	 | LANG_CES
-	 | LANG_CHA
 	 | LANG_CMN
-	 | LANG_CYCL
-	 | LANG_CYM
 	 | LANG_DAN
 	 | LANG_DEU
-	 | LANG_DSB
 	 | LANG_ELL
 	 | LANG_ENG
 	 | LANG_EPO
 	 | LANG_EST
 	 | LANG_EUS
-	 | LANG_EWE
-	 | LANG_FAO
 	 | LANG_FIN
 	 | LANG_FRA
-	 | LANG_FRY
-	 | LANG_GLA
-	 | LANG_GLE
-	 | LANG_GLG
-	 | LANG_GRN
 	 | LANG_HEB
 	 | LANG_HIN
-	 | LANG_HRV
 	 | LANG_HSB
 	 | LANG_HUN
-	 | LANG_HYE
 	 | LANG_IDO
-	 | LANG_ILE
 	 | LANG_INA
-	 | LANG_IND
 	 | LANG_ISL
 	 | LANG_ITA
 	 | LANG_JBO
 	 | LANG_JPN
-	 | LANG_KAT
-	 | LANG_KAZ
 	 | LANG_KOR
-	 | LANG_KSH
-	 | LANG_KUR
-	 | LANG_LAD
 	 | LANG_LAT
 	 | LANG_LIT
-	 | LANG_LLD
-	 | LANG_LVS
 	 | LANG_LZH
 	 | LANG_MAL
-	 | LANG_MLG
-	 | LANG_MON
-	 | LANG_MRI
-	 | LANG_NAN
 	 | LANG_NDS
 	 | LANG_NLD
 	 | LANG_NOB
-	 | LANG_NON
-	 | LANG_NOV
-	 | LANG_OCI
-	 | LANG_ORV
-	 | LANG_OSS
 	 | LANG_PES
-	 | LANG_PMS
-	 | LANG_PNB
 	 | LANG_POL
 	 | LANG_POR
-	 | LANG_QUE
-	 | LANG_QYA
-	 | LANG_ROH
 	 | LANG_RON
 	 | LANG_RUS
-	 | LANG_SAN
-	 | LANG_SCN
-	 | LANG_SJN
-	 | LANG_SLK
-	 | LANG_SLV
 	 | LANG_SPA
-	 | LANG_SQI
 	 | LANG_SRP
 	 | LANG_SWE
 	 | LANG_SWH
-	 | LANG_TAT
-	 | LANG_TEL
-	 | LANG_TGL
-	 | LANG_THA
 	 | LANG_TLH
-	 | LANG_TOKI
-	 | LANG_TPI
 	 | LANG_TUR
 	 | LANG_UIG
 	 | LANG_UKR
-	 | LANG_URD
 	 | LANG_UZB
 	 | LANG_VIE
-	 | LANG_VOL
 	 | LANG_WUU
 	 | LANG_XAL
-	 | LANG_XHO
-	 | LANG_YID
 	 | LANG_YUE
 	 | LANG_ZSM
+	 | LANG_UND
 	deriving(Eq,Enum,Bounded)
 instance Read TatoebaLanguage where 
 	readPrec = choice $ strValMap [
-		("acm",LANG_ACM)
-		, ("afr",LANG_AFR)
-		, ("ain",LANG_AIN)
-		, ("ang",LANG_ANG)
-		, ("ara",LANG_ARA)
+		("ara",LANG_ARA)
 		, ("arz",LANG_ARZ)
-		, ("ast",LANG_AST)
 		, ("bel",LANG_BEL)
-		, ("ben",LANG_BEN)
-		, ("ber",LANG_BER)
-		, ("bos",LANG_BOS)
-		, ("bre",LANG_BRE)
-		, ("bul",LANG_BUL)
-		, ("cat",LANG_CAT)
 		, ("ces",LANG_CES)
-		, ("cha",LANG_CHA)
 		, ("cmn",LANG_CMN)
-		, ("cycl",LANG_CYCL)
-		, ("cym",LANG_CYM)
 		, ("dan",LANG_DAN)
 		, ("deu",LANG_DEU)
-		, ("dsb",LANG_DSB)
 		, ("ell",LANG_ELL)
 		, ("eng",LANG_ENG)
 		, ("epo",LANG_EPO)
 		, ("est",LANG_EST)
 		, ("eus",LANG_EUS)
-		, ("ewe",LANG_EWE)
-		, ("fao",LANG_FAO)
 		, ("fin",LANG_FIN)
 		, ("fra",LANG_FRA)
-		, ("fry",LANG_FRY)
-		, ("gla",LANG_GLA)
-		, ("gle",LANG_GLE)
-		, ("glg",LANG_GLG)
-		, ("grn",LANG_GRN)
 		, ("heb",LANG_HEB)
 		, ("hin",LANG_HIN)
-		, ("hrv",LANG_HRV)
 		, ("hsb",LANG_HSB)
 		, ("hun",LANG_HUN)
-		, ("hye",LANG_HYE)
 		, ("ido",LANG_IDO)
-		, ("ile",LANG_ILE)
 		, ("ina",LANG_INA)
-		, ("ind",LANG_IND)
 		, ("isl",LANG_ISL)
 		, ("ita",LANG_ITA)
 		, ("jbo",LANG_JBO)
 		, ("jpn",LANG_JPN)
-		, ("kat",LANG_KAT)
-		, ("kaz",LANG_KAZ)
 		, ("kor",LANG_KOR)
-		, ("ksh",LANG_KSH)
-		, ("kur",LANG_KUR)
-		, ("lad",LANG_LAD)
 		, ("lat",LANG_LAT)
 		, ("lit",LANG_LIT)
-		, ("lld",LANG_LLD)
-		, ("lvs",LANG_LVS)
 		, ("lzh",LANG_LZH)
 		, ("mal",LANG_MAL)
-		, ("mlg",LANG_MLG)
-		, ("mon",LANG_MON)
-		, ("mri",LANG_MRI)
-		, ("nan",LANG_NAN)
 		, ("nds",LANG_NDS)
 		, ("nld",LANG_NLD)
 		, ("nob",LANG_NOB)
-		, ("non",LANG_NON)
-		, ("nov",LANG_NOV)
-		, ("oci",LANG_OCI)
-		, ("orv",LANG_ORV)
-		, ("oss",LANG_OSS)
 		, ("pes",LANG_PES)
-		, ("pms",LANG_PMS)
-		, ("pnb",LANG_PNB)
 		, ("pol",LANG_POL)
 		, ("por",LANG_POR)
-		, ("que",LANG_QUE)
-		, ("qya",LANG_QYA)
-		, ("roh",LANG_ROH)
 		, ("ron",LANG_RON)
 		, ("rus",LANG_RUS)
-		, ("san",LANG_SAN)
-		, ("scn",LANG_SCN)
-		, ("sjn",LANG_SJN)
-		, ("slk",LANG_SLK)
-		, ("slv",LANG_SLV)
 		, ("spa",LANG_SPA)
-		, ("sqi",LANG_SQI)
 		, ("srp",LANG_SRP)
 		, ("swe",LANG_SWE)
 		, ("swh",LANG_SWH)
-		, ("tat",LANG_TAT)
-		, ("tel",LANG_TEL)
-		, ("tgl",LANG_TGL)
-		, ("tha",LANG_THA)
 		, ("tlh",LANG_TLH)
-		, ("toki",LANG_TOKI)
-		, ("tpi",LANG_TPI)
 		, ("tur",LANG_TUR)
 		, ("uig",LANG_UIG)
 		, ("ukr",LANG_UKR)
-		, ("urd",LANG_URD)
 		, ("uzb",LANG_UZB)
 		, ("vie",LANG_VIE)
-		, ("vol",LANG_VOL)
 		, ("wuu",LANG_WUU)
 		, ("xal",LANG_XAL)
-		, ("xho",LANG_XHO)
-		, ("yid",LANG_YID)
 		, ("yue",LANG_YUE)
 		, ("zsm",LANG_ZSM)
+		, ("und",LANG_UND)
 		]
 		where
 			strValMap :: [(String, TatoebaLanguage)] -> [ReadPrec TatoebaLanguage]
 			strValMap = map (\(x, y) -> lift $ string x >> return y)
 instance Show TatoebaLanguage where
-	show(LANG_ACM)="acm"
-	show(LANG_AFR)="afr"
-	show(LANG_AIN)="ain"
-	show(LANG_ANG)="ang"
 	show(LANG_ARA)="ara"
 	show(LANG_ARZ)="arz"
-	show(LANG_AST)="ast"
 	show(LANG_BEL)="bel"
-	show(LANG_BEN)="ben"
-	show(LANG_BER)="ber"
-	show(LANG_BOS)="bos"
-	show(LANG_BRE)="bre"
-	show(LANG_BUL)="bul"
-	show(LANG_CAT)="cat"
 	show(LANG_CES)="ces"
-	show(LANG_CHA)="cha"
 	show(LANG_CMN)="cmn"
-	show(LANG_CYCL)="cycl"
-	show(LANG_CYM)="cym"
 	show(LANG_DAN)="dan"
 	show(LANG_DEU)="deu"
-	show(LANG_DSB)="dsb"
 	show(LANG_ELL)="ell"
 	show(LANG_ENG)="eng"
 	show(LANG_EPO)="epo"
 	show(LANG_EST)="est"
 	show(LANG_EUS)="eus"
-	show(LANG_EWE)="ewe"
-	show(LANG_FAO)="fao"
 	show(LANG_FIN)="fin"
 	show(LANG_FRA)="fra"
-	show(LANG_FRY)="fry"
-	show(LANG_GLA)="gla"
-	show(LANG_GLE)="gle"
-	show(LANG_GLG)="glg"
-	show(LANG_GRN)="grn"
 	show(LANG_HEB)="heb"
 	show(LANG_HIN)="hin"
-	show(LANG_HRV)="hrv"
 	show(LANG_HSB)="hsb"
 	show(LANG_HUN)="hun"
-	show(LANG_HYE)="hye"
 	show(LANG_IDO)="ido"
-	show(LANG_ILE)="ile"
 	show(LANG_INA)="ina"
-	show(LANG_IND)="ind"
 	show(LANG_ISL)="isl"
 	show(LANG_ITA)="ita"
 	show(LANG_JBO)="jbo"
 	show(LANG_JPN)="jpn"
-	show(LANG_KAT)="kat"
-	show(LANG_KAZ)="kaz"
 	show(LANG_KOR)="kor"
-	show(LANG_KSH)="ksh"
-	show(LANG_KUR)="kur"
-	show(LANG_LAD)="lad"
 	show(LANG_LAT)="lat"
 	show(LANG_LIT)="lit"
-	show(LANG_LLD)="lld"
-	show(LANG_LVS)="lvs"
 	show(LANG_LZH)="lzh"
 	show(LANG_MAL)="mal"
-	show(LANG_MLG)="mlg"
-	show(LANG_MON)="mon"
-	show(LANG_MRI)="mri"
-	show(LANG_NAN)="nan"
 	show(LANG_NDS)="nds"
 	show(LANG_NLD)="nld"
 	show(LANG_NOB)="nob"
-	show(LANG_NON)="non"
-	show(LANG_NOV)="nov"
-	show(LANG_OCI)="oci"
-	show(LANG_ORV)="orv"
-	show(LANG_OSS)="oss"
 	show(LANG_PES)="pes"
-	show(LANG_PMS)="pms"
-	show(LANG_PNB)="pnb"
 	show(LANG_POL)="pol"
 	show(LANG_POR)="por"
-	show(LANG_QUE)="que"
-	show(LANG_QYA)="qya"
-	show(LANG_ROH)="roh"
 	show(LANG_RON)="ron"
 	show(LANG_RUS)="rus"
-	show(LANG_SAN)="san"
-	show(LANG_SCN)="scn"
-	show(LANG_SJN)="sjn"
-	show(LANG_SLK)="slk"
-	show(LANG_SLV)="slv"
 	show(LANG_SPA)="spa"
-	show(LANG_SQI)="sqi"
 	show(LANG_SRP)="srp"
 	show(LANG_SWE)="swe"
 	show(LANG_SWH)="swh"
-	show(LANG_TAT)="tat"
-	show(LANG_TEL)="tel"
-	show(LANG_TGL)="tgl"
-	show(LANG_THA)="tha"
 	show(LANG_TLH)="tlh"
-	show(LANG_TOKI)="toki"
-	show(LANG_TPI)="tpi"
 	show(LANG_TUR)="tur"
 	show(LANG_UIG)="uig"
 	show(LANG_UKR)="ukr"
-	show(LANG_URD)="urd"
 	show(LANG_UZB)="uzb"
 	show(LANG_VIE)="vie"
-	show(LANG_VOL)="vol"
 	show(LANG_WUU)="wuu"
 	show(LANG_XAL)="xal"
-	show(LANG_XHO)="xho"
-	show(LANG_YID)="yid"
 	show(LANG_YUE)="yue"
 	show(LANG_ZSM)="zsm"
+	show(LANG_UND)="und"
 derivePersistField "TatoebaLanguage"
 getTatoebaLanguageName :: TatoebaLanguage -> Text
-getTatoebaLanguageName(LANG_ACM)="acm"
-getTatoebaLanguageName(LANG_AFR)="Afrikaans"
-getTatoebaLanguageName(LANG_AIN)="Ainu"
-getTatoebaLanguageName(LANG_ANG)="English,_Old_(ca.450-1100)"
 getTatoebaLanguageName(LANG_ARA)="Arabic"
 getTatoebaLanguageName(LANG_ARZ)="arz"
-getTatoebaLanguageName(LANG_AST)="Asturian;_Bable;_Leonese;_Asturleonese"
 getTatoebaLanguageName(LANG_BEL)="Belarusian"
-getTatoebaLanguageName(LANG_BEN)="Bengali"
-getTatoebaLanguageName(LANG_BER)="Berber_languages"
-getTatoebaLanguageName(LANG_BOS)="Bosnian"
-getTatoebaLanguageName(LANG_BRE)="Breton"
-getTatoebaLanguageName(LANG_BUL)="Bulgarian"
-getTatoebaLanguageName(LANG_CAT)="Catalan;_Valencian"
 getTatoebaLanguageName(LANG_CES)="Czech"
-getTatoebaLanguageName(LANG_CHA)="Chamorro"
 getTatoebaLanguageName(LANG_CMN)="cmn"
-getTatoebaLanguageName(LANG_CYCL)="cycl"
-getTatoebaLanguageName(LANG_CYM)="Welsh"
 getTatoebaLanguageName(LANG_DAN)="Danish"
 getTatoebaLanguageName(LANG_DEU)="German"
-getTatoebaLanguageName(LANG_DSB)="Lower_Sorbian"
 getTatoebaLanguageName(LANG_ELL)="Greek,_Modern_(1453-)"
 getTatoebaLanguageName(LANG_ENG)="English"
 getTatoebaLanguageName(LANG_EPO)="Esperanto"
 getTatoebaLanguageName(LANG_EST)="Estonian"
 getTatoebaLanguageName(LANG_EUS)="Basque"
-getTatoebaLanguageName(LANG_EWE)="Ewe"
-getTatoebaLanguageName(LANG_FAO)="Faroese"
 getTatoebaLanguageName(LANG_FIN)="Finnish"
 getTatoebaLanguageName(LANG_FRA)="French"
-getTatoebaLanguageName(LANG_FRY)="Western_Frisian"
-getTatoebaLanguageName(LANG_GLA)="Gaelic;_Scottish_Gaelic"
-getTatoebaLanguageName(LANG_GLE)="Irish"
-getTatoebaLanguageName(LANG_GLG)="Galician"
-getTatoebaLanguageName(LANG_GRN)="Guarani"
 getTatoebaLanguageName(LANG_HEB)="Hebrew"
 getTatoebaLanguageName(LANG_HIN)="Hindi"
-getTatoebaLanguageName(LANG_HRV)="Croatian"
 getTatoebaLanguageName(LANG_HSB)="Upper_Sorbian"
 getTatoebaLanguageName(LANG_HUN)="Hungarian"
-getTatoebaLanguageName(LANG_HYE)="Armenian"
 getTatoebaLanguageName(LANG_IDO)="Ido"
-getTatoebaLanguageName(LANG_ILE)="Interlingue;_Occidental"
 getTatoebaLanguageName(LANG_INA)="Interlingua_(International_Auxiliary_Language_Association)"
-getTatoebaLanguageName(LANG_IND)="Indonesian"
 getTatoebaLanguageName(LANG_ISL)="Icelandic"
 getTatoebaLanguageName(LANG_ITA)="Italian"
 getTatoebaLanguageName(LANG_JBO)="Lojban"
 getTatoebaLanguageName(LANG_JPN)="Japanese"
-getTatoebaLanguageName(LANG_KAT)="Georgian"
-getTatoebaLanguageName(LANG_KAZ)="Kazakh"
 getTatoebaLanguageName(LANG_KOR)="Korean"
-getTatoebaLanguageName(LANG_KSH)="ksh"
-getTatoebaLanguageName(LANG_KUR)="Kurdish"
-getTatoebaLanguageName(LANG_LAD)="Ladino"
 getTatoebaLanguageName(LANG_LAT)="Latin"
 getTatoebaLanguageName(LANG_LIT)="Lithuanian"
-getTatoebaLanguageName(LANG_LLD)="lld"
-getTatoebaLanguageName(LANG_LVS)="lvs"
 getTatoebaLanguageName(LANG_LZH)="lzh"
 getTatoebaLanguageName(LANG_MAL)="Malayalam"
-getTatoebaLanguageName(LANG_MLG)="Malagasy"
-getTatoebaLanguageName(LANG_MON)="Mongolian"
-getTatoebaLanguageName(LANG_MRI)="Maori"
-getTatoebaLanguageName(LANG_NAN)="nan"
 getTatoebaLanguageName(LANG_NDS)="Low_German;_Low_Saxon;_German,_Low;_Saxon,_Low"
 getTatoebaLanguageName(LANG_NLD)="Dutch;_Flemish"
 getTatoebaLanguageName(LANG_NOB)="Bokmål,_Norwegian;_Norwegian_Bokmål"
-getTatoebaLanguageName(LANG_NON)="Norse,_Old"
-getTatoebaLanguageName(LANG_NOV)="nov"
-getTatoebaLanguageName(LANG_OCI)="Occitan_(post_1500);_Provençal"
-getTatoebaLanguageName(LANG_ORV)="orv"
-getTatoebaLanguageName(LANG_OSS)="Ossetian;_Ossetic"
 getTatoebaLanguageName(LANG_PES)="pes"
-getTatoebaLanguageName(LANG_PMS)="pms"
-getTatoebaLanguageName(LANG_PNB)="pnb"
 getTatoebaLanguageName(LANG_POL)="Polish"
 getTatoebaLanguageName(LANG_POR)="Portuguese"
-getTatoebaLanguageName(LANG_QUE)="Quechua"
-getTatoebaLanguageName(LANG_QYA)="qya"
-getTatoebaLanguageName(LANG_ROH)="Romansh"
 getTatoebaLanguageName(LANG_RON)="Romanian;_Moldavian;_Moldovan"
 getTatoebaLanguageName(LANG_RUS)="Russian"
-getTatoebaLanguageName(LANG_SAN)="Sanskrit"
-getTatoebaLanguageName(LANG_SCN)="Sicilian"
-getTatoebaLanguageName(LANG_SJN)="sjn"
-getTatoebaLanguageName(LANG_SLK)="Slovak"
-getTatoebaLanguageName(LANG_SLV)="Slovenian"
 getTatoebaLanguageName(LANG_SPA)="Spanish;_Castilian"
-getTatoebaLanguageName(LANG_SQI)="Albanian"
 getTatoebaLanguageName(LANG_SRP)="Serbian"
 getTatoebaLanguageName(LANG_SWE)="Swedish"
 getTatoebaLanguageName(LANG_SWH)="swh"
-getTatoebaLanguageName(LANG_TAT)="Tatar"
-getTatoebaLanguageName(LANG_TEL)="Telugu"
-getTatoebaLanguageName(LANG_TGL)="Tagalog"
-getTatoebaLanguageName(LANG_THA)="Thai"
 getTatoebaLanguageName(LANG_TLH)="Klingon;_tlhIngan-Hol"
-getTatoebaLanguageName(LANG_TOKI)="toki"
-getTatoebaLanguageName(LANG_TPI)="Tok_Pisin"
 getTatoebaLanguageName(LANG_TUR)="Turkish"
 getTatoebaLanguageName(LANG_UIG)="Uighur;_Uyghur"
 getTatoebaLanguageName(LANG_UKR)="Ukrainian"
-getTatoebaLanguageName(LANG_URD)="Urdu"
 getTatoebaLanguageName(LANG_UZB)="Uzbek"
 getTatoebaLanguageName(LANG_VIE)="Vietnamese"
-getTatoebaLanguageName(LANG_VOL)="Volapük"
 getTatoebaLanguageName(LANG_WUU)="wuu"
 getTatoebaLanguageName(LANG_XAL)="Kalmyk;_Oirat"
-getTatoebaLanguageName(LANG_XHO)="Xhosa"
-getTatoebaLanguageName(LANG_YID)="Yiddish"
 getTatoebaLanguageName(LANG_YUE)="yue"
 getTatoebaLanguageName(LANG_ZSM)="zsm"
+getTatoebaLanguageName(LANG_UND)="Undefined"
 getQtGalleryImages :: [GalleryImage]
 getQtGalleryImages = [ GalleryImage{galleryImageSource=img_qtgallery_bb_clock_jpg,galleryImageThumbnail=img_qtgallery_bb_clock_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_chemie_nmrdaten_jpg,galleryImageThumbnail=img_qtgallery_chemie_nmrdaten_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_diagramm_jpg,galleryImageThumbnail=img_qtgallery_diagramm_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_fourwin_jpg,galleryImageThumbnail=img_qtgallery_fourwin_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_fress_oder_stirb_jpg,galleryImageThumbnail=img_qtgallery_fress_oder_stirb_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_frosch_jpg,galleryImageThumbnail=img_qtgallery_frosch_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_gorilla2_jpg,galleryImageThumbnail=img_qtgallery_gorilla2_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_gorilla_jpg,galleryImageThumbnail=img_qtgallery_gorilla_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_particles_jpg,galleryImageThumbnail=img_qtgallery_particles_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_phonebook_jpg,galleryImageThumbnail=img_qtgallery_phonebook_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_pong_jpg,galleryImageThumbnail=img_qtgallery_pong_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_potential_jpg,galleryImageThumbnail=img_qtgallery_potential_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_roulette_jpg,galleryImageThumbnail=img_qtgallery_roulette_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_schiffe_versenken_jpg,galleryImageThumbnail=img_qtgallery_schiffe_versenken_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_snake_jpg,galleryImageThumbnail=img_qtgallery_snake_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_spinglass_jpg,galleryImageThumbnail=img_qtgallery_spinglass_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_sudoku_jpg,galleryImageThumbnail=img_qtgallery_sudoku_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_tictactoe_jpg,galleryImageThumbnail=img_qtgallery_tictactoe_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_trainer_jpg,galleryImageThumbnail=img_qtgallery_trainer_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_vokabeltrainer_jpg,galleryImageThumbnail=img_qtgallery_vokabeltrainer_thumb_jpg},GalleryImage{galleryImageSource=img_qtgallery_whack_him_jpg,galleryImageThumbnail=img_qtgallery_whack_him_thumb_jpg}]
 getJavaProjects :: [JavaProject]
@@ -540,7 +292,7 @@ instance PathPiece TatoebaLanguage where
 	fromPathPiece text = case reads $ Text.unpack text of
 		[(x, "")] -> Just x
 		_ -> Nothing
-	toPathPiece = toPathPiece . getTatoebaLanguageName
+	toPathPiece = toPathPiece . Text.pack . show
 
 instance PathPiece BeamerSlide where
 	fromPathPiece text = case reads $ Text.unpack text of

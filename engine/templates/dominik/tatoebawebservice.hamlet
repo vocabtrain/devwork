@@ -21,11 +21,11 @@
         <dd>Search for an arbitrary example sentence in <i>French</i>.
 
         <dt>
-            <a href=@{TatoebaQueryR "eng" "love"}>@{TatoebaQueryR "eng" "love"}
+            <a href=@{TatoebaQueryR LANG_ENG "love"}>@{TatoebaQueryR LANG_ENG "love"}
         <dd>Search for example sentences containing the word/phrase <i>love</i> in <i>English</i>.
 
         <dt>
-            <a href=@{TatoebaQueryR "und" "connaissance"}>@{TatoebaQueryR "und" "connaissance"}
+            <a href=@{TatoebaQueryR LANG_UND "connaissance"}>@{TatoebaQueryR LANG_UND "connaissance"}
         <dd>Search for example sentences containing the word/phrase <i>love</i> in <i>every language</i>.
 
     where

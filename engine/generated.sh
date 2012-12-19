@@ -240,7 +240,7 @@ instance PathPiece TatoebaLanguage where
 	fromPathPiece text = case reads $ Text.unpack text of
 		[(x, "")] -> Just x
 		_ -> Nothing
-	toPathPiece = toPathPiece . getTatoebaLanguageName
+	toPathPiece = toPathPiece . Text.pack . show
 
 instance PathPiece BeamerSlide where
 	fromPathPiece text = case reads $ Text.unpack text of

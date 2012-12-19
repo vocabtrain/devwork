@@ -3,7 +3,7 @@ source default {
 	sql_host		= localhost
 	sql_user		= postgres
 	sql_pass		=
-	sql_db			= tatoeba
+	sql_db			= devwork
 	sql_port		= 5432
 
 }

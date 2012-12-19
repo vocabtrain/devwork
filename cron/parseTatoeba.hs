@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS tatoeba_links (
 	link_sentence_id INT NOT NULL, 
 	link_translation_id INT NOT NULL, 
 	CONSTRAINT link_unique UNIQUE(link_sentence_id, link_translation_id), 
-	CONSTRAINT link_foreign FOREIGN KEY(link_sentence_id) REFERENCES tatoeba_sentences (sentence_id) ON DELETE CASCADE 
+	CONSTRAINT link_sentence_foreign FOREIGN KEY(link_sentence_id) REFERENCES tatoeba_sentences (sentence_id) ON DELETE CASCADE,
+	CONSTRAINT link_translation_foreign FOREIGN KEY(link_translation_id) REFERENCES tatoeba_sentences (sentence_id) ON DELETE CASCADE 
 );
 
 CREATE RULE "sentence_rule" AS ON INSERT TO tatoeba_sentences

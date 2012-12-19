@@ -9,7 +9,7 @@
 /tatoeba TatoebaWebServiceR GET
 /tatoeba/app TatoebaAppR GET
 /tatoeba/languages TatoebaLanguagesR GET
-/tatoeba/query/#Text/#Text TatoebaQueryR
+/tatoeba/query/#TatoebaLanguage/#Text TatoebaQueryR
 /tatoeba/query/#TatoebaLanguage TatoebaQueryLanguageR
 /tatoeba/query TatoebaQueryRandomR GET
 
@@ -29,6 +29,7 @@
 /vocabtrain/cardchapter/add/#VocabChapterId VocabtrainCardChapterAddR GET
 /vocabtrain/cardchapter/insert/#VocabCardId/#VocabChapterId VocabtrainCardChapterInsertR POST
 /vocabtrain/cardchapters/delete/#VocabCardId VocabtrainCardChaptersDeleteR POST
+
 /vocabtrain/card/insert/#VocabChapterId VocabtrainCardInsertR POST
 /vocabtrain/card/update/#VocabCardId/#VocabChapterId VocabtrainCardUpdateR GET POST
 /vocabtrain/card/delete/#VocabCardId/#VocabChapterId VocabtrainCardDeleteR GET POST

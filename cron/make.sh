@@ -15,12 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-database='devwork_test'
+database='devwork'
 datadir=/home/niki/data/
 scriptdir=/home/niki/devwork/cron
 mkdir -p "$datadir/log"
 function dhaskell {
-	ghc -i "$scriptdir/MyQQ.hs" -outputdir ~/data -odir ~/data -o "$datadir/`basename $1 .hs`" $1
+	of="$datadir/`basename $1 .hs`"
+	[[ -f "$datadir/$of" ]] && rm "$datadir/$of"
+	[[ -f "$datadir/Main.o" ]] && 	rm "$datadir/Main.o" "$datadir/Main.hi"
+	ghc -i "$scriptdir/MyQQ.hs" -outputdir "$datadir" -o $of $1
 }
 dhaskell "$scriptdir/parseTatoeba.hs"
 dhaskell "$scriptdir/parseLanguages.hs"
@@ -48,10 +51,13 @@ searchd --config "$datadir/sphinx.conf" --stopwait
 
 ./parseTatoeba "$database"
 ./parseLanguages "$database" > "$datadir/available_languages.txt"
+echo 'und@Undefined Language' >> "$datadir/available_languages.txt"
 sort -b "$datadir/available_languages.txt" | uniq > "$datadir/available_languages.txt2"
 mv "$datadir/available_languages.txt2" "$datadir/available_languages.txt"
 cp "$scriptdir/sphinx.conf.head"  "$datadir/sphinx.conf"
 ./genSphinxConf "$database" >> "$datadir/sphinx.conf"
+mkdir -p "$datadir/sphinx"
+indexer --config "$datadir/sphinx.conf" --all
 searchd --config "$datadir/sphinx.conf" 
 
 psql -U postgres -f cacheBookLanguages.sql devwork
@@ -61,7 +67,7 @@ ant -Dsentences "$datadir/sentences.csv" -Doutputdir "$datadir/lucene" run
 
 cd "$datadir/lucene"
 mv "$datadir/tatoeba.sqlite" "$datadir/lucene/"
-zip -r ../tatoeba.zip .
+zip -r "$datadir/tatoeba.zip" .
 
 cd "$datadir"
 #ftp -invd web403.webbox555.server-home.org  << EOF

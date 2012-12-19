@@ -46,7 +46,7 @@ genLang (SqlByteString langB) =
 					else "common_index" ) ++ " {\n" ++
 				"\ttype = plain\n" ++
 				"\tsource = source_" ++ lang ++ "\n" ++
-				"\tpath = /home/niki/tatoeba/sphinx/" ++ lang ++ "\n" ++
+				"\tpath = /home/niki/data/sphinx/" ++ lang ++ "\n" ++
 				( if elem lang languagesWithStemmer then 
 					"\tmorphology = libstemmer_" ++ lang ++ "\n\tmin_stemming_len=4\n" 
 					else "") ++

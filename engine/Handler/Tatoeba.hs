@@ -65,7 +65,7 @@ sentenceToXml :: TatoebaSentence -> Node
 sentenceToXml sentence = NodeElement $ Element "sentence" (Map.fromList [("id", Data.Text.pack . show $ sentenceId sentence), ("language", sentenceLanguage sentence)  ]) [ NodeContent $ sentenceText sentence]
 
 
-handleTatoebaQueryR :: Text -> Text -> Handler RepXml
+handleTatoebaQueryR :: TatoebaLanguage -> Text -> Handler RepXml
 handleTatoebaQueryR language queryString = do
 --	liftIO $ putStr (Data.Text.unpack search)
 	relations <- querySentences 
@@ -74,7 +74,7 @@ handleTatoebaQueryR language queryString = do
 	where
 		querySentences :: GHandler App App [TatoebaRelation]
 		querySentences = do
-			sphinxResult <- liftIO $ querySphinx language queryString
+			sphinxResult <- liftIO $ querySphinx (Data.Text.pack . show $ language) queryString
 			fmap catMaybes $ sequence $ map (\sentence_id -> do
 				textResult <- runDB $ C.runResourceT $ withStmt
 					"SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences WHERE sentence_id = ?"
