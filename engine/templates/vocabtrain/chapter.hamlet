@@ -14,12 +14,14 @@
             $with card <- entityVal $ fst result
                 <tr>
                     <td>
+                        <a href=@{VocabtrainCardR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardShow}">
+                            <i .icon-eye-open>
                         <a href=@{TatoebaQueryR (vocabBookLanguage book) $ vocabCardScript card} rel="tooltip" data-placement="bottom" title="_{MsgTooltipTatoebaQueryR}">
                             <i .icon-leaf>
                         $maybe _ <- maid
-                            <a href=@{VocabtrainCardUpdateR (entityKey $ fst result) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardUpdate}">
+                            <a href=@{VocabtrainCardUpdateR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardUpdate}">
                                 <i .icon-edit>
-                            <a href=@{VocabtrainCardDeleteR (entityKey $ fst result) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardDelete}">
+                            <a href=@{VocabtrainCardDeleteR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardDelete}">
                                 <i .icon-trash>
                     <td>#{vocabCardScript card}
                     <td>
@@ -43,9 +45,9 @@
                                             #{translationComment}
                                     <td>
                                         $maybe _ <- maid
-                                            <a href=@{VocabtrainTranslationUpdateR (entityKey lang) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationUpdateR}">
+                                            <a href=@{VocabtrainTranslationUpdateR (entityKey lang)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationUpdateR}">
                                                 <i .icon-edit> 
-                                            <a href=@{VocabtrainTranslationDeleteR (entityKey lang) chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationDeleteR}">
+                                            <a href=@{VocabtrainTranslationDeleteR $ entityKey lang} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationDeleteR}">
                                                 <i .icon-trash> 
                         $maybe _ <- maid
                             $with cardId <- either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result
@@ -56,7 +58,7 @@
                                                 _{MsgTranslationNew}
                                         <div #new_translation_#{cardId}_inner .accordion-body .collapse>
                                             <div .accordion-inner>
-                                                ^{widgetVocabtrainTranslationCreate' (entityKey $ fst result) chapterId}
+                                                ^{widgetVocabtrainTranslationCreate' (entityKey $ fst result)}
 
 $maybe _ <- maid
     ^{widgetVocabtrainCardCreate' chapterId}

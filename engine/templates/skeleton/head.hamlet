@@ -9,7 +9,7 @@
     Free Documentation License".
 -->
 <title>
-    $if Data.Text.null page_title
+    $if Text.null page_title
         #{pageTitle pc}
     $else
         #{page_title}

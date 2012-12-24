@@ -27,6 +27,23 @@ BookUpdate: Update Book
 BookNew: Create a new book
 BookNewHeader: New book
 
+BreadcrumbBookUpdate bookId@Text: Update Book ##{bookId}
+BreadcrumbBookDelete bookId@Text: Delete Book ##{bookId}
+BreadcrumbChapter chapterId@Text: Chapter ##{chapterId}
+BreadcrumbChapterInsert bookId@Text: Add Chapter to Book ##{bookId}
+BreadcrumbChapterUpdate chapterId@Text: Update Chapter ##{chapterId}
+BreadcrumbChapterDelete chapterId@Text: Delete Chapter ##{chapterId}
+BreadcrumbTranslationInsert cardId@Text: Add Translation to Card ##{cardId}
+BreadcrumbTranslationUpdate translationId@Text: Update Translation ##{translationId}
+BreadcrumbTranslationDelete translationId@Text: Delete Translation ##{translationId}
+BreadcrumbCardChapterAdd chapterId@Text: Add Card to Chapter ##{chapterId}
+BreadcrumbCardChapterInsert cardId@Text chapterId@Text: Connect Chapter ##{chapterId} and Card ##{cardId}
+BreadcrumbCardChaptersDelete cardId@Text: Unlink Card ##{cardId} from Chapters
+BreadcrumbCard cardId@Text: Card ##{cardId}
+BreadcrumbCardInsert cardId@Text: Insert Card ##{cardId}
+BreadcrumbCardUpdate cardId@Text: Update Card ##{cardId}
+BreadcrumbCardDelete cardId@Text: Delete Card ##{cardId}
+
 TranslationCreated title@Text: Your new translation, #{title}, has been created.
 TranslationUpdated title@Text: The translation #{title}, has been successfully updated.
 TranslationDeleted title@Text: The translation #{title}, has been deleted.
@@ -56,7 +73,11 @@ CardNewHeader: New card
 CardSearch: Search Card
 CardChapterSearchHeader: Search cards to add to this chapter
 FieldSearchCard: Search Card
+CardFoundInTheFollowingChapters: Belongs to
 
+NotTrustedUser: You are not a trusted user.
+
+TooltipVocabtrainCardShow: Show Card
 CardChapterCreated: Successfully added card to chapter.
 CardChapterInsert: Add Card
 CardChapterAddHeader title@Text: Cards containing the keyword #{title}
@@ -107,6 +128,7 @@ CardTypeSaw: Saw
 CardTypeNoun: Noun
 
 
+CardHeader title@Text: Examine Card `#{title}'
 
 VocabManipulationPermissionDenied: You have to login in order to make changes.
 

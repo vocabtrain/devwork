@@ -80,7 +80,7 @@ index common_index
 		  U+640..U+64a, \
 		  \
 		  U+66e..U+66f, U+671..U+6d3, U+6d5, U+6e5..U+6e6, U+6ee..U+6ef, U+6fa..U+6fc, U+6ff, \
-		  u+37a, U+386..U+389->U+3ac..U+3af, U+38c..U+38e->U+3cc..U+3ce, U+390, \
+		  U+37a, U+386..U+389->U+3ac..U+3af, U+38c..U+38e->U+3cc..U+3ce, U+390, \
 		  U+391..U+3a1->U+3b1..U+3c1,\
 		  \
 		  U+3a3..U+3ab->U+3c3..U+3cb, U+3ac..U+3ce, U+3d0..U+3d7, U+3d8..U+3ef/2, U+3f0..U+3f3, \

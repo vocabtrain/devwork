@@ -33,7 +33,7 @@ $newline never
                         <a href=@{fst parent}>#{snd parent}
                         <span .divider>/
                 <li .active>
-                    $if Data.Text.null page_title
+                    $if Text.null page_title
                         #{pageTitle pc}
                     $else
                         #{page_title}

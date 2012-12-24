@@ -2,7 +2,8 @@
 
 datadir=/home/niki/data/
 scriptdir=/home/niki/devwork/cron
-beamerslidesdir=templates/beamer/slides
+beamerpublicslidesdir=templates/beamer/public
+beamerprivateslidesdir=templates/beamer/private
 
 
 cat <<EOF
@@ -24,6 +25,14 @@ import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import Text.Blaze
 import Web.PathPieces
+
+class ShowText a where
+	showText :: a -> Text
+
+class (Show a, Read a) => BeamerSlide a where
+	getBeamerSlideTitle :: a -> Text
+	getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
+	getBeamerSlideWidget :: a -> t -> Markup
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static
@@ -200,7 +209,7 @@ EOF
 
 function beamerSlides
 {
-	echo -n 'data BeamerSlide = '
+	echo -n "data $1 = "
 	a=()
 	files=()
 	for i in `ls *.hamlet`; do
@@ -210,13 +219,25 @@ function beamerSlides
 	done
 	echo $a | sed 's@ @|@g'
 	echo "\tderiving(Show,Eq,Read,Enum,Bounded)"
-	echo "getBeamerSlideWidget :: BeamerSlide -> t -> Markup"
+	echo "instance BeamerSlide $1 where"
+#	echo "\tgetBeamerSlideWidget :: $1 -> t -> Markup"
 
 	max="$a[(I)$a[-1]]"
 	for i in `seq 1 $max`; do
 		e=`echo "$i:r" | tr '[a-z]' '[A-Z]'`
-		echo "getBeamerSlideWidget $a[$i] = \$(hamletFile \"$beamerslidesdir/$files[$i]\")"
+		echo "\tgetBeamerSlideWidget $a[$i] = \$(hamletFile \"$2/$files[$i]\")"
 	done
+}
+
+function createPathPieceInstance
+{
+	echo "instance PathPiece $1 where"
+cat <<EOF
+	fromPathPiece text = case reads $ Text.unpack text of
+		[(x, "")] -> Just x
+		_ -> Nothing
+	toPathPiece = toPathPiece . Text.pack . show
+EOF
 }
 
 
@@ -229,26 +250,15 @@ cd "$p/static/bin/projects/qt" && getQtProjects
 cd "$p/static/bin/script" && getWorksheets getJavaWorkSheets 'java_blatt'
 cd "$p/static/bin/script" && getWorksheets getQtWorkSheets 'qt_blatt'
 cd "$p/static/bin/pkg/nehe" && getOpenGLQtLessons
-cd "$p/$beamerslidesdir" && beamerSlides
-
+cd "$p/$beamerpublicslidesdir" && beamerSlides "BeamerSlidePublic" "$beamerpublicslidesdir"
+cd "$p/$beamerprivateslidesdir" && beamerSlides "BeamerSlidePrivate" "$beamerprivateslidesdir"
+createPathPieceInstance TatoebaLanguage
+createPathPieceInstance BeamerSlidePrivate
+createPathPieceInstance BeamerSlidePublic
 
 cat <<EOF
+
 instance ToMarkup TatoebaLanguage where
 	toMarkup = toMarkup . getTatoebaLanguageName
-
-instance PathPiece TatoebaLanguage where
-	fromPathPiece text = case reads $ Text.unpack text of
-		[(x, "")] -> Just x
-		_ -> Nothing
-	toPathPiece = toPathPiece . Text.pack . show
-
-instance PathPiece BeamerSlide where
-	fromPathPiece text = case reads $ Text.unpack text of
-		[(x, "")] -> Just x
-		_ -> Nothing
-	toPathPiece = toPathPiece . Text.pack . show
-
-getBeamerSlideTitle :: BeamerSlide -> Text
-getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
 EOF
 

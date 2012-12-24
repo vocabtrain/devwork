@@ -1,0 +1,33 @@
+<h1>_{MsgCardHeader $ vocabCardScript card}
+<table .table>
+    <tbody>
+        <tr>
+            <th>_{MsgFieldScript}
+            <td>#{vocabCardScript card}
+        <tr>
+            <th>_{MsgFieldScriptComment}
+            $maybe scriptComment <- vocabCardScriptComment card
+                <td>#{scriptComment}
+        <tr>
+            <th>_{MsgFieldSpeech}
+            $maybe speech <- vocabCardSpeech card
+                <td>#{speech}
+        <tr>
+            <th>_{MsgFieldSpeechComment}
+            $maybe speechComment <- vocabCardSpeechComment card
+                <td>#{speechComment}
+        <tr>
+            <th>_{MsgFieldCardType}
+            <td>#{getCardTypeText msgShow $ vocabCardType card}
+
+<table .table>
+    <caption>_{MsgFieldTranslation}
+    $forall lang <- translationResults
+        <tr>
+            <th>#{vocabTranslationLanguage $ entityVal lang}
+            <td>#{vocabTranslationContent $ entityVal lang}
+            $maybe translationComment <- vocabTranslationComment $ entityVal lang
+                <td>#{translationComment}
+
+<h2>_{MsgTranslationNew}
+^{widgetVocabtrainTranslationCreate' cardId}

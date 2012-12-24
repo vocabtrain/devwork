@@ -3,4 +3,7 @@
     <ul>
         $forall slide <- slides
             <li>
-                <a href="@{BeamerSlideR slide}">#{getBeamerSlideTitle slide}
+                <a href="@{BeamerSlidePublicR slide}">#{getBeamerSlideTitle slide}
+        $forall slide <- privateSlides
+            <li>
+                <a href="@{BeamerSlidePrivateR slide}">#{getBeamerSlideTitle slide}

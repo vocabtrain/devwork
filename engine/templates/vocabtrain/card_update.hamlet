@@ -1,4 +1,4 @@
-<form method=post action=@{VocabtrainCardUpdateR cardId chapterId} enctype=#{cardFormEnctype}>
+<form method=post action=@{VocabtrainCardUpdateR cardId} enctype=#{cardFormEnctype}>
     <fieldset>
         <legend>_{MsgCardUpdateHeader $ vocabCardScript $ fromJust card}
         ^{cardFormWidget}

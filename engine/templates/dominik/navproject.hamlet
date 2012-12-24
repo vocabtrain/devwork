@@ -1,9 +1,21 @@
-<ul class="nav nav-list">
-    <li><a href=@{ DKProjectHomeR}><i class="icon-home"></i> Start</a>
+<ul .nav .nav-list>
+    <li>
+        <a href=@{DKProjectHomeR}>
+            <i .icon-home>
+            Start
 
-    <li class="nav-header">Tatoeba
-    <li><a href=@{TatoebaWebServiceR}>Web-Service</a>
-    <li><a href=@{TatoebaAppR}>Android App</a>
+    <li>
+        <a href=@{BeamerSlidesR}>
+            <i .icon-align-justify>
+            Slides
 
-    <li class="nav-header"><a href=@{ProjectFritzContactR}>FritzContact</a>
-    <li class="nav-header"><a href=@{ProjectAnnualR}>Annual</a>
+    <li .nav-header>Tatoeba
+    <li>
+        <a href=@{TatoebaWebServiceR}>Web-Service
+    <li>
+        <a href=@{TatoebaAppR}>Android App
+
+    <li .nav-header>
+        <a href=@{ProjectFritzContactR}>FritzContact
+    <li .nav-header>
+        <a href=@{ProjectAnnualR}>Annual

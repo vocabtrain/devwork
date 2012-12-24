@@ -65,9 +65,9 @@ sentenceToXml :: TatoebaSentence -> Node
 sentenceToXml sentence = NodeElement $ Element "sentence" (Map.fromList [("id", Data.Text.pack . show $ sentenceId sentence), ("language", sentenceLanguage sentence)  ]) [ NodeContent $ sentenceText sentence]
 
 
-handleTatoebaQueryR :: TatoebaLanguage -> Text -> Handler RepXml
-handleTatoebaQueryR language queryString = do
---	liftIO $ putStr (Data.Text.unpack search)
+getTatoebaQueryR :: TatoebaLanguage -> Text -> Handler RepXml
+getTatoebaQueryR language queryString = do
+--	liftIO $ putStr (Data.Text.unpack queryString)
 	relations <- querySentences 
 	let content = toContent $ renderText def $ Document (Prologue [] Nothing []) (relationsToXml relations) []
 	return $ RepXml content

@@ -4,6 +4,7 @@ module Handler.Beamer where
 import Import
 import qualified Prelude
 import Text.Hamlet (hamletFile)
+import Handler.Dominik
 
 beamerLayout :: Text -> GWidget App App () -> GHandler App App RepHtml
 beamerLayout title widget = do
@@ -16,9 +17,21 @@ beamerLayout title widget = do
 
 getBeamerSlidesR :: GHandler App App RepHtml
 getBeamerSlidesR = do
-	let slides =  [(minBound::BeamerSlide)..(maxBound::BeamerSlide)]
-	defaultLayout $ toWidget $(whamletFile "templates/beamer/list.hamlet")
+	setUltDestCurrent	
+	let slides =  [(minBound::BeamerSlidePublic)..(maxBound::BeamerSlidePublic)]
+	privateSlides <- getPrivateSlides
+	projectLayout $ toWidget $(whamletFile "templates/beamer/list.hamlet")
+	where
+		getPrivateSlides = do
+			trusted <- isTrustedUser
+			case trusted of
+				Authorized -> return [(minBound::BeamerSlidePrivate)..(maxBound::BeamerSlidePrivate)]
+				_ -> return []
 
-getBeamerSlideR :: BeamerSlide -> GHandler App App RepHtml
+getBeamerSlidePublicR :: BeamerSlidePublic -> GHandler App App RepHtml
+getBeamerSlidePublicR = getBeamerSlideR
+getBeamerSlidePrivateR :: BeamerSlidePrivate -> GHandler App App RepHtml
+getBeamerSlidePrivateR = getBeamerSlideR
+
+getBeamerSlideR :: (BeamerSlide a) => a -> GHandler App App RepHtml
 getBeamerSlideR beamerslide = beamerLayout (getBeamerSlideTitle beamerslide) (toWidget $ getBeamerSlideWidget beamerslide)
-

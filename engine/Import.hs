@@ -23,7 +23,6 @@ import Data.Monoid (Monoid (mappend, mempty, mconcat), (<>))
 #endif
 import Control.Applicative ((<$>), (<*>), pure)
 import Data.Text (Text)
-import qualified Data.Text
 import Settings.StaticFiles
 import Settings.Development
 import Generated

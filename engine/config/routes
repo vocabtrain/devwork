@@ -9,7 +9,7 @@
 /tatoeba TatoebaWebServiceR GET
 /tatoeba/app TatoebaAppR GET
 /tatoeba/languages TatoebaLanguagesR GET
-/tatoeba/query/#TatoebaLanguage/#Text TatoebaQueryR
+/tatoeba/query/#TatoebaLanguage/#Text TatoebaQueryR GET
 /tatoeba/query/#TatoebaLanguage TatoebaQueryLanguageR
 /tatoeba/query TatoebaQueryRandomR GET
 
@@ -22,22 +22,25 @@
 /vocabtrain/chapter/update/#VocabChapterId VocabtrainChapterUpdateR GET POST
 /vocabtrain/chapter/delete/#VocabChapterId VocabtrainChapterDeleteR GET POST
 
-/vocabtrain/translation/insert/#VocabCardId/#VocabChapterId VocabtrainTranslationInsertR POST
-/vocabtrain/translation/update/#VocabTranslationId/#VocabChapterId VocabtrainTranslationUpdateR GET POST
-/vocabtrain/translation/delete/#VocabTranslationId/#VocabChapterId VocabtrainTranslationDeleteR GET POST
+/vocabtrain/translation/#VocabTranslationId VocabtrainTranslationR DELETE
+/vocabtrain/translation/insert/#VocabCardId VocabtrainTranslationInsertR POST
+/vocabtrain/translation/update/#VocabTranslationId VocabtrainTranslationUpdateR GET POST
+/vocabtrain/translation/delete/#VocabTranslationId VocabtrainTranslationDeleteR GET POST
 
 /vocabtrain/cardchapter/add/#VocabChapterId VocabtrainCardChapterAddR GET
 /vocabtrain/cardchapter/insert/#VocabCardId/#VocabChapterId VocabtrainCardChapterInsertR POST
 /vocabtrain/cardchapters/delete/#VocabCardId VocabtrainCardChaptersDeleteR POST
 
+/vocabtrain/card/#VocabCardId VocabtrainCardR GET
 /vocabtrain/card/insert/#VocabChapterId VocabtrainCardInsertR POST
-/vocabtrain/card/update/#VocabCardId/#VocabChapterId VocabtrainCardUpdateR GET POST
-/vocabtrain/card/delete/#VocabCardId/#VocabChapterId VocabtrainCardDeleteR GET POST
+/vocabtrain/card/update/#VocabCardId VocabtrainCardUpdateR GET POST
+/vocabtrain/card/delete/#VocabCardId VocabtrainCardDeleteR GET POST
 
 /vocabtrain/booksupply VocabtrainBookSupplyR POST
 /vocabtrain/download VocabtrainDownloadR POST
 
-/slide/#BeamerSlide BeamerSlideR GET
+/slide/private/#BeamerSlidePrivate BeamerSlidePrivateR GET
+/slide/public/#BeamerSlidePublic BeamerSlidePublicR GET
 /slide BeamerSlidesR GET
 
 /koeppldo DKHomeR GET

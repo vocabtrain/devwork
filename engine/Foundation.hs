@@ -5,6 +5,7 @@ module Foundation
     , resourcesApp
     , Handler
     , Widget
+	, isTrustedUser
     , Form
 	, globalLayout
     , maybeAuth
@@ -38,9 +39,9 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile, ihamletFile, HtmlUrlI18n)
-import Generated (TatoebaLanguage (..), BeamerSlide (..))
+import Generated (TatoebaLanguage (..), BeamerSlidePrivate (..), BeamerSlidePublic (..) )
 
-import qualified Data.Text
+import qualified Data.Text as Text
 import Data.Text (Text)
 
 -- | The site argument for your application. This can be a good place to
@@ -160,6 +161,19 @@ instance YesodPersist App where
             f
             (connPool master)
 
+isTrustedUser :: GHandler App App AuthResult
+isTrustedUser = do
+	mu <- maybeAuth
+	msgShow <- getMessageRender
+	return $ case mu of
+		Nothing -> AuthenticationRequired
+		Just (Entity _ u) -> hasTrustedMail . userEmail $ u
+			where
+				hasTrustedMail :: Text -> AuthResult
+				hasTrustedMail "transitiv@googlemail.com" = Authorized
+				hasTrustedMail _ = Unauthorized $ msgShow MsgNotTrustedUser
+--		_ -> Unauthorized $ msgShow MsgNotTrustedUser
+	
 instance YesodAuth App where
     type AuthId App = UserId
 
@@ -209,9 +223,36 @@ instance YesodBreadcrumbs App where
 	breadcrumb ProjectFritzContactR = return("FritzContact", Just DKProjectHomeR)
 	breadcrumb TatoebaAppR = return("Tatoeba App", Just DKProjectHomeR)
 	breadcrumb TatoebaWebServiceR = return("Tatoeba Webservice", Just DKProjectHomeR)
+	breadcrumb BeamerSlidesR = return("Slides", Just DKProjectHomeR)
+	
+	breadcrumb VocabtrainBooksR = return("Vocabtrain", Just HomeR)
+	breadcrumb (VocabtrainBookUpdateR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookUpdate . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainBookDeleteR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookDelete . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainBooksR)
+
+	breadcrumb (VocabtrainChapterR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapter . fromRightText . fromPersistValue . unKey $ chapterId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainChapterInsertR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterInsert . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainChapterUpdateR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterUpdate . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
+	breadcrumb (VocabtrainChapterDeleteR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterDelete . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
+
+	breadcrumb (VocabtrainTranslationInsertR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationInsert . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
+	breadcrumb (VocabtrainTranslationUpdateR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationUpdate . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainTranslationDeleteR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationDelete . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainBooksR)
+
+	breadcrumb (VocabtrainCardChapterAddR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardChapterAdd . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
+	breadcrumb (VocabtrainCardChapterInsertR cardId chapterId) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbCardChapterInsert (fromRightText . fromPersistValue . unKey $ cardId) (fromRightText . fromPersistValue . unKey $ chapterId), Just (VocabtrainChapterR chapterId))
+	breadcrumb (VocabtrainCardChaptersDeleteR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardChaptersDelete . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
+
+	breadcrumb (VocabtrainCardR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCard . fromRightText . fromPersistValue . unKey $ cardId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainCardInsertR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardInsert . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
+	breadcrumb (VocabtrainCardUpdateR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardUpdate . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
+	breadcrumb (VocabtrainCardDeleteR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardDelete . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
+
 
 	breadcrumb _ = return("", Nothing)
 
+fromRightText :: Either a Text -> Text
+fromRightText (Right c) = c
+fromRightText _ = ""
 
 -- Note: previous versions of the scaffolding included a deliver function to
 -- send emails. Unfortunately, there are too many different options for us to

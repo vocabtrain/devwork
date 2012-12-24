@@ -263,6 +263,7 @@ getVocabtrainChapterR chapterId = do
 	translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
 	results <- return $ Prelude.zip cardResults translationResults
 	
+	setUltDestCurrent
 	widgetChapter <- widgetToPageContent $ widgetVocabtrainChapterCreate' $ vocabChapterBookId chapter
 	let vocabChapterLayout widget = globalLayout $ SheetLayout { 
 				  sheetTitle = sheetTitle $ vocabLayoutSheet widget
@@ -271,6 +272,28 @@ getVocabtrainChapterR chapterId = do
 				, sheetContent = sheetContent $ vocabLayoutSheet widget
 				}
 	vocabChapterLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter.hamlet") 
+
+getVocabtrainCardR :: VocabCardId -> GHandler App App RepHtml
+getVocabtrainCardR cardId = do
+	setUltDestCurrent
+	msgShow <- getMessageRender
+	mcard <- runDB $ get cardId
+	case mcard of
+		Nothing -> notFound
+		Just card -> do
+			translationResults <- runDB $ selectList [VocabTranslationCardId ==. cardId] [Asc VocabTranslationContent]
+			chapterResults <- runDB $ rawSql -- needed for navchapter.hamlet
+				"SELECT ?? FROM chapters JOIN content ON chapters._id = content_chapter_id WHERE content_card_id = ?;"
+				[toPersistValue cardId]
+				:: GHandler App App [Entity VocabChapter]
+			let vocabCardLayout widget = globalLayout $ SheetLayout { 
+						  sheetTitle = sheetTitle $ vocabLayoutSheet widget
+						, sheetNav = Just $(ihamletFile "templates/vocabtrain/navcard.hamlet")
+						, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
+						, sheetContent = sheetContent $ vocabLayoutSheet widget
+						}
+			vocabCardLayout $ toWidget $(whamletFile "templates/vocabtrain/card.hamlet") 
+
 
 {-
 -- Translation Form
@@ -286,16 +309,16 @@ translationForm mtranslation cardId = VocabTranslation
 	where
 		tatoebaLanguages = map (getTatoebaLanguageName &&& Prelude.id) $ [(minBound::TatoebaLanguage)..(maxBound::TatoebaLanguage)]
 
-widgetVocabtrainTranslationCreate' :: VocabCardId -> VocabChapterId -> GWidget App App ()
-widgetVocabtrainTranslationCreate' cardId chapterId = do
+widgetVocabtrainTranslationCreate' :: VocabCardId -> GWidget App App ()
+widgetVocabtrainTranslationCreate' cardId = do
 	(translationFormWidget, translationFormEnctype) <- lift $ generateFormPost $ renderDivs $ translationForm Nothing cardId
-	widgetVocabtrainTranslationCreate cardId chapterId translationFormWidget translationFormEnctype
+	widgetVocabtrainTranslationCreate cardId translationFormWidget translationFormEnctype
 
-widgetVocabtrainTranslationCreate :: VocabCardId -> VocabChapterId -> GWidget App App () -> Enctype -> GWidget App App ()
-widgetVocabtrainTranslationCreate cardId chapterId translationFormWidget translationFormEnctype = toWidget $(whamletFile "templates/vocabtrain/translation_create.hamlet") 
+widgetVocabtrainTranslationCreate :: VocabCardId -> GWidget App App () -> Enctype -> GWidget App App ()
+widgetVocabtrainTranslationCreate cardId translationFormWidget translationFormEnctype = toWidget $(whamletFile "templates/vocabtrain/translation_create.hamlet") 
 
-postVocabtrainTranslationInsertR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
-postVocabtrainTranslationInsertR cardId chapterId = do
+postVocabtrainTranslationInsertR :: VocabCardId -> GHandler App App RepHtml
+postVocabtrainTranslationInsertR cardId = do
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
@@ -308,18 +331,20 @@ postVocabtrainTranslationInsertR cardId chapterId = do
 					_ <- runDB $ insert translation
 					$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation]
 					setMessageI $ MsgTranslationCreated $ vocabTranslationContent translation
-					redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
+					redirectUltDest VocabtrainBooksR
 				_ -> vocabLayout $ do
 					setTitleI MsgTranslationPleaseCorrectEntry
-					widgetVocabtrainTranslationCreate cardId chapterId translationFormWidget translationFormEnctype
+					widgetVocabtrainTranslationCreate cardId translationFormWidget translationFormEnctype
 
-getVocabtrainTranslationDeleteR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
-getVocabtrainTranslationDeleteR translationId chapterId = do
+getVocabtrainTranslationDeleteR :: VocabTranslationId -> GHandler App App RepHtml
+getVocabtrainTranslationDeleteR translationId = do
 	translation <- runDB $ get translationId
 	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/translation_delete.hamlet") 
 
-postVocabtrainTranslationDeleteR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
-postVocabtrainTranslationDeleteR translationId chapterId = do
+postVocabtrainTranslationDeleteR :: VocabTranslationId -> GHandler App App RepHtml
+postVocabtrainTranslationDeleteR = deleteVocabtrainTranslationR
+deleteVocabtrainTranslationR :: VocabTranslationId -> GHandler App App RepHtml
+deleteVocabtrainTranslationR translationId = do
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
@@ -332,19 +357,19 @@ postVocabtrainTranslationDeleteR translationId chapterId = do
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation]
 					_ <- runDB $ delete translationId
 					setMessageI $ MsgTranslationDeleted $ vocabTranslationContent translation
-					redirect $ VocabtrainChapterR chapterId
+					redirectUltDest VocabtrainBooksR
 				_ -> do
 					setMessageI $ MsgTranslationNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey translationId
-					redirect $ VocabtrainChapterR chapterId
+					redirectUltDest VocabtrainBooksR
 
-getVocabtrainTranslationUpdateR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
-getVocabtrainTranslationUpdateR translationId chapterId = do
+getVocabtrainTranslationUpdateR :: VocabTranslationId -> GHandler App App RepHtml
+getVocabtrainTranslationUpdateR translationId = do
 	translation <- runDB $ get translationId
 	(translationFormWidget, translationFormEnctype) <- generateFormPost $ renderDivs $ translationForm translation (vocabTranslationCardId $ fromJust translation)
 	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/translation_update.hamlet") 
 
-postVocabtrainTranslationUpdateR :: VocabTranslationId -> VocabChapterId -> GHandler App App RepHtml
-postVocabtrainTranslationUpdateR translationId chapterId = do
+postVocabtrainTranslationUpdateR :: VocabTranslationId -> GHandler App App RepHtml
+postVocabtrainTranslationUpdateR translationId = do
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
@@ -358,7 +383,7 @@ postVocabtrainTranslationUpdateR translationId chapterId = do
 					_ <- runDB $ replace translationId translation'
 					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation', " old: ", Text.pack $ show translation ]
 					setMessageI $ MsgTranslationUpdated $ vocabTranslationContent translation'
-					redirect $ VocabtrainChapterR chapterId
+					redirectUltDest VocabtrainBooksR
 				_ -> vocabLayout $ do
 						setTitleI MsgTranslationPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/translation_update.hamlet") 
@@ -449,13 +474,13 @@ postVocabtrainCardInsertR chapterId = do
 					setTitleI MsgCardPleaseCorrectEntry
 					widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype
 
-getVocabtrainCardDeleteR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
-getVocabtrainCardDeleteR cardId chapterId = do
+getVocabtrainCardDeleteR :: VocabCardId -> GHandler App App RepHtml
+getVocabtrainCardDeleteR cardId = do
 	card <- runDB $ get cardId
 	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_delete.hamlet") 
 
-postVocabtrainCardDeleteR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
-postVocabtrainCardDeleteR cardId chapterId = do
+postVocabtrainCardDeleteR :: VocabCardId -> GHandler App App RepHtml
+postVocabtrainCardDeleteR cardId = do
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
@@ -468,10 +493,10 @@ postVocabtrainCardDeleteR cardId chapterId = do
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
 					_ <- runDB $ delete cardId
 					setMessageI $ MsgCardDeleted $ vocabCardScript card
-					redirect $ VocabtrainChapterR chapterId
+					redirectUltDest VocabtrainBooksR
 				_ -> do
 					setMessageI $ MsgCardNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey cardId
-					redirect $ VocabtrainChapterR chapterId
+					redirectUltDest VocabtrainBooksR
 
 cardChapterForm :: VocabCardId -> AForm App App [VocabChapterId]
 cardChapterForm cardId = areq (multiSelectField chapters) (fieldSettingsLabel MsgFieldChapters) Nothing
@@ -484,8 +509,8 @@ cardChapterForm cardId = areq (multiSelectField chapters) (fieldSettingsLabel Ms
 				:: GHandler App App [Entity VocabChapter]
 			optionsPairs $ Prelude.map (vocabChapterVolume . entityVal &&& entityKey) chapterResults
 
-getVocabtrainCardUpdateR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
-getVocabtrainCardUpdateR cardId chapterId = do
+getVocabtrainCardUpdateR :: VocabCardId -> GHandler App App RepHtml
+getVocabtrainCardUpdateR cardId = do
 	card <- runDB $ get cardId
 	(cardFormWidget, cardFormEnctype) <- generateFormPost $ renderDivs $ cardForm card
 	(cardChapterFormWidget, cardChapterFormEnctype) <- generateFormPost $ renderDivs $ cardChapterForm cardId
@@ -493,29 +518,8 @@ getVocabtrainCardUpdateR cardId chapterId = do
 		toWidget $(whamletFile "templates/vocabtrain/card_update.hamlet") 
 		toWidget $(whamletFile "templates/vocabtrain/cardchapter_update.hamlet") 
 
-
-postVocabtrainCardChaptersDeleteR :: VocabCardId -> GHandler App App RepHtml
-postVocabtrainCardChaptersDeleteR cardId = do
-	card <- runDB $ get cardId
-	maid <- maybeAuth 
-	case maid of
-		Nothing -> do
-			msgShow <- getMessageRender
-			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
-		Just aid -> do
-			((result, cardChapterFormWidget), cardChapterFormEnctype) <- runFormPost $ renderDivs $ cardChapterForm cardId
-			case result of
-				FormSuccess cardChapters -> do 
-					_ <- runDB $ deleteWhere [VocabContentChapterId <-. cardChapters, VocabContentCardId ==. cardId ]
-					$(logInfo) $ Text.concat [ "Deleted Card from Chapters: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " chapters: ", Text.pack $ show cardChapters]
-					setMessageI $ MsgCardChaptersDeleted $ vocabCardScript $ fromJust card
-					redirect $ VocabtrainBooksR
-				_ -> vocabLayout $ do
-						setTitleI MsgCardPleaseCorrectEntry
-						toWidget $(whamletFile "templates/vocabtrain/cardchapter_update.hamlet") 
-
-postVocabtrainCardUpdateR :: VocabCardId -> VocabChapterId -> GHandler App App RepHtml
-postVocabtrainCardUpdateR cardId chapterId = do
+postVocabtrainCardUpdateR :: VocabCardId -> GHandler App App RepHtml
+postVocabtrainCardUpdateR cardId = do
 	msgShow <- getMessageRender
 	maid <- maybeAuth 
 	case maid of
@@ -538,11 +542,31 @@ postVocabtrainCardUpdateR cardId chapterId = do
 							_ <- runDB $ replace cardId card'
 							$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card', " old: ", Text.pack $ show card]
 							setMessageI $ MsgCardUpdated $ vocabCardScript card'
-							redirect $ VocabtrainChapterR chapterId
+							redirectUltDest VocabtrainBooksR
 						else invalidArgs [msgShow MsgCardUpdateToDuplicate]
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/card_update.hamlet") 
+
+postVocabtrainCardChaptersDeleteR :: VocabCardId -> GHandler App App RepHtml
+postVocabtrainCardChaptersDeleteR cardId = do
+	card <- runDB $ get cardId
+	maid <- maybeAuth 
+	case maid of
+		Nothing -> do
+			msgShow <- getMessageRender
+			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
+		Just aid -> do
+			((result, cardChapterFormWidget), cardChapterFormEnctype) <- runFormPost $ renderDivs $ cardChapterForm cardId
+			case result of
+				FormSuccess cardChapters -> do 
+					_ <- runDB $ deleteWhere [VocabContentChapterId <-. cardChapters, VocabContentCardId ==. cardId ]
+					$(logInfo) $ Text.concat [ "Deleted Card from Chapters: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " chapters: ", Text.pack $ show cardChapters]
+					setMessageI $ MsgCardChaptersDeleted $ vocabCardScript $ fromJust card
+					redirect $ VocabtrainBooksR
+				_ -> vocabLayout $ do
+						setTitleI MsgCardPleaseCorrectEntry
+						toWidget $(whamletFile "templates/vocabtrain/cardchapter_update.hamlet") 
 
 cardSearchForm :: AForm App App Text
 cardSearchForm = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) Nothing
