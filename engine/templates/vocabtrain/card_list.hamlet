@@ -1,0 +1,60 @@
+<table .table>
+    <thead>
+        <tr>
+            <th>
+            <th>_{MsgFieldScript}
+            <th>_{MsgFieldScriptComment}
+            <th>_{MsgFieldSpeech}
+            <th>_{MsgFieldSpeechComment}
+            <th>_{MsgFieldCardType}
+            <th>_{MsgFieldTranslation}
+    <tbody>
+        $forall result <- results
+            $with card <- entityVal $ fst result
+                <tr>
+                    <td>
+                        $maybe extraWidget <- cardListExtraButtonWidget
+                            ^{extraWidget $ fst result}
+                        <a href=@{VocabtrainCardR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardShow}">
+                            <i .icon-eye-open>
+                        $maybe _ <- maid
+                            <a href=@{VocabtrainCardUpdateR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardUpdate}">
+                                <i .icon-edit>
+                            <a href=@{VocabtrainCardDeleteR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardDelete}">
+                                <i .icon-trash>
+                    <td>#{vocabCardScript card}
+                    <td>
+                        $maybe scriptComment <- vocabCardScriptComment card
+                            #{scriptComment}
+                    <td>
+                        $maybe speech <- vocabCardSpeech card
+                            #{speech}
+                    <td>
+                        $maybe speechComment <- vocabCardSpeechComment card
+                            #{speechComment}
+                    <td>#{getCardTypeText msgShow $ vocabCardType card}
+                    <td>
+                        <table>
+                            $forall lang <- snd result
+                                <tr>
+                                    <td>#{vocabTranslationLanguage $ entityVal lang}
+                                    <td>#{vocabTranslationContent $ entityVal lang}
+                                    <td>
+                                        $maybe translationComment <- vocabTranslationComment $ entityVal lang
+                                            #{translationComment}
+                                    <td>
+                                        $maybe _ <- maid
+                                            <a href=@{VocabtrainTranslationUpdateR (entityKey lang)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationUpdateR}">
+                                                <i .icon-edit> 
+                                            <a href=@{VocabtrainTranslationDeleteR $ entityKey lang} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationDeleteR}">
+                                                <i .icon-trash> 
+                        $maybe _ <- maid
+                            $with cardId <- either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result
+                                <div .accordion #new_translation_#{cardId}>
+                                    <div .accordion-group>
+                                        <div .accordion-heading>
+                                            <a .accordion-toggle data-toggle="collapse" data-parent="#new_translation_#{cardId}" href="#new_translation_#{cardId}_inner">
+                                                _{MsgTranslationNew}
+                                        <div #new_translation_#{cardId}_inner .accordion-body .collapse>
+                                            <div .accordion-inner>
+                                                ^{widgetVocabtrainTranslationCreate' (entityKey $ fst result)}

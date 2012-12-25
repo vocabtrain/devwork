@@ -3,3 +3,7 @@
     Vocabtrain
 <ul class="nav">
     <li><a href=@{ VocabtrainBooksR}><i class="icon-book icon-white"></i> _{MsgBooks} </a>
+<form .navbar-search method=get action=@{VocabtrainCardSearchPostR}>
+    <input type="text" .search-query placeholder="Search" name="text">
+    <button type="submit" .btn .btn-info>
+        <i .icon-search>

@@ -70,6 +70,8 @@ CardUpdate: Update card
 CardNew: Create a new card
 CardNewHeader: New card
 
+CardSearchHeader title@Text: Search for cards containing `#{title}'
+CardOrphanedHeader: Orphaned Cards
 CardSearch: Search Card
 CardChapterSearchHeader: Search cards to add to this chapter
 FieldSearchCard: Search Card

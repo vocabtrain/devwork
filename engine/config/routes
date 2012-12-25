@@ -39,6 +39,10 @@
 /vocabtrain/booksupply VocabtrainBookSupplyR POST
 /vocabtrain/download VocabtrainDownloadR POST
 
+/vocabtrain/card/search/#Text VocabtrainCardSearchR GET
+/vocabtrain/cardsearch VocabtrainCardSearchPostR GET
+/vocabtrain/orphanedcards VocabtrainOrphanedCardsR GET
+
 /slide/private/#BeamerSlidePrivate BeamerSlidePrivateR GET
 /slide/public/#BeamerSlidePublic BeamerSlidePublicR GET
 /slide BeamerSlidesR GET

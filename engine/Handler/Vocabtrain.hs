@@ -38,12 +38,13 @@ vocabLayoutSheet :: GWidget App App () -> SheetLayout App (Route App)
 vocabLayoutSheet widget = SheetLayout { 
 	  sheetTitle = "Vocabtrain"
 	, sheetNav = Nothing
-	, sheetBanner =  Just $(ihamletFile "templates/vocabtrain/banner.hamlet") 
+	, sheetBanner = Just $(ihamletFile "templates/vocabtrain/banner.hamlet") 
 	, sheetContent = widget
 	}
 
 vocabLayout :: GWidget App App () -> GHandler App App RepHtml
-vocabLayout widget = globalLayout $ vocabLayoutSheet widget
+vocabLayout widget = do
+	globalLayout $ vocabLayoutSheet widget
 
 {-
 -- Book Form
@@ -243,6 +244,20 @@ postVocabtrainChapterUpdateR chapterId = do
 						setTitleI MsgChapterPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/chapter_update.hamlet") 
 
+getVocabtrainOrphanedCardsR :: GHandler App App RepHtml
+getVocabtrainOrphanedCardsR = do
+	msgShow <- getMessageRender
+	maid <- maybeAuth
+	cardResults <- runDB $ rawSql
+		"SELECT ?? FROM cards WHERE NOT EXISTS ( SELECT 1 FROM content WHERE content_card_id = cards._id);"
+		[]
+		:: GHandler App App [Entity VocabCard]
+	translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
+	results <- return $ Prelude.zip cardResults translationResults
+	setUltDestCurrent
+	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
+		where cardListExtraButtonWidget = Nothing :: Maybe ( Entity VocabCard -> GWidget App App ())
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_orphaned.hamlet")
 
 getVocabtrainChapterR :: VocabChapterId -> GHandler App App RepHtml
 getVocabtrainChapterR chapterId = do
@@ -271,7 +286,12 @@ getVocabtrainChapterR chapterId = do
 				, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
 				, sheetContent = sheetContent $ vocabLayoutSheet widget
 				}
-	vocabChapterLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter.hamlet") 
+	let cardListExtraButtonWidget = Just $ widgetCardListTatoebaSearch $ vocabBookLanguage book
+	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
+	vocabChapterLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter.hamlet")
+
+widgetCardListTatoebaSearch :: TatoebaLanguage -> Entity VocabCard -> GWidget App App ()
+widgetCardListTatoebaSearch language card = toWidget $(whamletFile "templates/vocabtrain/card_list_icon_tatoeba.hamlet")
 
 getVocabtrainCardR :: VocabCardId -> GHandler App App RepHtml
 getVocabtrainCardR cardId = do
@@ -570,10 +590,16 @@ postVocabtrainCardChaptersDeleteR cardId = do
 
 cardSearchForm :: AForm App App Text
 cardSearchForm = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) Nothing
+-- cardSearchForm = areq (searchField True) (FieldSettings { fsLabel = fsLabel $ fieldSettingsLabel MsgFieldSearchCard, fsAttrs = [("class", "search-query")] } ) Nothing
+
+defaultCardSearchFormWidget :: GWidget App App ()
+defaultCardSearchFormWidget = do
+	((_, cardSearchFormWidget), _) <- lift $ generateFormGet $ renderDivs $ cardSearchForm
+	cardSearchFormWidget
 
 widgetVocabtrainCardChapterAddSearch' :: VocabChapterId -> GWidget App App ()
 widgetVocabtrainCardChapterAddSearch' chapterId = do
-	((_, cardSearchFormWidget), cardSearchFormEnctype) <- lift $ runFormGet $ renderDivs $ cardSearchForm
+	((_, cardSearchFormWidget), cardSearchFormEnctype) <- lift $ generateFormGet $ renderDivs $ cardSearchForm
 	widgetVocabtrainCardChapterAddSearch chapterId cardSearchFormWidget cardSearchFormEnctype
 
 widgetVocabtrainCardChapterAddSearch :: VocabChapterId -> GWidget App App () -> Enctype -> GWidget App App ()
@@ -586,6 +612,7 @@ icontains field val = Filter field (Left $ Text.concat ["%", val, "%"]) (Backend
 icontainsMaybe :: EntityField v (Maybe Text) -> Text -> Filter v
 icontainsMaybe field val = Filter field (Left $ Just $ Text.concat ["%", val, "%"]) (BackendSpecificFilter "ILIKE")
 
+{-
 getVocabtrainCardChapterAddR :: VocabChapterId -> Handler RepHtml
 getVocabtrainCardChapterAddR chapterId = do
 	msgShow <- getMessageRender
@@ -594,7 +621,6 @@ getVocabtrainCardChapterAddR chapterId = do
 		Nothing -> do
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
-			chapter <- runDB $ get chapterId
 			((result', cardSearchFormWidget), cardSearchFormEnctype) <- runFormGet $ renderDivs $ cardSearchForm
 			case result' of
 				FormSuccess searchPhrase -> do 
@@ -606,6 +632,25 @@ getVocabtrainCardChapterAddR chapterId = do
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
+-}
+getVocabtrainCardChapterAddR :: VocabChapterId -> Handler RepHtml
+getVocabtrainCardChapterAddR chapterId = do
+	msgShow <- getMessageRender
+	maid <- maybeAuth 
+	case maid of
+		Nothing -> do
+			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
+		Just aid -> do
+			((result', cardSearchFormWidget), cardSearchFormEnctype) <- runFormGet $ renderDivs $ cardSearchForm
+			case result' of
+				FormSuccess searchPhrase -> do 
+					getVocabtrainCardSearch searchPhrase (Just $ widgetCardListChapterAdd chapterId)
+				_ -> vocabLayout $ do
+						setTitleI MsgCardPleaseCorrectEntry
+						toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
+
+widgetCardListChapterAdd :: VocabChapterId -> Entity VocabCard -> GWidget App App ()
+widgetCardListChapterAdd chapterId card = do toWidget $(whamletFile "templates/vocabtrain/card_list_icon_chapteradd.hamlet")
 
 postVocabtrainCardChapterInsertR :: VocabCardId -> VocabChapterId -> Handler RepHtml
 postVocabtrainCardChapterInsertR cardId chapterId = do
@@ -619,6 +664,42 @@ postVocabtrainCardChapterInsertR cardId chapterId = do
 			$(logInfo) $ Text.concat [ "Added link chapter<->card: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId, Text.pack $ show cardId]
 			setMessageI $ MsgCardChapterCreated 
 			redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
+
+
+getVocabtrainCardSearchPostR :: GHandler App App RepHtml
+getVocabtrainCardSearchPostR = do
+--	((result, cardSearchFormWidget), cardSearchFormEnctype) <- runFormGet $ renderDivs $ cardSearchForm
+	mtext <- lookupGetParam "text"
+	case mtext of
+		Just searchPhrase -> do 
+			getVocabtrainCardSearch searchPhrase Nothing
+		Nothing -> vocabLayout $ do
+			lift $ setMessageI MsgCardPleaseCorrectEntry
+			lift $ redirectUltDest VocabtrainBooksR
+			
+getVocabtrainCardSearchR :: Text -> GHandler App App RepHtml
+getVocabtrainCardSearchR searchPhrase = getVocabtrainCardSearch searchPhrase Nothing
+	
+
+getVocabtrainCardSearch :: Text -> Maybe ( Entity VocabCard -> GWidget App App ()) -> GHandler App App RepHtml
+getVocabtrainCardSearch searchPhrase cardListExtraButtonWidget = do
+	msgShow <- getMessageRender
+	maid <- maybeAuth 
+	setUltDestCurrent
+	cardResults <- runDB $ selectList 
+		(     [ icontains VocabCardScript        searchPhrase ]
+		  ||. [ icontainsMaybe VocabCardSpeech   searchPhrase ]
+		) []
+	translationResults <- forM cardResults 
+		(\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
+	results <- return $ Prelude.zip cardResults translationResults
+	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_search.hamlet")
+{-
+		where 
+			cardListExtraButtonWidget :: Maybe ( Entity VocabCard -> GWidget App App ())
+			cardListExtraButtonWidget = Nothing
+-}
 
 {-	results <- mapM (\cardResult -> do
 			runDB $ 

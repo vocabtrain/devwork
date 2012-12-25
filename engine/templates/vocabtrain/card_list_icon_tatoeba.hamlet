@@ -1,0 +1,2 @@
+<a href=@{TatoebaQueryR language $ vocabCardScript $ entityVal $ card} rel="tooltip" data-placement="bottom" title="_{MsgTooltipTatoebaQueryR}">
+    <i .icon-leaf>

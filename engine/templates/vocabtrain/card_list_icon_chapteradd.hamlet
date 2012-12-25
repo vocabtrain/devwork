@@ -1,0 +1,3 @@
+<form method=post action=@{VocabtrainCardChapterInsertR (entityKey $ card) chapterId}>
+    <button type=submit .btn .btn-success>_{MsgCardChapterInsert}
+
