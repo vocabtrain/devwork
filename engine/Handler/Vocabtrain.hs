@@ -8,12 +8,15 @@ import qualified Data.Text as Text
 import Data.Aeson ((.:))
 import qualified Data.Aeson as JS
 import GHC.Generics
+import qualified Data.List as List
 
 import System.IO
 import System.Directory(getTemporaryDirectory, removeFile)
 import Control.Exception (catch, finally, IOException)
 import Data.Maybe
 
+--import Database.Persist.Query.Join.Sql (runJoin)
+import Database.Persist.Query.Join (SelectOneMany (..), selectOneMany, runJoin)
 
 import Control.Monad
 
@@ -302,6 +305,30 @@ getVocabtrainCardR cardId = do
 		Nothing -> notFound
 		Just card -> do
 			translationResults <- runDB $ selectList [VocabTranslationCardId ==. cardId] [Asc VocabTranslationContent]
+			contentResults <- runDB $ selectList [VocabContentCardId ==. cardId] []
+				
+			chapterBookResult <- runDB $ runJoin (selectOneMany (VocabChapterBookId <-.) vocabChapterBookId)
+				{ somOrderOne = [Asc VocabBookName]
+				, somFilterMany = [ VocabChapterId <-. (map (vocabContentChapterId . entityVal) contentResults) ]
+				}
+			let vocabCardLayout widget = globalLayout $ SheetLayout { 
+						  sheetTitle = sheetTitle $ vocabLayoutSheet widget
+						, sheetNav = Just $(ihamletFile "templates/vocabtrain/navcard.hamlet")
+						, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
+						, sheetContent = sheetContent $ vocabLayoutSheet widget
+						}
+			vocabCardLayout $ toWidget $(whamletFile "templates/vocabtrain/card.hamlet") 
+
+{-
+getVocabtrainCardR :: VocabCardId -> GHandler App App RepHtml
+getVocabtrainCardR cardId = do
+	setUltDestCurrent
+	msgShow <- getMessageRender
+	mcard <- runDB $ get cardId
+	case mcard of
+		Nothing -> notFound
+		Just card -> do
+			translationResults <- runDB $ selectList [VocabTranslationCardId ==. cardId] [Asc VocabTranslationContent]
 			chapterResults <- runDB $ rawSql -- needed for navchapter.hamlet
 				"SELECT ?? FROM chapters JOIN content ON chapters._id = content_chapter_id WHERE content_card_id = ?;"
 				[toPersistValue cardId]
@@ -314,6 +341,7 @@ getVocabtrainCardR cardId = do
 						}
 			vocabCardLayout $ toWidget $(whamletFile "templates/vocabtrain/card.hamlet") 
 
+-}
 
 {-
 -- Translation Form
@@ -523,12 +551,24 @@ cardChapterForm cardId = areq (multiSelectField chapters) (fieldSettingsLabel Ms
 	where
 		chapters :: GHandler App App (OptionList VocabChapterId)
 		chapters = do -- use optionsPersist ?
+			contentResults <- runDB $ selectList [VocabContentCardId ==. cardId] []
+			chapterBookResult <- runDB $ runJoin (selectOneMany (VocabChapterBookId <-.) vocabChapterBookId)
+				{ somOrderOne = [Asc VocabBookName]
+				, somFilterMany = [ VocabChapterId <-. (map (vocabContentChapterId . entityVal) contentResults) ]
+				}
+			optionsPairs $ List.concat $ Prelude.map 
+				(\(book,chapterList) -> 
+					Prelude.map (\chapter -> 
+						(Text.concat [ vocabBookName $ entityVal book, ": ", vocabChapterVolume $ entityVal chapter ] , entityKey chapter) ) 
+						chapterList
+				) chapterBookResult
+{-
 			chapterResults <- runDB $ rawSql
 				"SELECT ?? FROM chapters JOIN content ON content_chapter_id = chapters._id JOIN cards ON content_card_id = cards._id WHERE cards._id = ?;"
 				[toPersistValue  cardId]
 				:: GHandler App App [Entity VocabChapter]
 			optionsPairs $ Prelude.map (vocabChapterVolume . entityVal &&& entityKey) chapterResults
-
+-}
 getVocabtrainCardUpdateR :: VocabCardId -> GHandler App App RepHtml
 getVocabtrainCardUpdateR cardId = do
 	card <- runDB $ get cardId

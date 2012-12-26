@@ -1,6 +1,8 @@
+_{MsgCardFoundInTheFollowingChapters}
 <ul .nav .nav-list>
-    <li .nav-header>_{MsgCardFoundInTheFollowingChapters}
-    $forall result <- chapterResults
-        <li>
-            <a href="@{VocabtrainChapterR $ entityKey result}">#{vocabChapterVolume $ entityVal result}
+    $forall result <- chapterBookResult
+        <li .nav-header>#{vocabBookName $ entityVal $ fst $ result}
+        $forall chapter <- snd result
+            <li>
+                <a href="@{VocabtrainChapterR $ entityKey chapter}">#{vocabChapterVolume $ entityVal chapter}
 
