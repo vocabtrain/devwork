@@ -37,7 +37,7 @@
                         <table>
                             $forall lang <- snd result
                                 <tr>
-                                    <td>#{vocabTranslationLanguage $ entityVal lang}
+                                    <td>^{tatoebaLanguageWidget $ vocabTranslationLanguage $ entityVal lang}
                                     <td>#{vocabTranslationContent $ entityVal lang}
                                     <td>
                                         $maybe translationComment <- vocabTranslationComment $ entityVal lang

@@ -13,7 +13,7 @@
 /tatoeba/query/#TatoebaLanguage TatoebaQueryLanguageR
 /tatoeba/query TatoebaQueryRandomR GET
 
-/vocabtrain/books VocabtrainBooksR GET POST
+/vocabtrain VocabtrainBooksR GET POST
 /vocabtrain/books/update/#VocabBookId VocabtrainBookUpdateR GET POST
 /vocabtrain/books/delete/#VocabBookId VocabtrainBookDeleteR GET POST
 

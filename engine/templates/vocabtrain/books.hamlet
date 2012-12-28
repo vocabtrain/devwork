@@ -1,20 +1,25 @@
 <h1>_{MsgBookListHeader}
 <div id="maincontentbody">
     <div .tab-content>
+        <div .tab-pane .active>
+            <h2>_{MsgVocabWelcome}
+            <p>_{MsgVocabIntroduction}
         $forall result <- results
             $with bookId <- entityKey $ fst result
                 <div .tab-pane #book_#{either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result}>
-                    <h2>#{vocabBookName $ entityVal $ fst result}
+                    <h2>
+                        #{vocabBookName $ entityVal $ fst result}
+                        ^{tatoebaLanguageWidget $ vocabBookLanguage $ entityVal $ fst result}
                     $maybe _ <- maid
                         <div .nav .nav-pills>
                             <ul .nav .nav-tabs>
                                 <li>
                                     <a href=@{VocabtrainBookUpdateR $ bookId}  rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainBookUpdateR}">
-                                        <i .icon-edit> 
+                                        <i .icon-edit>
                                         _{MsgBookEdit}
                                 <li>
                                     <a href=@{VocabtrainBookDeleteR $ bookId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainBookDeleteR}">
-                                        <i .icon-trash> 
+                                        <i .icon-trash>
                                         _{MsgBookDelete}
                     <h3>_{MsgChapterListHeader}
                     <ol>
@@ -25,9 +30,9 @@
                                         #{vocabChapterVolume $ entityVal chapterEntity}
                                     $maybe _ <- maid
                                         <a href=@{VocabtrainChapterUpdateR chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainChapterUpdateR}">
-                                            <i .icon-edit> 
+                                            <i .icon-edit>
                                         <a href=@{VocabtrainChapterDeleteR chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainChapterDeleteR}">
-                                            <i .icon-trash> 
+                                            <i .icon-trash>
                     $maybe _ <- maid
                         ^{widgetVocabtrainChapterCreate' $ entityKey $ fst result}
 

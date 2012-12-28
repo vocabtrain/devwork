@@ -169,7 +169,13 @@ function getTatoebaLanguages
 	done
 	echo $a | sed 's@ @\n\t | @g'
 	echo "\tderiving(Eq,Enum,Bounded)"
-##
+##toAppMessage
+#	echo "instance ToAppMessage TatoebaLanguage where "
+#	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
+#		l=`echo $i | cut -d'@' -f1`
+#		L=`echo $l | tr '[:lower:]' '[:upper:]'`
+#		echo "\ttoAppMessage LANG_$L = MsgLang_$l"
+#	done
 ##instance Read
 	echo "instance Read TatoebaLanguage where "
 	echo "\treadPrec = choice $ strValMap ["
@@ -197,13 +203,13 @@ EOF
 	echo 'derivePersistField "TatoebaLanguage"'
 
 	##
-	##getTatoebaLanguageName
-	echo 'getTatoebaLanguageName :: TatoebaLanguage -> Text'
-	a=()
-	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
-		a+="getTatoebaLanguageName(LANG_`echo $i | cut -d'@' -f1 | tr '[:lower:]' '[:upper:]'`)=\"`echo $i | cut -d'@' -f2`\""
-	done
-	echo "$a" | sed 's@ @\n@g'
+#	##getTatoebaLanguageName
+#	echo 'getTatoebaLanguageName :: TatoebaLanguage -> Text'
+#	a=()
+#	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
+#		a+="getTatoebaLanguageName(LANG_`echo $i | cut -d'@' -f1 | tr '[:lower:]' '[:upper:]'`)=\"`echo $i | cut -d'@' -f2`\""
+#	done
+#	echo "$a" | sed 's@ @\n@g'
 #	echo "\t|otherwise = \"unknown language\""
 }
 
@@ -258,7 +264,7 @@ createPathPieceInstance BeamerSlidePublic
 
 cat <<EOF
 
-instance ToMarkup TatoebaLanguage where
-	toMarkup = toMarkup . getTatoebaLanguageName
 EOF
+#instance ToMarkup TatoebaLanguage where
+#	toMarkup = toMarkup . getTatoebaLanguageName
 

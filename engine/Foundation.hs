@@ -303,6 +303,7 @@ globalLayout sheet = do
 		addStylesheet $ StaticR css_bootstrap_css
 		addStylesheet $ StaticR css_bootstrap_docs_css
 		addStylesheet $ StaticR css_normalize_css
+		addStylesheet $ StaticR css_flags_css
 		addStylesheet $ StaticR css_main_css
 	ihamletToRepHtml $(ihamletFile "templates/skeleton/overall.hamlet")
 

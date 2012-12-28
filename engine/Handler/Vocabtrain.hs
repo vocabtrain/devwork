@@ -7,6 +7,7 @@ import qualified Prelude
 import qualified Data.Text as Text
 import Data.Aeson ((.:))
 import qualified Data.Aeson as JS
+import qualified Data.Ord as Ord
 import GHC.Generics
 import qualified Data.List as List
 
@@ -54,12 +55,17 @@ vocabLayout widget = do
 -}
 
 bookForm :: Maybe VocabBook -> AForm App App VocabBook
-bookForm mbook = VocabBook
-	<$> areq textField (fieldSettingsLabel MsgFieldName) (vocabBookName <$> mbook)
-	<*> areq (selectFieldList tatoebaLanguages) (fieldSettingsLabel MsgFieldLanguage) (vocabBookLanguage <$> mbook)
-	<*> aformM (liftIO getCurrentTime)
-	where
-		tatoebaLanguages = map (getTatoebaLanguageName &&& Prelude.id) $ [(minBound::TatoebaLanguage)..(maxBound::TatoebaLanguage)]
+bookForm mbook = do
+	VocabBook
+		<$> areq textField (fieldSettingsLabel MsgFieldName) (vocabBookName <$> mbook)
+		<*> areq (selectField getTatoebaLanguageOptionList) (fieldSettingsLabel MsgFieldLanguage) (vocabBookLanguage <$> mbook)
+		<*> aformM (liftIO getCurrentTime)
+
+getTatoebaLanguageOptionList :: GHandler App App (OptionList TatoebaLanguage)
+getTatoebaLanguageOptionList = do
+	msgShow <- getMessageRender
+	optionsPairs $ List.sortBy (Ord.comparing fst) $
+		Prelude.map (msgShow . toAppMessage &&& Prelude.id) $ [(minBound::TatoebaLanguage)..(maxBound::TatoebaLanguage)]
 
 widgetVocabtrainBookCreate :: GWidget App App () -> Enctype -> GWidget App App ()
 widgetVocabtrainBookCreate bookFormWidget bookFormEnctype = toWidget $(whamletFile "templates/vocabtrain/book_create.hamlet") 
@@ -351,11 +357,9 @@ getVocabtrainCardR cardId = do
 translationForm :: Maybe VocabTranslation -> VocabCardId -> AForm App App VocabTranslation
 translationForm mtranslation cardId = VocabTranslation
 	<$> pure cardId
-	<*> areq (selectFieldList tatoebaLanguages) (fieldSettingsLabel MsgFieldLanguage) (vocabTranslationLanguage <$> mtranslation)
+	<*> areq (selectField getTatoebaLanguageOptionList) (fieldSettingsLabel MsgFieldLanguage) (vocabTranslationLanguage <$> mtranslation)
 	<*> areq textField (fieldSettingsLabel MsgFieldTranslation) (vocabTranslationContent <$> mtranslation)
 	<*> aopt textField (fieldSettingsLabel MsgFieldComment) (vocabTranslationComment <$> mtranslation)
-	where
-		tatoebaLanguages = map (getTatoebaLanguageName &&& Prelude.id) $ [(minBound::TatoebaLanguage)..(maxBound::TatoebaLanguage)]
 
 widgetVocabtrainTranslationCreate' :: VocabCardId -> GWidget App App ()
 widgetVocabtrainTranslationCreate' cardId = do
@@ -452,8 +456,9 @@ cardForm mcard = VocabCard
 		cardTypePairs = do
 			--optionsPairs $ Prelude.map (Text.pack . show &&& Prelude.id) $
 			msgShow <- getMessageRender
-			optionsPairs $ Prelude.map (getCardTypeText msgShow &&& Prelude.id) $
-				(map (\l -> toEnum $ calcCardTypeList l) $ concat $ map (\pri -> map (\l -> (fromEnum pri) : l) $ sequence $ map (\x -> [0..x]) $ getCardTypeBounds' pri) ([minBound..maxBound] :: [CardTypePrimary]) :: [CardType])
+--			$(logInfo) $ Text.pack $ show $ map (\l -> calcCardTypeList l) $ concat $ map (\pri -> map (\l -> l ++ (priToList pri) ) $ sequence $ map (\x -> [0..x]) $ getCardTypeBounds' pri) ([minBound..maxBound] :: [CardTypePrimary])
+			optionsPairs $ Prelude.map (getCardTypeText msgShow &&& Prelude.id) $ getAllCardTypes
+--				(map (\l -> toEnum $ calcCardTypeList l) $ concat $ map (\pri -> map (\l -> l ++ (priToList pri) ) $ sequence $ map (\x -> [0..x]) $ getCardTypeBounds' pri) ([minBound..maxBound] :: [CardTypePrimary]) :: [CardType])
 --			createVocabCard script scriptComment speech speechComment primaryType secondaryType tertiaryType =
 --				VocabCard script scriptComment speech speechComment (CardType primaryType secondaryType tertiaryType)
 
@@ -514,7 +519,7 @@ postVocabtrainCardInsertR chapterId = do
 							redirect $ VocabtrainChapterR chapterId 
 						else do
 							let dup = duplicateCards !! 0
-							_ <- runDB $ insert $ VocabContent chapterId (entityKey dup)
+							_ <- runDB $ insert $ VocabContent chapterId (entityKey dup) -- TODO: perhaps already in this chapter?
 							$(logInfo) $ Text.concat [ "Card added: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " To chapter ", Text.pack $ show chapterId]
 							setMessageI $ MsgCardChapterAdded $ vocabCardScript card
 							redirect $ VocabtrainChapterR chapterId 
@@ -1053,6 +1058,11 @@ INSERT INTO "android_metadata" VALUES(\'en_US\');
 -}
 
 
+tatoebaLanguageWidget :: TatoebaLanguage -> GWidget App App()
+tatoebaLanguageWidget lang = do
+	msgShow <- lift $ getMessageRender
+	toWidget $ [hamlet|<i .flag-#{Text.pack $ show $ lang} title=#{msgShow $ toAppMessage lang} data-placement="bottom" rel="tooltip"> |]
+
 
 
 getCardTypeText :: (AppMessage -> Text) -> CardType -> Text
@@ -1068,38 +1078,38 @@ getCardTypeMessages (CardTypeSaw) = [toAppMessage CARDTYPE_SAW]
 getCardTypeMessages (CardTypeNoun secondary) = [toAppMessage CARDTYPE_NOUN, toAppMessage secondary ]
 getCardTypeMessages _ = [toAppMessage CARDTYPE_UNKNOWN]
 
-class VerbTypeMessage a where
+class ToAppMessage a where
 	toAppMessage :: a -> AppMessage
 
-instance VerbTypeMessage VerbType where
+instance ToAppMessage VerbType where
 	toAppMessage CARDTYPE_VERB_NONE = MsgCardTypeNone
 	toAppMessage CARDTYPE_TRANSITIVE = MsgCardTypeTransitive
 	toAppMessage CARDTYPE_INTRANSITIVE = MsgCardTypeIntransitive
 	toAppMessage CARDTYPE_REFLEXIVE = MsgCardTypeReflexive
 
-instance VerbTypeMessage JapaneseVerbType where
+instance ToAppMessage JapaneseVerbType where
 	toAppMessage CARDTYPE_JAPANESEVERB_NONE = MsgCardTypeNone
 	toAppMessage CARDTYPE_GODAN_DOUSHI = MsgCardTypeGodanDoushi
 	toAppMessage CARDTYPE_ICHIDAN_DOUSHI = MsgCardTypeIchidanDoushi
 	toAppMessage CARDTYPE_IRREGULAR_DOUSHI = MsgCardTypeIrregularDoushi
 
-instance VerbTypeMessage AdjectiveType where
+instance ToAppMessage AdjectiveType where
 	toAppMessage CARDTYPE_ADJECTIVE_NONE = MsgCardTypeNone
 	toAppMessage CARDTYPE_COMPARATIVE = MsgCardTypeComparative
 	toAppMessage CARDTYPE_SUPERLATIVE = MsgCardTypeSuperlative
 
-instance VerbTypeMessage JapaneseAdjectiveType where
+instance ToAppMessage JapaneseAdjectiveType where
 	toAppMessage CARDTYPE_JAPANESEADJECTIVE_NONE = MsgCardTypeNone
 	toAppMessage CARDTYPE_NCARDTYPE_ADJECTIVE = MsgCardTypeNaAdjective
 	toAppMessage CARDTYPE_I_ADJECTIVE = MsgCardTypeIAdjective
 
-instance VerbTypeMessage ConjugationType where
+instance ToAppMessage ConjugationType where
 	toAppMessage CARDTYPE_CONJUGATION_NONE = MsgCardTypeNone
 	toAppMessage CARDTYPE_PREPOSITION = MsgCardTypePreposition
 	toAppMessage CARDTYPE_POSTPOSITION = MsgCardTypePostposition
 	toAppMessage CARDTYPE_PARTICLE = MsgCardTypeParticle
 
-instance VerbTypeMessage NounType where
+instance ToAppMessage NounType where
 	toAppMessage CARDTYPE_NOUN_NONE = MsgCardTypeNone
 	toAppMessage CARDTYPE_FEMININE = MsgCardTypeFeminine
 	toAppMessage CARDTYPE_MASCULINE = MsgCardTypeMasculine
@@ -1108,7 +1118,7 @@ instance VerbTypeMessage NounType where
 	toAppMessage CARDTYPE_MASCULINE_PLURAL = MsgCardTypeMasculinePlural
 	toAppMessage CARDTYPE_NEUTER_PLURAL = MsgCardTypeNeuterPlural
 
-instance VerbTypeMessage CardTypePrimary where
+instance ToAppMessage CardTypePrimary where
 	toAppMessage CARDTYPE_UNKNOWN  = MsgCardTypeUnknown
 	toAppMessage CARDTYPE_VERB = MsgCardTypeVerb
 	toAppMessage CARDTYPE_ADJECTIVE = MsgCardTypeAdjective
@@ -1119,3 +1129,119 @@ instance VerbTypeMessage CardTypePrimary where
 	toAppMessage CARDTYPE_SAW = MsgCardTypeSaw
 	toAppMessage CARDTYPE_NOUN = MsgCardTypeNoun
 
+instance ToAppMessage TatoebaLanguage where 
+	toAppMessage LANG_ACM = MsgLang_acm
+	toAppMessage LANG_AFR = MsgLang_afr
+	toAppMessage LANG_AIN = MsgLang_ain
+	toAppMessage LANG_ANG = MsgLang_ang
+	toAppMessage LANG_ARA = MsgLang_ara
+	toAppMessage LANG_ARZ = MsgLang_arz
+	toAppMessage LANG_AST = MsgLang_ast
+	toAppMessage LANG_BEL = MsgLang_bel
+	toAppMessage LANG_BEN = MsgLang_ben
+	toAppMessage LANG_BER = MsgLang_ber
+	toAppMessage LANG_BOS = MsgLang_bos
+	toAppMessage LANG_BRE = MsgLang_bre
+	toAppMessage LANG_BUL = MsgLang_bul
+	toAppMessage LANG_CAT = MsgLang_cat
+	toAppMessage LANG_CES = MsgLang_ces
+	toAppMessage LANG_CHA = MsgLang_cha
+	toAppMessage LANG_CMN = MsgLang_cmn
+	toAppMessage LANG_CYCL = MsgLang_cycl
+	toAppMessage LANG_CYM = MsgLang_cym
+	toAppMessage LANG_DAN = MsgLang_dan
+	toAppMessage LANG_DEU = MsgLang_deu
+	toAppMessage LANG_DSB = MsgLang_dsb
+	toAppMessage LANG_ELL = MsgLang_ell
+	toAppMessage LANG_ENG = MsgLang_eng
+	toAppMessage LANG_EPO = MsgLang_epo
+	toAppMessage LANG_EST = MsgLang_est
+	toAppMessage LANG_EUS = MsgLang_eus
+	toAppMessage LANG_EWE = MsgLang_ewe
+	toAppMessage LANG_FAO = MsgLang_fao
+	toAppMessage LANG_FIN = MsgLang_fin
+	toAppMessage LANG_FRA = MsgLang_fra
+	toAppMessage LANG_FRY = MsgLang_fry
+	toAppMessage LANG_GLA = MsgLang_gla
+	toAppMessage LANG_GLE = MsgLang_gle
+	toAppMessage LANG_GLG = MsgLang_glg
+	toAppMessage LANG_GRN = MsgLang_grn
+	toAppMessage LANG_HEB = MsgLang_heb
+	toAppMessage LANG_HIN = MsgLang_hin
+	toAppMessage LANG_HRV = MsgLang_hrv
+	toAppMessage LANG_HSB = MsgLang_hsb
+	toAppMessage LANG_HUN = MsgLang_hun
+	toAppMessage LANG_HYE = MsgLang_hye
+	toAppMessage LANG_IDO = MsgLang_ido
+	toAppMessage LANG_ILE = MsgLang_ile
+	toAppMessage LANG_INA = MsgLang_ina
+	toAppMessage LANG_IND = MsgLang_ind
+	toAppMessage LANG_ISL = MsgLang_isl
+	toAppMessage LANG_ITA = MsgLang_ita
+	toAppMessage LANG_JBO = MsgLang_jbo
+	toAppMessage LANG_JPN = MsgLang_jpn
+	toAppMessage LANG_KAT = MsgLang_kat
+	toAppMessage LANG_KAZ = MsgLang_kaz
+	toAppMessage LANG_KOR = MsgLang_kor
+	toAppMessage LANG_KSH = MsgLang_ksh
+	toAppMessage LANG_KUR = MsgLang_kur
+	toAppMessage LANG_LAD = MsgLang_lad
+	toAppMessage LANG_LAT = MsgLang_lat
+	toAppMessage LANG_LIT = MsgLang_lit
+	toAppMessage LANG_LLD = MsgLang_lld
+	toAppMessage LANG_LVS = MsgLang_lvs
+	toAppMessage LANG_LZH = MsgLang_lzh
+	toAppMessage LANG_MAL = MsgLang_mal
+	toAppMessage LANG_MLG = MsgLang_mlg
+	toAppMessage LANG_MON = MsgLang_mon
+	toAppMessage LANG_MRI = MsgLang_mri
+	toAppMessage LANG_NAN = MsgLang_nan
+	toAppMessage LANG_NDS = MsgLang_nds
+	toAppMessage LANG_NLD = MsgLang_nld
+	toAppMessage LANG_NOB = MsgLang_nob
+	toAppMessage LANG_NON = MsgLang_non
+	toAppMessage LANG_NOV = MsgLang_nov
+	toAppMessage LANG_OCI = MsgLang_oci
+	toAppMessage LANG_ORV = MsgLang_orv
+	toAppMessage LANG_OSS = MsgLang_oss
+	toAppMessage LANG_PES = MsgLang_pes
+	toAppMessage LANG_PMS = MsgLang_pms
+	toAppMessage LANG_PNB = MsgLang_pnb
+	toAppMessage LANG_POL = MsgLang_pol
+	toAppMessage LANG_POR = MsgLang_por
+	toAppMessage LANG_QUE = MsgLang_que
+	toAppMessage LANG_QYA = MsgLang_qya
+	toAppMessage LANG_ROH = MsgLang_roh
+	toAppMessage LANG_RON = MsgLang_ron
+	toAppMessage LANG_RUS = MsgLang_rus
+	toAppMessage LANG_SAN = MsgLang_san
+	toAppMessage LANG_SCN = MsgLang_scn
+	toAppMessage LANG_SJN = MsgLang_sjn
+	toAppMessage LANG_SLK = MsgLang_slk
+	toAppMessage LANG_SLV = MsgLang_slv
+	toAppMessage LANG_SPA = MsgLang_spa
+	toAppMessage LANG_SQI = MsgLang_sqi
+	toAppMessage LANG_SRP = MsgLang_srp
+	toAppMessage LANG_SWE = MsgLang_swe
+	toAppMessage LANG_SWH = MsgLang_swh
+	toAppMessage LANG_TAT = MsgLang_tat
+	toAppMessage LANG_TEL = MsgLang_tel
+	toAppMessage LANG_TGL = MsgLang_tgl
+	toAppMessage LANG_THA = MsgLang_tha
+	toAppMessage LANG_TLH = MsgLang_tlh
+	toAppMessage LANG_TOKI = MsgLang_toki
+	toAppMessage LANG_TPI = MsgLang_tpi
+	toAppMessage LANG_TUR = MsgLang_tur
+	toAppMessage LANG_UIG = MsgLang_uig
+	toAppMessage LANG_UKR = MsgLang_ukr
+	toAppMessage LANG_UND = MsgLang_und
+	toAppMessage LANG_URD = MsgLang_urd
+	toAppMessage LANG_UZB = MsgLang_uzb
+	toAppMessage LANG_VIE = MsgLang_vie
+	toAppMessage LANG_VOL = MsgLang_vol
+	toAppMessage LANG_WUU = MsgLang_wuu
+	toAppMessage LANG_XAL = MsgLang_xal
+	toAppMessage LANG_XHO = MsgLang_xho
+	toAppMessage LANG_YID = MsgLang_yid
+	toAppMessage LANG_YUE = MsgLang_yue
+	toAppMessage LANG_ZSM = MsgLang_zsm

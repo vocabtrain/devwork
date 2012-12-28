@@ -1,6 +1,7 @@
 <div .tabbable .tabs-left>
     <ul .nav .nav-tabs>
-        <li><a href=@{VocabtrainOrphanedCardsR}>_{MsgCardOrphanedHeader}
+        <li>
+            <a href=@{VocabtrainOrphanedCardsR}>_{MsgCardOrphanedHeader}
         <li .nav-header>_{MsgBooks}
         $forall result <- results
             <li>

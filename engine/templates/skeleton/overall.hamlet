@@ -70,6 +70,8 @@ $newline never
             <a href="http://twitter.github.com/bootstrap/">Bootstrap
             , pics by #
             <a href="http://glyphicons.com">GlyphIcons
+            , flags by #
+            <a href="http://tatoeba.org">例えば
             .
         $maybe analytics <- extraAnalytics $ appExtra $ settings master
             <script>

@@ -18,6 +18,7 @@
 database='devwork'
 datadir=/home/niki/data/
 scriptdir=/home/niki/devwork/cron
+schemedir=/home/niki/devwork/schemes
 mkdir -p "$datadir/log"
 function dhaskell {
 	of="$datadir/`basename $1 .hs`"
@@ -60,7 +61,7 @@ mkdir -p "$datadir/sphinx"
 indexer --config "$datadir/sphinx.conf" --all
 searchd --config "$datadir/sphinx.conf" 
 
-psql -U postgres -f cacheBookLanguages.sql devwork
+psql -U postgres -f "$schemedir/cacheBookLanguages.sql" devwork
 
 cd $scriptdir/tatoeba_lucene
 ant -Dsentences "$datadir/sentences.csv" -Doutputdir "$datadir/lucene" run

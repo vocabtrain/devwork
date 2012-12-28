@@ -151,6 +151,129 @@ FieldCardTypePrimary: Primary Type
 FieldCardTypeSecondary: Secondary Type
 FieldCardTypeTertiary: Tertiary Type
 
+Lang_eng: English
+Lang_epo: Esperanto
+Lang_fra: French
+Lang_deu: German
+Lang_jpn: Japanese
+Lang_spa: Spanish
+Lang_tur: Turkish
+Lang_por: Portuguese
+Lang_ita: Italian
+Lang_heb: Hebrew
+Lang_rus: Russian
+Lang_pol: Polish
+Lang_cmn: Chinese
+Lang_ber: Berber
+Lang_nld: Dutch
+Lang_hun: Hungarian
+Lang_ukr: Ukrainian
+Lang_nds: Low Saxon
+Lang_pes: Persian
+Lang_ara: Arabic
+Lang_dan: Danish
+Lang_isl: Icelandic
+Lang_lat: Latin
+Lang_swe: Swedish
+Lang_jbo: Lojban
+Lang_fin: Finnish
+Lang_srp: Serbian
+Lang_vie: Vietnamese
+Lang_lit: Lithuanian
+Lang_tlh: Klingon
+Lang_bul: Bulgarian
+Lang_tgl: Tagalog
+Lang_hin: Hindi
+Lang_uig: Uyghur
+Lang_cat: Catalan
+Lang_ces: Czech
+Lang_wuu: Shanghainese
+Lang_glg: Galician
+Lang_ina: Interlingua
+Lang_ell: Modern Greek
+Lang_ido: Ido
+Lang_nob: Norwegian (Bokmål)
+Lang_bel: Belarusian
+Lang_ron: Romanian
+Lang_yue: Cantonese
+Lang_mar: Marathi
+Lang_oci: Occitan
+Lang_hrv: Croatian
+Lang_ind: Indonesian
+Lang_tat: Tatar
+Lang_eus: Basque
+Lang_lzh: Literary Chinese
+Lang_kaz: Kazakh
+Lang_toki: Toki Pona
+Lang_urd: Urdu
+Lang_kor: Korean
+Lang_orv: Old East Slavic
+Lang_afr: Afrikaans
+Lang_zsm: Malay
+Lang_avk: Kotava
+Lang_slk: Slovak
+Lang_xal: Kalmyk
+Lang_mal: Malayalam
+Lang_non: Norwegian (Nynorsk)
+Lang_est: Estonian
+Lang_arz: Egyptian Arabic
+Lang_lvs: Latvian
+Lang_vol: Volapük
+Lang_bre: Breton
+Lang_yid: Yiddish
+Lang_gla: Scottish Gaelic
+Lang_mon: Mongolian
+Lang_hsb: Upper Sorbian
+Lang_dsb: Lower Sorbian
+Lang_gle: Irish
+Lang_kur: Kurdish
+Lang_cym: Welsh
+Lang_que: Quechua
+Lang_ile: Interlingue
+Lang_kat: Georgian
+Lang_sqi: Albanian
+Lang_uzb: Uzbek
+Lang_tha: Thai
+Lang_oss: Ossetian
+Lang_swh: Swahili
+Lang_ang: Old English
+Lang_nov: Novial
+Lang_qya: Quenya
+Lang_bos: Bosnian
+Lang_xho: Xhosa
+Lang_fry: Frisian
+Lang_slv: Slovenian
+Lang_lld: Ladin
+Lang_tpi: Tok Pisin
+Lang_lad: Ladino
+Lang_tel: Telegu
+Lang_cycl: CycL
+Lang_ast: Asturian
+Lang_ben: Bengali
+Lang_acm: Iraqi Arabic
+Lang_tpw: Old Tupi
+Lang_pms: Piemontese
+Lang_hye: Armenian
+Lang_cha: Chamorro
+Lang_tgk: Tajik
+Lang_ewe: Ewe
+Lang_mlg: Malagasy
+Lang_pnb: Punjabi
+Lang_grn: Guarani
+Lang_scn: Sicilian
+Lang_fao: Faroese
+Lang_mri: Maori
+Lang_und: Undefined
+Lang_ain: Ainu
+Lang_san: Sanskrit
+Lang_ksh: Kölsch
+Lang_nan: Teochew
+Lang_roh: Romansh
+Lang_sjn: Sindarin 
+
+VocabWelcome: Welcome to Vocabtrain
+VocabIntroduction: Upset with the current supply of vocabulary trainers with insufficient control or bad vocabulary?  Then try Vocabtrain, a new approach of community-driven vocabulary-creation with optimization for asian languages (CJK).  Instead of writing for each training book all vocabulary by hand (which is error-prone), you can simply import already inserted vocabulary from other books (even with already inserted translations). Use the book-list on the left for navigation.
+
 Hello: Hello
 NotAnAdmin: You must be an administrator to access this page.
 

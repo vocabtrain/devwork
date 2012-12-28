@@ -57,8 +57,8 @@ instance Enum CardType where
 		CARDTYPE_UNKNOWN -> CardTypeUnknown
 		where 
 			primary = i `mod` 100
-			secondary = div (i `mod` 100) 100
 			tertiary = i `div` 1000
+			secondary = (i `div` 100) `mod` 10
 	fromEnum (CardTypeVerb secondary tertiary) = calcCardType CARDTYPE_VERB (fromEnum secondary) (fromEnum tertiary)
 	fromEnum (CardTypeAdjective secondary tertiary) = calcCardType CARDTYPE_ADJECTIVE (fromEnum secondary) (fromEnum tertiary)
 	fromEnum (CardTypeAdverb secondary tertiary) = calcCardType CARDTYPE_ADVERB (fromEnum secondary) (fromEnum tertiary)
@@ -76,7 +76,21 @@ calcCardType' pri secondary  = 100 * secondary + calcCardType'' pri
 calcCardType'' :: CardTypePrimary -> Int 
 calcCardType'' pri = fromEnum pri
 calcCardTypeList :: [Int] -> Int 
-calcCardTypeList lst = calcCardType (toEnum $ lst!!0) (lst!!1) (lst!!2)
+calcCardTypeList lst = foldl (\x y -> x*10+y) 0 lst
+
+
+getAllCardTypes :: [CardType]
+getAllCardTypes = map (\l -> toEnum $ calcCardTypeList l) $ concat $ 
+	map (\pri -> map (\l -> l ++ (priToList pri) ) $ 
+		sequence $ map (\x -> [0..x]) $ getCardTypeBounds' pri) ([minBound..maxBound] :: [CardTypePrimary]) 
+	:: [CardType]
+	where
+		priToList :: CardTypePrimary -> [Int]
+		priToList = priToList' . fromEnum
+		priToList' :: Int -> [Int]
+		priToList' i
+			| i < 9 = [0,i]
+			| otherwise = [i]
 
 {-
 main = do
@@ -85,7 +99,7 @@ main = do
 		)
 -}
 getCardTypeBounds' :: CardTypePrimary -> [Int]
-getCardTypeBounds' t = [fst v, snd v]
+getCardTypeBounds' t = [snd v, fst v]
 	where v = getCardTypeBounds t
 
 instance PersistField CardType where
