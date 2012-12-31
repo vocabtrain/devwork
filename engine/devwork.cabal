@@ -98,6 +98,7 @@ library
                  , xml-conduit
                  , xml-hamlet
                  , containers
+                 , base64-bytestring 
                  , HDBC-postgresql
                  , conduit
                  , persistent-template

@@ -1245,3 +1245,89 @@ instance ToAppMessage TatoebaLanguage where
 	toAppMessage LANG_YID = MsgLang_yid
 	toAppMessage LANG_YUE = MsgLang_yue
 	toAppMessage LANG_ZSM = MsgLang_zsm
+
+
+-- Account
+
+getUserR :: UserId -> GHandler App App RepHtml
+getUserR userId = do
+	maid <- maybeAuth
+	muser <- runDB $ get userId
+	case muser of
+		Nothing -> do
+			msgShow <- getMessageRender
+			invalidArgs [msgShow $ MsgUserIdNotFound userId]
+		Just user -> do
+			vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/user.hamlet")
+	
+
+
+userForm :: Text -> Maybe User -> AForm App App User
+userForm email muser = User
+	<$> pure email
+	<*> aopt textField (fieldSettingsLabel MsgFieldUserNick) (userNick <$> muser)
+	<*> aopt passwordField (fieldSettingsLabel MsgFieldUserPassword) (userPassword <$> muser)
+
+
+getUserUpdateR :: UserId -> GHandler App App RepHtml
+getUserUpdateR userId = do
+	maid <- maybeAuth
+	muser <- runDB $ get userId
+	case muser of
+		Nothing -> do
+			msgShow <- getMessageRender
+			invalidArgs [msgShow $ MsgUserIdNotFound userId]
+			--permissionDenied $ msgShow MsgUserManipulationPermissionDenied
+		Just user -> do
+			case maid of
+				Nothing -> do
+					msgShow <- getMessageRender
+					permissionDenied $ msgShow MsgUserManipulationPermissionDenied
+				Just (Entity _ userVal) -> do
+					(userFormWidget, userFormEnctype) <- generateFormPost $ renderDivs $ userForm (userEmail user) (Just user)
+					vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/user_update.hamlet")
+
+postUserUpdateR :: UserId -> GHandler App App RepHtml
+postUserUpdateR userId = do
+	moldUser <- runDB $ get userId
+	case moldUser of
+		Nothing -> do
+			msgShow <- getMessageRender
+			invalidArgs [msgShow $ MsgUserIdNotFound userId]
+		Just oldUser -> do
+			maid <- maybeAuth 
+			case maid of
+				Nothing -> do
+					msgShow <- getMessageRender
+					permissionDenied $ msgShow MsgUserManipulationPermissionDenied
+				Just aid -> do
+					((result, userFormWidget), userFormEnctype) <- runFormPost $ renderDivs $ userForm (userEmail oldUser) (Just oldUser)
+					case result of
+						FormSuccess newUser -> do 
+							admin <- isAdmin
+							if admin /= Authorized && (userEmail newUser) /= (userEmail $ entityVal aid)
+								then do
+									msgShow <- getMessageRender
+									permissionDenied $ msgShow MsgUserManipulationPermissionDenied
+								else do
+									if isNothing $ userNick newUser
+										then do
+											postUserUpdateR' newUser
+										else do
+											userResult <- runDB $ selectList [ UserNick ==. userNick newUser, UserId !=. userId] [] 
+											if List.null userResult
+												then postUserUpdateR' newUser
+												else do
+													msgShow <- getMessageRender
+													permissionDenied $ msgShow MsgUserNickAlreadyForgiven
+						_ ->  do
+							setMessageI MsgPleaseCorrectEntry
+							vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/user_update.hamlet")
+	where
+		postUserUpdateR' :: UserGeneric SqlPersist -> GHandler App App RepHtml
+		postUserUpdateR' newUser = do
+			_ <- runDB $ replace userId newUser
+			$(logInfo) $ Text.concat [ "Update: ", userEmail newUser]
+			setMessageI $ maybe MsgNobodyUpdated (\t -> MsgUserUpdated t) $ userNick newUser
+			redirect $ VocabtrainBooksR
+		

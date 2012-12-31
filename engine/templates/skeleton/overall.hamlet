@@ -20,7 +20,9 @@ $newline never
                         <!-- <a class="brand" href="http://www.devwork.org"> <img alt="/dev/work" src=@{StaticR img_favicon_png}> /dev/work -->
                         <div .nav-collapse .collapse>
                             <p .navbar-text .pull-right>
-                                $maybe _ <- maid
+                                $maybe aid <- maid
+                                    <a href=@{UserUpdateR aid}>Profile
+                                    <span> # 
                                     <a href=@{AuthR LogoutR} .navbar-link>Logout
                                 $nothing
                                     <a href=@{AuthR LoginR} .navbar-link>Login

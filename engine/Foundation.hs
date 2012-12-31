@@ -6,6 +6,7 @@ module Foundation
     , Handler
     , Widget
 	, isTrustedUser
+	, isAdmin
     , Form
 	, globalLayout
     , maybeAuth
@@ -160,6 +161,20 @@ instance YesodPersist App where
             (persistConfig master)
             f
             (connPool master)
+
+isAdmin :: GHandler App App AuthResult
+isAdmin = do
+	mu <- maybeAuth
+	msgShow <- getMessageRender
+	return $ case mu of
+		Nothing -> AuthenticationRequired
+		Just (Entity _ u) -> hasTrustedMail . userEmail $ u
+			where
+				hasTrustedMail :: Text -> AuthResult
+				hasTrustedMail "transitiv@googlemail.com" = Authorized
+				hasTrustedMail _ = Unauthorized $ msgShow MsgNotTrustedUser
+
+
 
 isTrustedUser :: GHandler App App AuthResult
 isTrustedUser = do

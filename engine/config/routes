@@ -1,3 +1,5 @@
+/foo FooR GET
+
 /static StaticR Static getStatic
 /auth   AuthR   Auth   getAuth
 
@@ -42,6 +44,9 @@
 /vocabtrain/card/search/#Text VocabtrainCardSearchR GET
 /vocabtrain/cardsearch VocabtrainCardSearchPostR GET
 /vocabtrain/orphanedcards VocabtrainOrphanedCardsR GET
+
+/user/#UserId UserR GET
+/user/update/#UserId UserUpdateR GET POST
 
 /slide/private/#BeamerSlidePrivate BeamerSlidePrivateR GET
 /slide/public/#BeamerSlidePublic BeamerSlidePublicR GET

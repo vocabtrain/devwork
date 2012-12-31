@@ -77,6 +77,19 @@ CardChapterSearchHeader: Search cards to add to this chapter
 FieldSearchCard: Search Card
 CardFoundInTheFollowingChapters: Belongs to
 
+
+NobodyHeader: Anonym Profile
+UserHeader title@Text: User #{title}
+UserUpdate: Update User
+UserUpdated title@Text: User `#{title}` successfully updated.
+NobodyUpdated: Anonym profile successfully updated;
+UserUpdateHeader: Update User
+FieldUserNick: Nickname
+FieldUserPassword: Password
+UserNickNotFound title@Text: Could not find any user with the nick `#{title}`
+UserIdNotFound userId@UserId: Could not find the user with id ##{Text.pack $ show $ userId}
+UserManipulationPermissionDenied: You cannot edit the profile of another user!
+UserNickAlreadyForgiven: Sorry, but this nickname is already forgiven.
 NotTrustedUser: You are not a trusted user.
 
 TooltipVocabtrainCardShow: Show Card

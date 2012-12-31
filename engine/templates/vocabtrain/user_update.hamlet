@@ -1,0 +1,6 @@
+<form method=post action=@{UserUpdateR userId} enctype=#{userFormEnctype}>
+    <fieldset>
+        <legend>_{MsgUserUpdateHeader}
+        ^{userFormWidget}
+        <button type=submit .btn .btn-warning>_{MsgUserUpdate}
+

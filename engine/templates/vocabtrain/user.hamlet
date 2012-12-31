@@ -1,0 +1,8 @@
+<h1>
+    $maybe nick <- userNick user
+        _{MsgUserHeader nick}
+    $nothing
+        _{MsgNobodyHeader}
+$maybe aid <- maid
+    $if (userEmail user) == (userEmail $ entityVal aid)
+        <a href=@{UserUpdateR userId}>_{MsgUserUpdate}
