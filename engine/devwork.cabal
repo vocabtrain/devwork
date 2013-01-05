@@ -104,6 +104,8 @@ library
                  , base64-bytestring 
                  , HDBC-postgresql
                  , conduit
+                 , primitive
+                 , mwc-random
                  , persistent-template
                  , data-default
 

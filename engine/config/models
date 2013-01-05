@@ -2,6 +2,7 @@ User
 	email Text
     nick Text Maybe
     password Text Maybe
+	authToken Text Maybe
     UniqueUser email
 Entry
 	title Text
@@ -43,4 +44,20 @@ VocabTranslation id=_id sql=translations
 	comment Text Maybe sql=translation_comment
 	UniqueTranslation cardId language
 	deriving Show
-
+VocabFiling id=_id sql=filing
+	userId UserId DeleteCascade sql=filing_user_id
+	cardId VocabCardId DeleteCascade sql=filing_card_id
+	rank Int sql=filing_rank
+	session Int sql=filing_session
+	interval Int sql=filing_inteval
+	grades Int sql=filing_grades
+	priority Int sql=filing_priority
+	count Int sql=filing_count
+	difficulty Double sql=filing_difficulty
+	sequence Int sql=filing_sequence
+	UniqueFiling userId cardId sequence
+VocabFilingData id=_id sql=filing_data
+	timestamp UTCTime default=CURRENT_TIMESTAMP sql=filing_timestamp
+	session Int sql=filing_session
+	sequence Int sql=filing_sequence
+	UniqueFilingData sequence

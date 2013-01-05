@@ -953,7 +953,8 @@ userForm :: Text -> Maybe User -> AForm App App User
 userForm email muser = User
 	<$> pure email
 	<*> aopt textField (fieldSettingsLabel MsgFieldUserNick) (userNick <$> muser)
-	<*> aopt passwordField (fieldSettingsLabel MsgFieldUserPassword) (userPassword <$> muser)
+	<*> aopt passwordField (fieldSettingsLabel MsgFieldUserPassword) Nothing
+	<*> pure Nothing
 
 
 getUserUpdateR :: UserId -> GHandler App App RepHtml

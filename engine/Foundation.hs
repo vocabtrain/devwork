@@ -136,8 +136,11 @@ instance Yesod App where
 
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
-
+	
     -- route name, then a boolean indicating if it's a write request
+    isAuthorized VocabtrainMobileBooksR _ = return Authorized
+    isAuthorized VocabtrainMobileDownloadR _ = return Authorized
+    isAuthorized VocabtrainMobileDeltaR _ = return Authorized
     isAuthorized _ True = isUser
     isAuthorized _ False = return Authorized
 
@@ -205,7 +208,7 @@ instance YesodAuth App where
         case x of
             Just (Entity uid _) -> return $ Just uid
             Nothing -> do
-                fmap Just $ insert $ User (credsIdent creds) Nothing Nothing
+                fmap Just $ insert $ User (credsIdent creds) Nothing Nothing Nothing
 
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [authBrowserId, authGoogleEmail]
