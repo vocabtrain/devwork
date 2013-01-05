@@ -33,8 +33,11 @@ library
                      Handler.Beamer
                      Handler.Root
                      Handler.Vocabtrain
+                     Handler.VocabtrainMobile
                      Handler.Tatoeba
                      Generated
+                     PostGenerated
+                     ToAppMessage
                      MyQQ
 
     if flag(dev) || flag(library-only)
@@ -64,18 +67,18 @@ library
                  , yesod-auth                    >= 1.1        && < 1.2
                  , yesod-static                  >= 1.1        && < 1.2
                  , yesod-default                 >= 1.1        && < 1.2
-                 , yesod-form                    >= 1.1        && < 1.2
+                 , yesod-form                    >= 1.1        
                  , yesod-test                    >= 0.3        && < 0.4
                  , clientsession                 >= 0.8        && < 0.9
                  , bytestring                    >= 0.9        && < 0.10
                  , text                          >= 0.11       && < 0.12
-                 , persistent                    >= 1.0.2        && < 1.1
-                 , persistent-postgresql     >= 1.0.1        && < 1.1
-                 , persistent-sqlite     >= 1.0.1        && < 1.1
+                 , persistent                    >= 1.0.2        
+                 , persistent-postgresql     >= 1.0.1        
+                 , persistent-sqlite     >= 1.0.1       
                  , template-haskell
                  , hamlet                        >= 1.1        && < 1.2
                  , shakespeare-css               >= 1.0        && < 1.1
-                 , shakespeare-js                >= 1.0        && < 1.1
+                 , shakespeare-js                >= 1.0        
                  , shakespeare-text              >= 1.0        && < 1.1
                  , hjsmin                        >= 0.1        && < 0.2
                  , monad-control                 >= 0.3        && < 0.4

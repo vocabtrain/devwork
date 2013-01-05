@@ -104,7 +104,10 @@ instance Yesod App where
     -- default session idle timeout is 120 minutes
     makeSessionBackend _ = do
         key <- getKey "config/client_session_key.aes"
-        return . Just $ clientSessionBackend key 120
+        let timeout = 120 * 60 -- 120 minutes
+        (getCachedDate, _closeDateCache) <- clientSessionDateCacher timeout
+        return . Just $ clientSessionBackend2 key getCachedDate
+--        return . Just $ clientSessionBackend key timeout
 	
     --defaultLayout = globalLayout' "/dev/work"
     defaultLayout = globalLayout . (SheetLayout "/dev/work" Nothing Nothing)
@@ -240,24 +243,24 @@ instance YesodBreadcrumbs App where
 	breadcrumb TatoebaWebServiceR = return("Tatoeba Webservice", Just DKProjectHomeR)
 	breadcrumb BeamerSlidesR = return("Slides", Just DKProjectHomeR)
 	
-	breadcrumb VocabtrainBooksR = return("Vocabtrain", Just HomeR)
-	breadcrumb (VocabtrainBookUpdateR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookUpdate . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainBooksR)
-	breadcrumb (VocabtrainBookDeleteR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookDelete . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainBooksR)
+	breadcrumb VocabtrainR = return("Vocabtrain", Just HomeR)
+	breadcrumb (VocabtrainBookUpdateR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookUpdate . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
+	breadcrumb (VocabtrainBookDeleteR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookDelete . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
 
-	breadcrumb (VocabtrainChapterR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapter . fromRightText . fromPersistValue . unKey $ chapterId, Just VocabtrainBooksR)
-	breadcrumb (VocabtrainChapterInsertR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterInsert . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainChapterR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapter . fromRightText . fromPersistValue . unKey $ chapterId, Just VocabtrainR)
+	breadcrumb (VocabtrainChapterInsertR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterInsert . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
 	breadcrumb (VocabtrainChapterUpdateR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterUpdate . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
 	breadcrumb (VocabtrainChapterDeleteR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterDelete . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
 
 	breadcrumb (VocabtrainTranslationInsertR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationInsert . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
-	breadcrumb (VocabtrainTranslationUpdateR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationUpdate . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainBooksR)
-	breadcrumb (VocabtrainTranslationDeleteR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationDelete . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainTranslationUpdateR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationUpdate . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainR)
+	breadcrumb (VocabtrainTranslationDeleteR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationDelete . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainR)
 
 	breadcrumb (VocabtrainCardChapterAddR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardChapterAdd . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
 	breadcrumb (VocabtrainCardChapterInsertR cardId chapterId) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbCardChapterInsert (fromRightText . fromPersistValue . unKey $ cardId) (fromRightText . fromPersistValue . unKey $ chapterId), Just (VocabtrainChapterR chapterId))
 	breadcrumb (VocabtrainCardChaptersDeleteR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardChaptersDelete . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
 
-	breadcrumb (VocabtrainCardR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCard . fromRightText . fromPersistValue . unKey $ cardId, Just VocabtrainBooksR)
+	breadcrumb (VocabtrainCardR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCard . fromRightText . fromPersistValue . unKey $ cardId, Just VocabtrainR)
 	breadcrumb (VocabtrainCardInsertR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardInsert . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
 	breadcrumb (VocabtrainCardUpdateR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardUpdate . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
 	breadcrumb (VocabtrainCardDeleteR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardDelete . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))

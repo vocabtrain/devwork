@@ -1,73 +1,10 @@
 #!/bin/zsh
 
+p=`pwd`
 datadir=/home/niki/data/
 scriptdir=/home/niki/devwork/cron
 beamerpublicslidesdir=templates/beamer/public
 beamerprivateslidesdir=templates/beamer/private
-
-
-cat <<EOF
-module Generated
-	where
-
-import Prelude
-import Yesod (Route(..))
-import Settings.StaticFiles
-import qualified Yesod.Static
-import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Char as Char
-import qualified Data.List as List
-import Text.Hamlet (hamletFile)
-import Database.Persist.TH
-import Database.Persist
-import Text.Read
-import Text.ParserCombinators.ReadP hiding (choice)
-import Text.Blaze
-import Web.PathPieces
-
-class ShowText a where
-	showText :: a -> Text
-
-class (Show a, Read a) => BeamerSlide a where
-	getBeamerSlideTitle :: a -> Text
-	getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
-	getBeamerSlideWidget :: a -> t -> Markup
-
-data GalleryImage = GalleryImage 
-	{ galleryImageSource :: Route Yesod.Static.Static
-	, galleryImageThumbnail :: Route Yesod.Static.Static
-	}
-
-data JavaProject = JavaProject 
-	{ javaProjectId :: Int
-	, javaProjectName :: Text 
-	, javaProjectArchive :: Route Yesod.Static.Static
-	, javaProjectClass :: Text
-	, javaProjectWidth :: Int
-	, javaProjectHeight :: Int
-	, javaProjectDescription :: Route Yesod.Static.Static
-	}
-
-data QtProject = QtProject 
-	{ qtProjectId :: Int
-	, qtProjectName :: Text 
-	, qtProjectDescription :: Text
-	, qtProjectPackage :: Route Yesod.Static.Static
-	, qtProjectGalleryImage :: GalleryImage
-	}
-
-data WorkSheet = WorkSheet 
-	{ workSheetNumber :: Int
-	, workSheetSource :: Route Yesod.Static.Static
-	, workSheetDocument :: Route Yesod.Static.Static
-	}
-data OpenGLQtLesson = OpenGLQtLesson 
-	{ openGLQtLessonNumber :: Int
-	, openGLQtLessonPackage :: Route Yesod.Static.Static
-	, openGLQtLessonLink :: Text
-	}
-EOF
 
 function getOpenGLQtLessons
 {
@@ -159,6 +96,16 @@ function getJavaProjects
 	echo -n $a | sed 's@ @,@g'
 	echo "]"
 }
+function getTatoebaLanguagesPost
+{
+##toAppMessage
+	echo "instance ToAppMessage TatoebaLanguage where "
+	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
+		l=`echo $i | cut -d'@' -f1`
+		L=`echo $l | tr '[:lower:]' '[:upper:]'`
+		echo "\ttoAppMessage LANG_$L = MsgLang_$l"
+	done
+}
 
 function getTatoebaLanguages
 {
@@ -169,13 +116,6 @@ function getTatoebaLanguages
 	done
 	echo $a | sed 's@ @\n\t | @g'
 	echo "\tderiving(Eq,Enum,Bounded)"
-##toAppMessage
-#	echo "instance ToAppMessage TatoebaLanguage where "
-#	for i in `cat "$datadir/available_languages.txt" | sed 's@ @_@g'`; do
-#		l=`echo $i | cut -d'@' -f1`
-#		L=`echo $l | tr '[:lower:]' '[:upper:]'`
-#		echo "\ttoAppMessage LANG_$L = MsgLang_$l"
-#	done
 ##instance Read
 	echo "instance Read TatoebaLanguage where "
 	echo "\treadPrec = choice $ strValMap ["
@@ -225,13 +165,21 @@ function beamerSlides
 	done
 	echo $a | sed 's@ @|@g'
 	echo "\tderiving(Show,Eq,Read,Enum,Bounded)"
+}
+function beamerSlidesPost
+{
+	a=()
+	files=()
+	for i in `ls *.hamlet`; do
+		files+="$i"
+		e=`echo "$i:r" | tr '[a-z]' '[A-Z]'`
+		a+="BEAMER_SILDE_$e"
+	done
 	echo "instance BeamerSlide $1 where"
-#	echo "\tgetBeamerSlideWidget :: $1 -> t -> Markup"
-
 	max="$a[(I)$a[-1]]"
 	for i in `seq 1 $max`; do
 		e=`echo "$i:r" | tr '[a-z]' '[A-Z]'`
-		echo "\tgetBeamerSlideWidget $a[$i] = \$(hamletFile \"$2/$files[$i]\")"
+		echo "\tgetBeamerSlideWidget $a[$i] = \$(whamletFile \"$2/$files[$i]\")"
 	done
 }
 
@@ -247,24 +195,106 @@ EOF
 }
 
 
-getTatoebaLanguages
-
-p=`pwd`
-cd "$p/static/img/qtgallery" && getQtGalleryImages
-cd "$p/static/bin/projects/java" && getJavaProjects
-cd "$p/static/bin/projects/qt" && getQtProjects
-cd "$p/static/bin/script" && getWorksheets getJavaWorkSheets 'java_blatt'
-cd "$p/static/bin/script" && getWorksheets getQtWorkSheets 'qt_blatt'
-cd "$p/static/bin/pkg/nehe" && getOpenGLQtLessons
-cd "$p/$beamerpublicslidesdir" && beamerSlides "BeamerSlidePublic" "$beamerpublicslidesdir"
-cd "$p/$beamerprivateslidesdir" && beamerSlides "BeamerSlidePrivate" "$beamerprivateslidesdir"
-createPathPieceInstance TatoebaLanguage
-createPathPieceInstance BeamerSlidePrivate
-createPathPieceInstance BeamerSlidePublic
-
+function generateHs {
 cat <<EOF
+module Generated
+	where
+
+import Prelude
+import Yesod (Route(..))
+import Settings.StaticFiles
+import qualified Yesod.Static
+import Data.Text (Text)
+import qualified Data.Text as Text
+import Database.Persist.TH
+import Database.Persist
+import Text.Read
+import Text.ParserCombinators.ReadP hiding (choice)
+import Web.PathPieces
+
+class ShowText a where
+	showText :: a -> Text
+
+
+data GalleryImage = GalleryImage 
+	{ galleryImageSource :: Route Yesod.Static.Static
+	, galleryImageThumbnail :: Route Yesod.Static.Static
+	}
+
+data JavaProject = JavaProject 
+	{ javaProjectId :: Int
+	, javaProjectName :: Text 
+	, javaProjectArchive :: Route Yesod.Static.Static
+	, javaProjectClass :: Text
+	, javaProjectWidth :: Int
+	, javaProjectHeight :: Int
+	, javaProjectDescription :: Route Yesod.Static.Static
+	}
+
+data QtProject = QtProject 
+	{ qtProjectId :: Int
+	, qtProjectName :: Text 
+	, qtProjectDescription :: Text
+	, qtProjectPackage :: Route Yesod.Static.Static
+	, qtProjectGalleryImage :: GalleryImage
+	}
+
+data WorkSheet = WorkSheet 
+	{ workSheetNumber :: Int
+	, workSheetSource :: Route Yesod.Static.Static
+	, workSheetDocument :: Route Yesod.Static.Static
+	}
+data OpenGLQtLesson = OpenGLQtLesson 
+	{ openGLQtLessonNumber :: Int
+	, openGLQtLessonPackage :: Route Yesod.Static.Static
+	, openGLQtLessonLink :: Text
+	}
+EOF
+	getTatoebaLanguages
+
+	cd "$p/static/img/qtgallery" && getQtGalleryImages
+	cd "$p/static/bin/projects/java" && getJavaProjects
+	cd "$p/static/bin/projects/qt" && getQtProjects
+	cd "$p/static/bin/script" && getWorksheets getJavaWorkSheets 'java_blatt'
+	cd "$p/static/bin/script" && getWorksheets getQtWorkSheets 'qt_blatt'
+	cd "$p/static/bin/pkg/nehe" && getOpenGLQtLessons
+	cd "$p/$beamerpublicslidesdir" && beamerSlides "BeamerSlidePublic" "$beamerpublicslidesdir"
+	cd "$p/$beamerprivateslidesdir" && beamerSlides "BeamerSlidePrivate" "$beamerprivateslidesdir"
+	createPathPieceInstance TatoebaLanguage
+	createPathPieceInstance BeamerSlidePrivate
+	createPathPieceInstance BeamerSlidePublic
+} #GenerateHS
+
+function generatePostHs {
+cat  <<EOF
+module PostGenerated
+	where
+
+import Prelude
+import Yesod 
+import ToAppMessage
+import Foundation
+import Generated
+import Settings.StaticFiles
+import Data.Text (Text)
+import qualified Data.Text as Text
+import qualified Data.Char as Char
+import qualified Data.List as List
+
+class (Show a, Read a) => BeamerSlide a where
+	getBeamerSlideTitle :: a -> Text
+	getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
+	getBeamerSlideWidget :: a -> GWidget App App ()
 
 EOF
+	cd "$p/$beamerpublicslidesdir" && beamerSlidesPost "BeamerSlidePublic" "$beamerpublicslidesdir"
+	cd "$p/$beamerprivateslidesdir" && beamerSlidesPost "BeamerSlidePrivate" "$beamerprivateslidesdir"
+	getTatoebaLanguagesPost
+} # generatePostHs
+
+generateHs | tee "$p/Generated.hs"
+generatePostHs | tee "$p/PostGenerated.hs"
+
 #instance ToMarkup TatoebaLanguage where
 #	toMarkup = toMarkup . getTatoebaLanguageName
 

@@ -5,6 +5,7 @@ import Import
 import qualified Prelude
 import Text.Hamlet (hamletFile)
 import Handler.Dominik
+import PostGenerated
 
 beamerLayout :: Text -> GWidget App App () -> GHandler App App RepHtml
 beamerLayout title widget = do
@@ -31,7 +32,11 @@ getBeamerSlidesR = do
 getBeamerSlidePublicR :: BeamerSlidePublic -> GHandler App App RepHtml
 getBeamerSlidePublicR = getBeamerSlideR
 getBeamerSlidePrivateR :: BeamerSlidePrivate -> GHandler App App RepHtml
-getBeamerSlidePrivateR = getBeamerSlideR
+getBeamerSlidePrivateR slide = do
+	trusted <- isTrustedUser
+	case trusted of
+		Authorized -> getBeamerSlideR slide
+		_ -> permissionDenied "Login to obtain permission"
 
 getBeamerSlideR :: (BeamerSlide a) => a -> GHandler App App RepHtml
 getBeamerSlideR beamerslide = beamerLayout (getBeamerSlideTitle beamerslide) (toWidget $ getBeamerSlideWidget beamerslide)

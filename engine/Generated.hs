@@ -7,23 +7,15 @@ import Settings.StaticFiles
 import qualified Yesod.Static
 import Data.Text (Text)
 import qualified Data.Text as Text
-import qualified Data.Char as Char
-import qualified Data.List as List
-import Text.Hamlet (hamletFile)
 import Database.Persist.TH
 import Database.Persist
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
-import Text.Blaze
 import Web.PathPieces
 
 class ShowText a where
 	showText :: a -> Text
 
-class (Show a, Read a) => BeamerSlide a where
-	getBeamerSlideTitle :: a -> Text
-	getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
-	getBeamerSlideWidget :: a -> t -> Markup
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static
@@ -426,13 +418,8 @@ getOpenGLQtLessons :: [OpenGLQtLesson]
 getOpenGLQtLessons = [ OpenGLQtLesson{openGLQtLessonNumber=1,openGLQtLessonPackage=bin_pkg_nehe_lesson01_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=01"},OpenGLQtLesson{openGLQtLessonNumber=2,openGLQtLessonPackage=bin_pkg_nehe_lesson02_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=02"},OpenGLQtLesson{openGLQtLessonNumber=3,openGLQtLessonPackage=bin_pkg_nehe_lesson03_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=03"},OpenGLQtLesson{openGLQtLessonNumber=4,openGLQtLessonPackage=bin_pkg_nehe_lesson04_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=04"},OpenGLQtLesson{openGLQtLessonNumber=5,openGLQtLessonPackage=bin_pkg_nehe_lesson05_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=05"},OpenGLQtLesson{openGLQtLessonNumber=6,openGLQtLessonPackage=bin_pkg_nehe_lesson06_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=06"},OpenGLQtLesson{openGLQtLessonNumber=7,openGLQtLessonPackage=bin_pkg_nehe_lesson07_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=07"},OpenGLQtLesson{openGLQtLessonNumber=8,openGLQtLessonPackage=bin_pkg_nehe_lesson08_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=08"},OpenGLQtLesson{openGLQtLessonNumber=9,openGLQtLessonPackage=bin_pkg_nehe_lesson09_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=09"},OpenGLQtLesson{openGLQtLessonNumber=11,openGLQtLessonPackage=bin_pkg_nehe_lesson11_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=11"},OpenGLQtLesson{openGLQtLessonNumber=12,openGLQtLessonPackage=bin_pkg_nehe_lesson12_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=12"}]
 data BeamerSlidePublic = BEAMER_SILDE_TEST
 	deriving(Show,Eq,Read,Enum,Bounded)
-instance BeamerSlide BeamerSlidePublic where
-	getBeamerSlideWidget BEAMER_SILDE_TEST = $(hamletFile "templates/beamer/public/test.hamlet")
 data BeamerSlidePrivate = BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS|BEAMER_SILDE_SPEEDING_UP_GEO_PREFERENCES
 	deriving(Show,Eq,Read,Enum,Bounded)
-instance BeamerSlide BeamerSlidePrivate where
-	getBeamerSlideWidget BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS = $(hamletFile "templates/beamer/private/combined_pruning_level_of_better_than_graphs.hamlet")
-	getBeamerSlideWidget BEAMER_SILDE_SPEEDING_UP_GEO_PREFERENCES = $(hamletFile "templates/beamer/private/speeding_up_geo_preferences.hamlet")
 instance PathPiece TatoebaLanguage where
 	fromPathPiece text = case reads $ Text.unpack text of
 		[(x, "")] -> Just x
@@ -448,4 +435,3 @@ instance PathPiece BeamerSlidePublic where
 		[(x, "")] -> Just x
 		_ -> Nothing
 	toPathPiece = toPathPiece . Text.pack . show
-

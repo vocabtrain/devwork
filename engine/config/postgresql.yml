@@ -1,6 +1,6 @@
 Default: &defaults
-  user: postgres
-  password: 
+  user: niki
+  password: a
   host: localhost
   port: 5432
   database: devwork

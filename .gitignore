@@ -1,5 +1,6 @@
 cron/lucene_indexer/bin
 engine/static
+engine/yesod-devel
 engine/dist
 engine/nohup.out
 log

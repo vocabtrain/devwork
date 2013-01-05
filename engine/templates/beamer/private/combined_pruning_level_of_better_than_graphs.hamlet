@@ -19,7 +19,15 @@
         \\[ \pruninglevel{P}{a,b} \le \pruninglevel{P}{\comprun{a,b}} \]
         where
         \\[ \comprun{a,b} := ( \min\menge{a_i, b_i} )_\{1 \le i \le m} \]
-
+<div .slide>
+    <h1>Problem: \( \menge{ (a,b) : a_j,b_j \neq 0 \forall j } \not\subset \Omega \)
+    <p>
+        <b>Proof by Example. 
+        Consider a BTG of the dimensions \(5 \times 5 \times 5\). 
+        Then the pair \( \left( (1,1,4), (1,5,1) \right) \not\in \Omega \)
+    <div .incremental .slidy-image>
+        <img alt="BTG" src=@{StaticR img_slides_btg555_114_151a_jpg}>
+        <img alt="BTG" src=@{StaticR img_slides_btg555_114_151b_jpg}>
 <div .slide>
     <h1>Lemma: Can't combine zero
     <p>
@@ -35,6 +43,7 @@
     <p>
         With our formal definition it is obvious that:
     <ul .incremental>
+        <li> \( (a,b) \in \Omega \Rightarrow (b,a) \in \Omega \)
         <li> \( \pruninglevel{P}{a,b} \le \min \menge{ \pruninglevel{P}{a}, \pruninglevel{P}{b}} \)
         <li> \( \forall b \in \dom{a} \Rightarrow \pruninglevel{P}{a,b} = \pruninglevel{P}{a} \Rightarrow (a,b) \in \Omega \)
         <li>
@@ -85,3 +94,31 @@
         \\end{align*}
         Thus we have \( \pruninglevel{P}{a,b} = \pruninglevel{P}{\comprun{a,b}} \).
         \\( \qed \)
+<div .slide>
+    <h1>Multidimensional Problem
+    <p>For \( m > 2 \) we likely get some nasty behaviour:
+    <div .incremental .slidy-image>
+        <img alt="BTG" src=@{StaticR img_slides_btg262_001_110a_jpg}>
+        <img alt="BTG" src=@{StaticR img_slides_btg262_001_110b_jpg}>
+<div .slide>
+    <h1>The belly
+    <ul>
+        <li>
+            Problems with multidimensional BTGs seem to be releated with the belly of the BTG, where we define the belly as
+            \\[ B := \menge{ l = 0,..,\max P : \abs{ \menge{a \in \BTG{\nu} : \level{P}{a} = l}} = w_B } \]
+            where \( w_B \) the width of the belly is, defined as
+            \\[ w_B := \max_\{l = 0,..,\max P} \abs{ \menge{a \in \BTG{\nu} : \level{P}{a} = l}} \]
+        <li>Combinatorics: The belly is caused by the complex urn-problem #
+            <q>Take with putting back without order but under restriction
+            .
+        <li>In 2-dimensional BTGs, the size of the belly \( \abs{B} \) is always 1.
+        <li>Belly can be computed - see paper of Roland Glück's #
+            <q>Computational Aspects of Ordered Integer Partition with Upper Bounds
+            .
+<div .slide>
+    <h1>Outlook
+    <ul>
+        <li>2-dimensional BTGs seem dealable with heuristic approach (tested upwards to \(15 \times 15\))
+        <li>Heuristics fail in multidimensional BTGs with 'odd' bellys.
+        <li>Statistic analysis of the belly could be insightful
+

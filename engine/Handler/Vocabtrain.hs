@@ -2,18 +2,14 @@
 module Handler.Vocabtrain where
 
 import Import
+import ToAppMessage 
+import PostGenerated () 
 import CardType
 import qualified Prelude
 import qualified Data.Text as Text
-import Data.Aeson ((.:))
-import qualified Data.Aeson as JS
 import qualified Data.Ord as Ord
-import GHC.Generics
 import qualified Data.List as List
 
-import System.IO
-import System.Directory(getTemporaryDirectory, removeFile)
-import Control.Exception (catch, finally, IOException)
 import Data.Maybe
 
 --import Database.Persist.Query.Join.Sql (runJoin)
@@ -21,18 +17,11 @@ import Database.Persist.Query.Join (SelectOneMany (..), selectOneMany, runJoin)
 
 import Control.Monad
 
-import qualified Data.Conduit as C
-import qualified Data.Conduit.List as CL
-import qualified Data.ByteString as BS
-import Database.Persist.GenericSql.Raw (withStmt)
+import Database.Persist.GenericSql.Raw (SqlBackend)
 import Database.Persist.GenericSql
-import Database.Persist.Sqlite
 import Database.Persist.Store
 import Text.Hamlet
 
-import Data.Conduit.Lazy
-import qualified Data.Attoparsec.ByteString as JSP
-import Network.Wai (requestBody)
 import Data.Time (getCurrentTime) 
 
 import Control.Arrow
@@ -70,8 +59,8 @@ getTatoebaLanguageOptionList = do
 widgetVocabtrainBookCreate :: GWidget App App () -> Enctype -> GWidget App App ()
 widgetVocabtrainBookCreate bookFormWidget bookFormEnctype = toWidget $(whamletFile "templates/vocabtrain/book_create.hamlet") 
 
-getVocabtrainBooksR :: GHandler App App RepHtml
-getVocabtrainBooksR = do
+getVocabtrainR :: GHandler App App RepHtml
+getVocabtrainR = do
 	maid <- maybeAuth
 	bookResult <- runDB $ selectList [] [Asc VocabBookName] --VocabBookId ==. (Key $ toPersistValue (1::Int)) ] [] 
 	chapterResults <- forM bookResult (\bookEntity -> runDB $ selectList [VocabChapterBookId ==. (entityKey $ bookEntity)] [Asc VocabChapterVolume])
@@ -90,8 +79,8 @@ getVocabtrainBooksR = do
 
 
 
-postVocabtrainBooksR :: GHandler App App RepHtml
-postVocabtrainBooksR = do
+postVocabtrainBookR :: GHandler App App RepHtml
+postVocabtrainBookR = do
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
@@ -104,7 +93,7 @@ postVocabtrainBooksR = do
 					_ <- runDB $ insert book
 					$(logInfo) $ Text.concat [ "Insertion: ", userEmail $ entityVal $ aid , " -> ",Text.pack $ show book ]
 					setMessageI $ MsgBookCreated $ vocabBookName book
-					redirect $ VocabtrainBooksR
+					redirect $ VocabtrainR
 				_ -> vocabLayout $ do
 					setTitleI MsgBookPleaseCorrectEntry
 					widgetVocabtrainBookCreate bookFormWidget bookFormEnctype
@@ -129,10 +118,10 @@ postVocabtrainBookDeleteR bookId = do
 					_ <- runDB $ delete bookId
 					runDB $ deleteCascadeWhere [VocabChapterBookId ==. bookId]
 					setMessageI $ MsgBookDeleted $ vocabBookName $ fromJust book
-					redirect $ VocabtrainBooksR
+					redirect $ VocabtrainR
 				else do
 					setMessageI $ MsgBookNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey bookId
-					redirect $ VocabtrainBooksR
+					redirect $ VocabtrainR
 
 getVocabtrainBookUpdateR :: VocabBookId -> GHandler App App RepHtml
 getVocabtrainBookUpdateR bookId = do
@@ -154,7 +143,7 @@ postVocabtrainBookUpdateR bookId = do
 					_ <- runDB $ replace bookId book
 					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show book ]
 					setMessageI $ MsgBookUpdated $ vocabBookName book
-					redirect $ VocabtrainBooksR
+					redirect $ VocabtrainR
 				_ -> do
 					book <- runDB $ get bookId
 					vocabLayout $ do
@@ -221,10 +210,10 @@ postVocabtrainChapterDeleteR chapterId = do
 					_ <- runDB $ delete chapterId
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId]
 					setMessageI $ MsgChapterDeleted $ vocabChapterVolume chapter
-					redirect $ VocabtrainBooksR
+					redirect $ VocabtrainR
 				_ -> do
 					setMessageI $ MsgChapterNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey chapterId
-					redirect $ VocabtrainBooksR
+					redirect $ VocabtrainR
 
 getVocabtrainChapterUpdateR :: VocabChapterId -> GHandler App App RepHtml
 getVocabtrainChapterUpdateR chapterId = do
@@ -383,7 +372,7 @@ postVocabtrainTranslationInsertR cardId = do
 					_ <- runDB $ insert translation
 					$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation]
 					setMessageI $ MsgTranslationCreated $ vocabTranslationContent translation
-					redirectUltDest VocabtrainBooksR
+					redirectUltDest VocabtrainR
 				_ -> vocabLayout $ do
 					setTitleI MsgTranslationPleaseCorrectEntry
 					widgetVocabtrainTranslationCreate cardId translationFormWidget translationFormEnctype
@@ -409,10 +398,10 @@ deleteVocabtrainTranslationR translationId = do
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation]
 					_ <- runDB $ delete translationId
 					setMessageI $ MsgTranslationDeleted $ vocabTranslationContent translation
-					redirectUltDest VocabtrainBooksR
+					redirectUltDest VocabtrainR
 				_ -> do
 					setMessageI $ MsgTranslationNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey translationId
-					redirectUltDest VocabtrainBooksR
+					redirectUltDest VocabtrainR
 
 getVocabtrainTranslationUpdateR :: VocabTranslationId -> GHandler App App RepHtml
 getVocabtrainTranslationUpdateR translationId = do
@@ -435,7 +424,7 @@ postVocabtrainTranslationUpdateR translationId = do
 					_ <- runDB $ replace translationId translation'
 					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation', " old: ", Text.pack $ show translation ]
 					setMessageI $ MsgTranslationUpdated $ vocabTranslationContent translation'
-					redirectUltDest VocabtrainBooksR
+					redirectUltDest VocabtrainR
 				_ -> vocabLayout $ do
 						setTitleI MsgTranslationPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/translation_update.hamlet") 
@@ -546,10 +535,10 @@ postVocabtrainCardDeleteR cardId = do
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
 					_ <- runDB $ delete cardId
 					setMessageI $ MsgCardDeleted $ vocabCardScript card
-					redirectUltDest VocabtrainBooksR
+					redirectUltDest VocabtrainR
 				_ -> do
 					setMessageI $ MsgCardNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey cardId
-					redirectUltDest VocabtrainBooksR
+					redirectUltDest VocabtrainR
 
 cardChapterForm :: VocabCardId -> AForm App App [VocabChapterId]
 cardChapterForm cardId = areq (multiSelectField chapters) (fieldSettingsLabel MsgFieldChapters) Nothing
@@ -607,7 +596,7 @@ postVocabtrainCardUpdateR cardId = do
 							_ <- runDB $ replace cardId card'
 							$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card', " old: ", Text.pack $ show card]
 							setMessageI $ MsgCardUpdated $ vocabCardScript card'
-							redirectUltDest VocabtrainBooksR
+							redirectUltDest VocabtrainR
 						else invalidArgs [msgShow MsgCardUpdateToDuplicate]
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
@@ -628,7 +617,7 @@ postVocabtrainCardChaptersDeleteR cardId = do
 					_ <- runDB $ deleteWhere [VocabContentChapterId <-. cardChapters, VocabContentCardId ==. cardId ]
 					$(logInfo) $ Text.concat [ "Deleted Card from Chapters: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " chapters: ", Text.pack $ show cardChapters]
 					setMessageI $ MsgCardChaptersDeleted $ vocabCardScript $ fromJust card
-					redirect $ VocabtrainBooksR
+					redirect $ VocabtrainR
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/cardchapter_update.hamlet") 
@@ -720,7 +709,7 @@ getVocabtrainCardSearchPostR = do
 			getVocabtrainCardSearch searchPhrase Nothing
 		Nothing -> vocabLayout $ do
 			lift $ setMessageI MsgCardPleaseCorrectEntry
-			lift $ redirectUltDest VocabtrainBooksR
+			lift $ redirectUltDest VocabtrainR
 			
 getVocabtrainCardSearchR :: Text -> GHandler App App RepHtml
 getVocabtrainCardSearchR searchPhrase = getVocabtrainCardSearch searchPhrase Nothing
@@ -790,125 +779,6 @@ getVocabtrainBookSupplyR = jsonToRepJson $ JS.toJSON ([5]::[Int])
 -}
 
 --postVocabtrainBookSupplyR :: Handler RepPlain
-
-data BookSupply = BookSupply {
-	bookSupplyId :: Int,
-	bookSupplyName :: Text,
-	bookSupplyLanguage :: Text,
-	bookSupplyTimestamp :: Text,
-	bookSupplyTranslatedLanguages :: [Text]
-	}
-	deriving Show
-
-instance JS.FromJSON BookSupply where
-	parseJSON (JS.Object v) = BookSupply <$>
-		v .: "_id" <*>
-		v .: "book_name" <*>
-		v .: "book_language" <*>
-		v .: "book_timestamp" <*>
-		v .: "book_translations"
-	parseJSON _ = mzero
-
-
-instance JS.ToJSON BookSupply where
---	toJSON :: BookSupply -> JS.Value
-	toJSON book = JS.object [
-		("_id", JS.toJSON $ bookSupplyId book), 
-		("book_name", JS.toJSON $ bookSupplyName book), 
-		("book_language", JS.toJSON $ bookSupplyLanguage book), 
-		("book_timestamp", JS.toJSON $ bookSupplyTimestamp book), 
-		("book_translations", JS.toJSON $ bookSupplyTranslatedLanguages book)
-		]
-
-postVocabtrainBookSupplyR :: Handler RepJson
-postVocabtrainBookSupplyR = do
-	bookSupply <- getBookSupply
-	languageSupply <- getTranslationLanguageSupply
-	jsonToRepJson $ JS.object [ ("books", JS.toJSON bookSupply), ("translation_languages", JS.toJSON languageSupply)]
-	where
-		getBookSupply :: GHandler App App [BookSupply]
-		getBookSupply = do
-			bookResult <- runDB $ C.runResourceT $ withStmt
-				"SELECT _id, book_name, book_language, extract(epoch from book_timestamp) AS book_timestamp FROM books ORDER BY book_name ASC;"
-				[] C.$$ CL.consume
-			sequence $ map (\book -> do
-				languageResult <- runDB $ C.runResourceT $ withStmt
-					"select book_language from cache_book_translang where book_id = ?" 
-					[book !! 0] C.$$ CL.consume
-				return $ BookSupply 
-					(either (\_ -> -1) Prelude.id $ fromPersistValue (book !! 0)) 
-					(either (\_ -> ""::Text) Prelude.id $ fromPersistValue (book !! 1)) 
-					(either (\_ -> ""::Text) Prelude.id $ fromPersistValue (book !! 2)) 
-					(either (\_ -> ""::Text) Prelude.id $ fromPersistValue (book !! 3)) 
-					(map (\language -> either (\_ -> ""::Text) Prelude.id $ fromPersistValue (language !! 0)) languageResult)
-				) bookResult
-
-		getTranslationLanguageSupply :: GHandler App App [Text]
-		getTranslationLanguageSupply = do
-			languageResult <- runDB $ C.runResourceT $ withStmt
-				"SELECT book_language from cache_book_translang GROUP BY book_language" 
-				[] C.$$ CL.consume
-			return $ map (\language -> either (\_ -> "") Prelude.id $ fromPersistValue (language !! 0)) languageResult
-
-data DownloadRequest = DownloadRequest 
-	{ requestBooks :: [Int]
-	, requestLanguages :: [Text] -- TODO [TatoebaLanguage]
-	} deriving (Show, Generic)
-instance JS.FromJSON DownloadRequest where
-
-typeSqlite :: ContentType
-typeSqlite = "application/x-sqlite3"
-
-newtype RepOctet = RepOctet Content
-instance HasReps RepOctet where
-    chooseRep (RepOctet c) _ = return (typeOctet, c)
-newtype RepSqlite = RepSqlite Content
-instance HasReps RepSqlite where
-    chooseRep (RepSqlite c) _ = return (typeSqlite, c)
-
-postVocabtrainDownloadR :: GHandler App App RepSqlite
-postVocabtrainDownloadR = do
-	wr <- waiRequest
-	bss <- lift $ lazyConsume $ requestBody wr
-	let requestBodyString = BS.concat bss
-	let mayBeDecoded = JSP.parse JS.json requestBodyString
-	obtainParsed mayBeDecoded
-	where
-		obtainParsed :: JSP.IResult t JS.Value -> GHandler App App RepSqlite
-		obtainParsed (JSP.Fail _ _ err) = invalidArgs [Text.pack err]
-		obtainParsed (JSP.Partial _) = invalidArgs [ "Could only parse partial"::Text ]
-		obtainParsed (JSP.Done _ res) = readRequest $ (JS.fromJSON res :: JS.Result DownloadRequest)
-
-		readRequest :: JS.Result DownloadRequest -> GHandler App App RepSqlite
-		readRequest (JS.Error err) = invalidArgs [ Text.pack err ]
-		readRequest (JS.Success request) = do
-			bookResult <- runDB $ selectList [ VocabBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
-			chapterResult <- runDB $ selectList [ VocabChapterBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
-			contentResult <- runDB $ selectList [ VocabContentChapterId <-. ( map entityKey chapterResult)] []
-			cardResult <- runDB $ selectList [ VocabCardId <-. ( map (vocabContentCardId . entityVal) contentResult)] []
-			translationResult <- runDB $ selectList 
-				[ VocabTranslationCardId <-. ( map entityKey cardResult), 
-				VocabTranslationLanguage <-. ( map (read . Text.unpack) $ requestLanguages request)] []
-			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
-				withSqliteConn (Text.pack file) (\dbh -> do
-					_ <- ($) runSqlConn' dbh $ runMigrationSilent migrateAll
-					forM_ bookResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
-					forM_ chapterResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
-					forM_ contentResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
-					forM_ cardResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
-					forM_ translationResult (\row -> runSqlConn' dbh $ insert $ entityVal row)
-					)
-				content <- liftIO $ BS.hGetContents fileh
-				return $ RepSqlite $ toContent content
-				)	
-			where
-				runSqlConn' pers conn = runSqlConn conn pers
-
-withTempFile :: String -> (FilePath -> Handle -> IO a) -> IO a
-withTempFile pattern func = do
-	tempdir <- Control.Exception.catch getTemporaryDirectory (\e -> do print $ show (e :: IOException);  return "/tmp")
-	(tempfile, temph) <- openBinaryTempFile tempdir pattern 
-	finally (func tempfile temph) (hClose temph >> removeFile tempfile)
 
 
 {-
@@ -1064,189 +934,6 @@ tatoebaLanguageWidget lang = do
 	toWidget $ [hamlet|<i .flag-#{Text.pack $ show $ lang} title=#{msgShow $ toAppMessage lang} data-placement="bottom" rel="tooltip"> |]
 
 
-
-getCardTypeText :: (AppMessage -> Text) -> CardType -> Text
-getCardTypeText msgShow t = Text.intercalate " " $ map msgShow $ getCardTypeMessages t
-getCardTypeMessages :: CardType -> [AppMessage]
-getCardTypeMessages (CardTypeVerb secondary tertiary) = [toAppMessage CARDTYPE_VERB, toAppMessage secondary, toAppMessage tertiary]
-getCardTypeMessages (CardTypeAdjective secondary tertiary) = [toAppMessage CARDTYPE_ADJECTIVE, toAppMessage secondary, toAppMessage tertiary]
-getCardTypeMessages (CardTypeAdverb secondary tertiary) = [toAppMessage CARDTYPE_ADVERB, toAppMessage secondary, toAppMessage tertiary]
-getCardTypeMessages (CardTypeAdposition) = [toAppMessage CARDTYPE_ADPOSITION]
-getCardTypeMessages (CardTypeConjugation secondary) = [toAppMessage CARDTYPE_CONJUGATION, toAppMessage secondary]
-getCardTypeMessages (CardTypeAbbreviation) = [toAppMessage CARDTYPE_ABBREVIATION]
-getCardTypeMessages (CardTypeSaw) = [toAppMessage CARDTYPE_SAW]
-getCardTypeMessages (CardTypeNoun secondary) = [toAppMessage CARDTYPE_NOUN, toAppMessage secondary ]
-getCardTypeMessages _ = [toAppMessage CARDTYPE_UNKNOWN]
-
-class ToAppMessage a where
-	toAppMessage :: a -> AppMessage
-
-instance ToAppMessage VerbType where
-	toAppMessage CARDTYPE_VERB_NONE = MsgCardTypeNone
-	toAppMessage CARDTYPE_TRANSITIVE = MsgCardTypeTransitive
-	toAppMessage CARDTYPE_INTRANSITIVE = MsgCardTypeIntransitive
-	toAppMessage CARDTYPE_REFLEXIVE = MsgCardTypeReflexive
-
-instance ToAppMessage JapaneseVerbType where
-	toAppMessage CARDTYPE_JAPANESEVERB_NONE = MsgCardTypeNone
-	toAppMessage CARDTYPE_GODAN_DOUSHI = MsgCardTypeGodanDoushi
-	toAppMessage CARDTYPE_ICHIDAN_DOUSHI = MsgCardTypeIchidanDoushi
-	toAppMessage CARDTYPE_IRREGULAR_DOUSHI = MsgCardTypeIrregularDoushi
-
-instance ToAppMessage AdjectiveType where
-	toAppMessage CARDTYPE_ADJECTIVE_NONE = MsgCardTypeNone
-	toAppMessage CARDTYPE_COMPARATIVE = MsgCardTypeComparative
-	toAppMessage CARDTYPE_SUPERLATIVE = MsgCardTypeSuperlative
-
-instance ToAppMessage JapaneseAdjectiveType where
-	toAppMessage CARDTYPE_JAPANESEADJECTIVE_NONE = MsgCardTypeNone
-	toAppMessage CARDTYPE_NCARDTYPE_ADJECTIVE = MsgCardTypeNaAdjective
-	toAppMessage CARDTYPE_I_ADJECTIVE = MsgCardTypeIAdjective
-
-instance ToAppMessage ConjugationType where
-	toAppMessage CARDTYPE_CONJUGATION_NONE = MsgCardTypeNone
-	toAppMessage CARDTYPE_PREPOSITION = MsgCardTypePreposition
-	toAppMessage CARDTYPE_POSTPOSITION = MsgCardTypePostposition
-	toAppMessage CARDTYPE_PARTICLE = MsgCardTypeParticle
-
-instance ToAppMessage NounType where
-	toAppMessage CARDTYPE_NOUN_NONE = MsgCardTypeNone
-	toAppMessage CARDTYPE_FEMININE = MsgCardTypeFeminine
-	toAppMessage CARDTYPE_MASCULINE = MsgCardTypeMasculine
-	toAppMessage CARDTYPE_NEUTER = MsgCardTypeNeuter
-	toAppMessage CARDTYPE_FEMININE_PLURAL = MsgCardTypeFemininePlural
-	toAppMessage CARDTYPE_MASCULINE_PLURAL = MsgCardTypeMasculinePlural
-	toAppMessage CARDTYPE_NEUTER_PLURAL = MsgCardTypeNeuterPlural
-
-instance ToAppMessage CardTypePrimary where
-	toAppMessage CARDTYPE_UNKNOWN  = MsgCardTypeUnknown
-	toAppMessage CARDTYPE_VERB = MsgCardTypeVerb
-	toAppMessage CARDTYPE_ADJECTIVE = MsgCardTypeAdjective
-	toAppMessage CARDTYPE_ADVERB = MsgCardTypeAdverb
-	toAppMessage CARDTYPE_ADPOSITION = MsgCardTypeAdposition
-	toAppMessage CARDTYPE_CONJUGATION = MsgCardTypeConjugation
-	toAppMessage CARDTYPE_ABBREVIATION = MsgCardTypeAbbreviation
-	toAppMessage CARDTYPE_SAW = MsgCardTypeSaw
-	toAppMessage CARDTYPE_NOUN = MsgCardTypeNoun
-
-instance ToAppMessage TatoebaLanguage where 
-	toAppMessage LANG_ACM = MsgLang_acm
-	toAppMessage LANG_AFR = MsgLang_afr
-	toAppMessage LANG_AIN = MsgLang_ain
-	toAppMessage LANG_ANG = MsgLang_ang
-	toAppMessage LANG_ARA = MsgLang_ara
-	toAppMessage LANG_ARZ = MsgLang_arz
-	toAppMessage LANG_AST = MsgLang_ast
-	toAppMessage LANG_BEL = MsgLang_bel
-	toAppMessage LANG_BEN = MsgLang_ben
-	toAppMessage LANG_BER = MsgLang_ber
-	toAppMessage LANG_BOS = MsgLang_bos
-	toAppMessage LANG_BRE = MsgLang_bre
-	toAppMessage LANG_BUL = MsgLang_bul
-	toAppMessage LANG_CAT = MsgLang_cat
-	toAppMessage LANG_CES = MsgLang_ces
-	toAppMessage LANG_CHA = MsgLang_cha
-	toAppMessage LANG_CMN = MsgLang_cmn
-	toAppMessage LANG_CYCL = MsgLang_cycl
-	toAppMessage LANG_CYM = MsgLang_cym
-	toAppMessage LANG_DAN = MsgLang_dan
-	toAppMessage LANG_DEU = MsgLang_deu
-	toAppMessage LANG_DSB = MsgLang_dsb
-	toAppMessage LANG_ELL = MsgLang_ell
-	toAppMessage LANG_ENG = MsgLang_eng
-	toAppMessage LANG_EPO = MsgLang_epo
-	toAppMessage LANG_EST = MsgLang_est
-	toAppMessage LANG_EUS = MsgLang_eus
-	toAppMessage LANG_EWE = MsgLang_ewe
-	toAppMessage LANG_FAO = MsgLang_fao
-	toAppMessage LANG_FIN = MsgLang_fin
-	toAppMessage LANG_FRA = MsgLang_fra
-	toAppMessage LANG_FRY = MsgLang_fry
-	toAppMessage LANG_GLA = MsgLang_gla
-	toAppMessage LANG_GLE = MsgLang_gle
-	toAppMessage LANG_GLG = MsgLang_glg
-	toAppMessage LANG_GRN = MsgLang_grn
-	toAppMessage LANG_HEB = MsgLang_heb
-	toAppMessage LANG_HIN = MsgLang_hin
-	toAppMessage LANG_HRV = MsgLang_hrv
-	toAppMessage LANG_HSB = MsgLang_hsb
-	toAppMessage LANG_HUN = MsgLang_hun
-	toAppMessage LANG_HYE = MsgLang_hye
-	toAppMessage LANG_IDO = MsgLang_ido
-	toAppMessage LANG_ILE = MsgLang_ile
-	toAppMessage LANG_INA = MsgLang_ina
-	toAppMessage LANG_IND = MsgLang_ind
-	toAppMessage LANG_ISL = MsgLang_isl
-	toAppMessage LANG_ITA = MsgLang_ita
-	toAppMessage LANG_JBO = MsgLang_jbo
-	toAppMessage LANG_JPN = MsgLang_jpn
-	toAppMessage LANG_KAT = MsgLang_kat
-	toAppMessage LANG_KAZ = MsgLang_kaz
-	toAppMessage LANG_KOR = MsgLang_kor
-	toAppMessage LANG_KSH = MsgLang_ksh
-	toAppMessage LANG_KUR = MsgLang_kur
-	toAppMessage LANG_LAD = MsgLang_lad
-	toAppMessage LANG_LAT = MsgLang_lat
-	toAppMessage LANG_LIT = MsgLang_lit
-	toAppMessage LANG_LLD = MsgLang_lld
-	toAppMessage LANG_LVS = MsgLang_lvs
-	toAppMessage LANG_LZH = MsgLang_lzh
-	toAppMessage LANG_MAL = MsgLang_mal
-	toAppMessage LANG_MLG = MsgLang_mlg
-	toAppMessage LANG_MON = MsgLang_mon
-	toAppMessage LANG_MRI = MsgLang_mri
-	toAppMessage LANG_NAN = MsgLang_nan
-	toAppMessage LANG_NDS = MsgLang_nds
-	toAppMessage LANG_NLD = MsgLang_nld
-	toAppMessage LANG_NOB = MsgLang_nob
-	toAppMessage LANG_NON = MsgLang_non
-	toAppMessage LANG_NOV = MsgLang_nov
-	toAppMessage LANG_OCI = MsgLang_oci
-	toAppMessage LANG_ORV = MsgLang_orv
-	toAppMessage LANG_OSS = MsgLang_oss
-	toAppMessage LANG_PES = MsgLang_pes
-	toAppMessage LANG_PMS = MsgLang_pms
-	toAppMessage LANG_PNB = MsgLang_pnb
-	toAppMessage LANG_POL = MsgLang_pol
-	toAppMessage LANG_POR = MsgLang_por
-	toAppMessage LANG_QUE = MsgLang_que
-	toAppMessage LANG_QYA = MsgLang_qya
-	toAppMessage LANG_ROH = MsgLang_roh
-	toAppMessage LANG_RON = MsgLang_ron
-	toAppMessage LANG_RUS = MsgLang_rus
-	toAppMessage LANG_SAN = MsgLang_san
-	toAppMessage LANG_SCN = MsgLang_scn
-	toAppMessage LANG_SJN = MsgLang_sjn
-	toAppMessage LANG_SLK = MsgLang_slk
-	toAppMessage LANG_SLV = MsgLang_slv
-	toAppMessage LANG_SPA = MsgLang_spa
-	toAppMessage LANG_SQI = MsgLang_sqi
-	toAppMessage LANG_SRP = MsgLang_srp
-	toAppMessage LANG_SWE = MsgLang_swe
-	toAppMessage LANG_SWH = MsgLang_swh
-	toAppMessage LANG_TAT = MsgLang_tat
-	toAppMessage LANG_TEL = MsgLang_tel
-	toAppMessage LANG_TGL = MsgLang_tgl
-	toAppMessage LANG_THA = MsgLang_tha
-	toAppMessage LANG_TLH = MsgLang_tlh
-	toAppMessage LANG_TOKI = MsgLang_toki
-	toAppMessage LANG_TPI = MsgLang_tpi
-	toAppMessage LANG_TUR = MsgLang_tur
-	toAppMessage LANG_UIG = MsgLang_uig
-	toAppMessage LANG_UKR = MsgLang_ukr
-	toAppMessage LANG_UND = MsgLang_und
-	toAppMessage LANG_URD = MsgLang_urd
-	toAppMessage LANG_UZB = MsgLang_uzb
-	toAppMessage LANG_VIE = MsgLang_vie
-	toAppMessage LANG_VOL = MsgLang_vol
-	toAppMessage LANG_WUU = MsgLang_wuu
-	toAppMessage LANG_XAL = MsgLang_xal
-	toAppMessage LANG_XHO = MsgLang_xho
-	toAppMessage LANG_YID = MsgLang_yid
-	toAppMessage LANG_YUE = MsgLang_yue
-	toAppMessage LANG_ZSM = MsgLang_zsm
-
-
 -- Account
 
 getUserR :: UserId -> GHandler App App RepHtml
@@ -1312,22 +999,22 @@ postUserUpdateR userId = do
 								else do
 									if isNothing $ userNick newUser
 										then do
-											postUserUpdateR' newUser
+											postUserUpdateR' userId newUser
 										else do
 											userResult <- runDB $ selectList [ UserNick ==. userNick newUser, UserId !=. userId] [] 
 											if List.null userResult
-												then postUserUpdateR' newUser
+												then postUserUpdateR' userId newUser
 												else do
 													msgShow <- getMessageRender
 													permissionDenied $ msgShow MsgUserNickAlreadyForgiven
 						_ ->  do
 							setMessageI MsgPleaseCorrectEntry
 							vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/user_update.hamlet")
-	where
-		postUserUpdateR' :: UserGeneric SqlPersist -> GHandler App App RepHtml
-		postUserUpdateR' newUser = do
-			_ <- runDB $ replace userId newUser
-			$(logInfo) $ Text.concat [ "Update: ", userEmail newUser]
-			setMessageI $ maybe MsgNobodyUpdated (\t -> MsgUserUpdated t) $ userNick newUser
-			redirect $ VocabtrainBooksR
-		
+-- postUserUpdateR' :: UserId -> UserGeneric SqlPersist -> GHandler App App RepHtml
+postUserUpdateR' :: Key (UserGeneric SqlBackend) -> UserGeneric SqlBackend -> GHandler App App RepHtml
+postUserUpdateR' userId newUser = do
+	_ <- runDB $ replace userId newUser
+	$(logInfo) $ Text.concat [ "Update: ", userEmail newUser]
+	setMessageI $ maybe MsgNobodyUpdated (\t -> MsgUserUpdated t) $ userNick newUser
+	redirect $ VocabtrainR
+

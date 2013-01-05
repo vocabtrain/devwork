@@ -1,8 +1,11 @@
-<p id="top_titleicon" class="navbar-text pull-left">
+<p #top_titleicon .navbar-text .pull-left>
     <img .icon-myself alt="Icon" src=@{StaticR img_vocabtrain_icon_myself_png}>
     Vocabtrain
-<ul class="nav">
-    <li><a href=@{ VocabtrainBooksR}><i class="icon-book icon-white"></i> _{MsgBooks} </a>
+<ul .nav>
+    <li>
+        <a href=@{VocabtrainR}>
+            <i .icon-book .icon-white>
+            _{MsgBooks}
 <form .navbar-search method=get action=@{VocabtrainCardSearchPostR}>
     <input type="text" .search-query placeholder="_{MsgFieldSearchCard}" name="text">
     <button type="submit" .btn .btn-info>
