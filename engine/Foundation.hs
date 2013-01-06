@@ -141,6 +141,7 @@ instance Yesod App where
     isAuthorized VocabtrainMobileBooksR _ = return Authorized
     isAuthorized VocabtrainMobileDownloadR _ = return Authorized
     isAuthorized VocabtrainMobileDeltaR _ = return Authorized
+    isAuthorized VocabtrainMobileFilingUploadR _ = return Authorized
     isAuthorized _ True = isUser
     isAuthorized _ False = return Authorized
 

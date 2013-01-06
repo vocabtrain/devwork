@@ -43,6 +43,7 @@
 /vocabtrain/mobile/download VocabtrainMobileDownloadR POST
 /vocabtrain/mobile/auth VocabtrainMobileAuthTokenR GET
 /vocabtrain/mobile/delta VocabtrainMobileDeltaR POST
+/vocabtrain/mobile/filing/upload VocabtrainMobileFilingUploadR POST
 
 
 /vocabtrain/card/search/#Text VocabtrainCardSearchR GET

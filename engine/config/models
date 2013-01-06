@@ -49,7 +49,7 @@ VocabFiling id=_id sql=filing
 	cardId VocabCardId DeleteCascade sql=filing_card_id
 	rank Int sql=filing_rank
 	session Int sql=filing_session
-	interval Int sql=filing_inteval
+	interval Int sql=filing_interval
 	grades Int sql=filing_grades
 	priority Int sql=filing_priority
 	count Int sql=filing_count
@@ -57,7 +57,13 @@ VocabFiling id=_id sql=filing
 	sequence Int sql=filing_sequence
 	UniqueFiling userId cardId sequence
 VocabFilingData id=_id sql=filing_data
+	userId UserId DeleteCascade sql=filing_user_id
 	timestamp UTCTime default=CURRENT_TIMESTAMP sql=filing_timestamp
 	session Int sql=filing_session
 	sequence Int sql=filing_sequence
-	UniqueFilingData sequence
+	UniqueFilingData userId sequence
+VocabSelection id=_id sql=selection
+	userId UserId DeleteCascade sql=selection_user_id 
+	cardId VocabCardId DeleteCascade sql=selection_card_id
+	forgotten Bool default=False sql=selection_forgotten
+	UniqueSelection userId cardId

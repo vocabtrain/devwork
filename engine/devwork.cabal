@@ -105,6 +105,8 @@ library
                  , HDBC-postgresql
                  , conduit
                  , primitive
+                 , zlib
+--                 , zlib-conduit 
                  , mwc-random
                  , persistent-template
                  , data-default
