@@ -1,0 +1,18 @@
+<table .table>
+    <thead>
+        <tr>
+            <th>_{MsgFieldManipulationType}
+            <th>_{MsgFieldUserNick}
+            <th>_{MsgFieldTimestamp}
+            <th>_{MsgFieldContent}
+    <tbody>
+        $forall val <- values
+            <tr>
+                <td>^{userManipTypeWidget $ userManipType val}
+                <td>
+                    $maybe nick <- userManipUserNick val
+                            #{nick}
+                    $nothing
+                        _{MsgNobody}
+                <td>#{show $ userManipTimestamp val}
+                <td>#{userManipContent val}

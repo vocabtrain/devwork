@@ -21,6 +21,7 @@ BookDeleteHeader title@Text: Do you really want to delete the book #{title}?
 BookUpdateHeader title@Text: Update book #{title}
 BookPleaseCorrectEntry: Your submitted entry had some errors, please correct and try again.
 BookNotFound id@Int: The book ##{id} could not be found.
+BookLog: Book Log
 BookDelete: Delete Book
 BookEdit: Edit Book
 BookUpdate: Update Book
@@ -78,7 +79,8 @@ FieldSearchCard: Search Card
 CardFoundInTheFollowingChapters: Belongs to
 
 
-NobodyHeader: Anonym Profile
+Nobody: Anonymous
+NobodyHeader: Anonymous Coward
 UserHeader title@Text: User #{title}
 UserUpdate: Update User
 UserUpdated title@Text: User `#{title}` successfully updated.
@@ -92,6 +94,9 @@ UserManipulationPermissionDenied: You cannot edit the profile of another user!
 UserNickAlreadyForgiven: Sorry, but this nickname is already forgiven.
 NotTrustedUser: You are not a trusted user.
 
+BookLogHeader book@VocabBook: ChangeLog of book #{vocabBookName book}
+
+TooltipVocabtrainBookLogR: Show Changelog of this book
 TooltipVocabtrainCardShow: Show Card
 CardChapterCreated: Successfully added card to chapter.
 CardChapterInsert: Add Card
@@ -111,6 +116,8 @@ TooltipVocabtrainBookUpdateR: Update Book
 TooltipVocabtrainBookDeleteR: Delete Book
 TooltipVocabtrainChapterUpdateR: Update Chapter
 TooltipVocabtrainChapterDeleteR: Delete Chapter
+
+BookLastChanged time@UTCTime: The last change on this book was made on #{show time}
 
 CardTypeNone:
 CardTypeTransitive: trans.
@@ -298,6 +305,14 @@ LoginToPost: Admins can login to post
 NewEntry: Post to blog
 NewEntryTitle: Title
 NewEntryContent: Content
+
+FieldManipulationType: Type
+FieldTimestamp: Timestamp
+FieldContent: Content
+
+UserManipInsert: Inserted
+UserManipDelete: Deleted
+UserManipUpdate: Updated
 
 PleaseCorrectEntry: Your submitted entry had some errors, please correct and try again.
 EntryCreated title@Text: Your new blog post, #{title}, has been created

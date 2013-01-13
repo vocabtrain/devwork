@@ -12,10 +12,7 @@ import Database.Persist
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import Web.PathPieces
-
-class ShowText a where
-	showText :: a -> Text
-
+import ShowText
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static
@@ -416,7 +413,7 @@ getQtWorkSheets :: [WorkSheet]
 getQtWorkSheets = [ WorkSheet{workSheetNumber=1,workSheetSource=bin_script_qt_blatt1_tex,workSheetDocument=bin_script_qt_blatt1_pdf},WorkSheet{workSheetNumber=2,workSheetSource=bin_script_qt_blatt2_tex,workSheetDocument=bin_script_qt_blatt2_pdf},WorkSheet{workSheetNumber=3,workSheetSource=bin_script_qt_blatt3_tex,workSheetDocument=bin_script_qt_blatt3_pdf},WorkSheet{workSheetNumber=4,workSheetSource=bin_script_qt_blatt4_tex,workSheetDocument=bin_script_qt_blatt4_pdf},WorkSheet{workSheetNumber=5,workSheetSource=bin_script_qt_blatt5_tex,workSheetDocument=bin_script_qt_blatt5_pdf},WorkSheet{workSheetNumber=6,workSheetSource=bin_script_qt_blatt6_tex,workSheetDocument=bin_script_qt_blatt6_pdf},WorkSheet{workSheetNumber=7,workSheetSource=bin_script_qt_blatt7_tex,workSheetDocument=bin_script_qt_blatt7_pdf}]
 getOpenGLQtLessons :: [OpenGLQtLesson]
 getOpenGLQtLessons = [ OpenGLQtLesson{openGLQtLessonNumber=1,openGLQtLessonPackage=bin_pkg_nehe_lesson01_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=01"},OpenGLQtLesson{openGLQtLessonNumber=2,openGLQtLessonPackage=bin_pkg_nehe_lesson02_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=02"},OpenGLQtLesson{openGLQtLessonNumber=3,openGLQtLessonPackage=bin_pkg_nehe_lesson03_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=03"},OpenGLQtLesson{openGLQtLessonNumber=4,openGLQtLessonPackage=bin_pkg_nehe_lesson04_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=04"},OpenGLQtLesson{openGLQtLessonNumber=5,openGLQtLessonPackage=bin_pkg_nehe_lesson05_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=05"},OpenGLQtLesson{openGLQtLessonNumber=6,openGLQtLessonPackage=bin_pkg_nehe_lesson06_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=06"},OpenGLQtLesson{openGLQtLessonNumber=7,openGLQtLessonPackage=bin_pkg_nehe_lesson07_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=07"},OpenGLQtLesson{openGLQtLessonNumber=8,openGLQtLessonPackage=bin_pkg_nehe_lesson08_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=08"},OpenGLQtLesson{openGLQtLessonNumber=9,openGLQtLessonPackage=bin_pkg_nehe_lesson09_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=09"},OpenGLQtLesson{openGLQtLessonNumber=11,openGLQtLessonPackage=bin_pkg_nehe_lesson11_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=11"},OpenGLQtLesson{openGLQtLessonNumber=12,openGLQtLessonPackage=bin_pkg_nehe_lesson12_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=12"}]
-data BeamerSlidePublic = BEAMER_SILDE_TEST
+data BeamerSlidePublic = BEAMER_SILDE_SPEICHERANALYSE_VON_B_TREES|BEAMER_SILDE_TEST
 	deriving(Show,Eq,Read,Enum,Bounded)
 data BeamerSlidePrivate = BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS|BEAMER_SILDE_SPEEDING_UP_GEO_PREFERENCES
 	deriving(Show,Eq,Read,Enum,Bounded)

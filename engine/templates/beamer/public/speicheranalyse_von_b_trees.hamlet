@@ -1,0 +1,56 @@
+<div .slide>
+    <h1>Schichtenarchitektur
+    <p>
+        Eine Datenbank-Datei ist wie folgt gegliedert:
+        \\[ {\rm DB-Datei} \rightarrow {\rm Block} \rightarrow {\rm Seite} \rightarrow {\rm Satz} \rightarrow {\rm Feld} \]
+    <ul>
+        <li>Elementarste Einheit ist das Feld, eine Datenmenge
+        <li>Ein Satz besteht aus Feldern
+        <li>Eine Seite enthält mehrere Sätze (typisch 4 - 8 kB)
+        <li>Ein Block besteht aus aufeinanderfolgende Seiten (typisch 32kb, d.h. 4-8 Seiten)
+        <li>In einer Datenbankdatei sind Sätze des gleichen Typs abgespeichert
+
+<div .slide>
+    <h1>Speicher von B-Bäumen
+    <ul>
+        <li>Schlüssel mitsamt Informationen werden als Speicher (in kB)
+        <li>Aufteilen des Speichers in Seiten und Sätze.
+    <p>\(\Rightarrow\) Ein Knoten soll eine Seite groß sein.
+    Ein Knoten besteht aus \(l+1\) Zeigern \(p_i\) und \(l\) Daten \((\alpha_i, x_i)\):
+    <table border="1">
+        <tr>
+            <td>\(p_0\)
+            <td>\(x_1\)
+            <td>\(\alpha_1\)
+            <td>\(p_1\)
+            <td>...
+            <td>\(x_l\)
+            <td>\(\alpha_l\)
+            <td>\(p_l\)
+        <tr>
+            <td>
+            <td colspan="3">1 Seite
+            <td>...
+            <td colspan="3">1 Seite
+    <p>
+        wobei \( 1 \le l \le 2k \le 2l \) und ein Tupel \((x_i,\alpha_i,p_i)\) durch einen Satz repräsentiert wird.
+<div .slide>
+    <h1>Beispiel
+    <p>Gegeben:
+    <ul>
+        <li>\( 1 {\rm\; Seite} \hat{=} 256 {\rm\; Byte} \)
+        <li>Maximale Seitengröße: \( 1 {\rm\; kB} \)
+        <li>Höhe unseres Baums \(h := 1\)
+        <li>Wollen \(n := 40 {\rm\; Sätze} \) abspeichern
+    <p>Gesucht: Verzweigungsgrad \( k \in \N \)
+<div .slide>
+    <h1>Beispiel-Lösung
+    <p>Vorgehensweise:
+    <ul>
+        <li>Dreisatz: \( 1 {\rm\; Seite} \hat{=} 4 {\rm\; Sätze} := l \)
+        <li>1. Bedingung: \( l \le 2k \Leftrightarrow l \ge k \ge \frac{l}{2} = 2 \)
+        <li>Dreisatz: 
+            Wir wollen \( n {\rm\; Sätze} \hat{=} \frac{l}{n} {\rm\; Seiten} = 10 {\rm\; Seiten}\) abspeichern
+        <li>Ein Baum der Höhe \(h\) hat maximal \(2k+2\) Knoten (Wurzel + deren maximale Anzahl an Kinder)
+        <li>2. Bedingung: \( 2 + 2k = 10 \Leftrightarrow k = 4 \)
+        <li>Wir erhalten einen Baum \( \Gamma(4,1) \)

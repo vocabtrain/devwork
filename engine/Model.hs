@@ -8,6 +8,7 @@ import Database.Persist.Quasi
 import Data.Time (UTCTime, getCurrentTime)
 import Generated
 import CardType
+import UserManipType 
 import Database.Persist.Store
 {-
 data CardTypePrimary = CARDTYPE_VERB | CARDTYPE_NOUN deriving(Enum,Show,Eq,Read, Bounded)

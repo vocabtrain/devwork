@@ -2,6 +2,7 @@ module ToAppMessage where
 
 import Import
 import CardType
+import UserManipType
 import qualified Data.Text as Text
 
 
@@ -55,6 +56,12 @@ instance ToAppMessage CardTypePrimary where
 	toAppMessage CARDTYPE_ABBREVIATION = MsgCardTypeAbbreviation
 	toAppMessage CARDTYPE_SAW = MsgCardTypeSaw
 	toAppMessage CARDTYPE_NOUN = MsgCardTypeNoun
+
+
+instance ToAppMessage UserManipType where
+	toAppMessage USERMANIP_INSERT = MsgUserManipInsert
+	toAppMessage USERMANIP_DELETE = MsgUserManipDelete
+	toAppMessage USERMANIP_UPDATE = MsgUserManipUpdate
 
 getCardTypeText :: (AppMessage -> Text) -> CardType -> Text
 getCardTypeText msgShow t = Text.intercalate " " $ map msgShow $ getCardTypeMessages t

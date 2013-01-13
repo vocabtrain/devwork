@@ -280,8 +280,11 @@ postVocabtrainMobileBooksR = do
 				BasicAuthAuthorized userId -> do
 					muser <- runDB $ get userId
 					case muser of
-						Just user ->
-							return $ Just $ JS.object [("timestamp", JS.toJSON (0::Int))]
+						Just user -> do
+							timestampResult <- runDB $ C.runResourceT $ withStmt
+								"SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = ?;"
+								[unKey $ userId] C.$$ CL.consume
+							return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> "0"::Text) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
 						Nothing -> return Nothing
 				_ -> return Nothing
 
@@ -319,9 +322,30 @@ newtype RepSqlite = RepSqlite Content
 instance HasReps RepSqlite where
     chooseRep (RepSqlite c) _ = return (typeSqlite, c)
 
+getVocabtrainMobileFilingDownloadR :: GHandler App App RepSqlite
+getVocabtrainMobileFilingDownloadR = do
+	auth <- basicAuth -- TODO
+	case auth of 
+		BasicAuthAuthorized userId -> do
+			filingResult <- runDB $ selectList [ VocabFilingUserId ==. userId] []
+			filingDataResult <- runDB $ selectList [ VocabFilingDataUserId ==. userId] []
+			selectionResult <- runDB $ selectList [ VocabSelectionUserId ==. userId] []
+			liftIO $ withTempFile "filingdownload" (\ file fileh  -> do
+				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
+					_ <- runSqlConn' dbh $ runMigration migrateAll
+					forM_ filingResult $ \row -> runSqlConn' dbh $ insert $ entityVal row
+					forM_ filingDataResult $ \row -> runSqlConn' dbh $ insert $ entityVal row
+					forM_ selectionResult $ \row -> runSqlConn' dbh $ insert $ entityVal row
+				content <- liftIO $ BS.hGetContents fileh
+				return $ RepSqlite $ toContent content
+				)	
+			where
+				runSqlConn' pers conn = runSqlConn conn pers
+		_ -> permissionDenied ""
+
 postVocabtrainMobileFilingUploadR :: GHandler App App RepPlain
 postVocabtrainMobileFilingUploadR = do
-	auth <- basicAuth -- TODO
+	auth <- basicAuth
 	case auth of 
 		BasicAuthAuthorized userId -> do
 			wr <- waiRequest
@@ -356,14 +380,6 @@ postVocabtrainMobileFilingUploadR = do
 			where
 				runSqlConn' pers conn = runSqlConn conn pers
 		_ -> permissionDenied ""
-
-a :: [Entity VocabFiling] -> GHandler App App ()
-a filingList = do
-	mapM_ (\row -> runDB $ insert $ entityVal $ row) (filingList :: [Entity VocabFiling])
---		BSL.writeFile "output.gz" $ decompress $ BSL.fromChunks bss
---		return $ RepPlain $ toContent (""::Text)
-
-
 
 postVocabtrainMobileDownloadR :: GHandler App App RepSqlite
 postVocabtrainMobileDownloadR = do

@@ -22,6 +22,7 @@ module Foundation
     ) where
 
 import Prelude
+import Data.Time
 import Yesod
 import Yesod.Static
 import Yesod.Auth

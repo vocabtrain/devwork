@@ -25,7 +25,7 @@
         <b>Proof by Example. 
         Consider a BTG of the dimensions \(5 \times 5 \times 5\). 
         Then the pair \( \left( (1,1,4), (1,5,1) \right) \not\in \Omega \)
-    <div .incremental .slidy-image>
+    <div .incremental .slidy-image .slidy-image-single>
         <img alt="BTG" src=@{StaticR img_slides_btg555_114_151a_jpg}>
         <img alt="BTG" src=@{StaticR img_slides_btg555_114_151b_jpg}>
 <div .slide>
@@ -94,10 +94,92 @@
         \\end{align*}
         Thus we have \( \pruninglevel{P}{a,b} = \pruninglevel{P}{\comprun{a,b}} \).
         \\( \qed \)
+
 <div .slide>
-    <h1>Multidimensional Problem
+    <h1>Huge Gaps
+    <p>
+        Is the horizontal gap between two nodes \(a,b\) too huge, add a penalty to the pruning level in form of
+        \\[ P = \frac{d_h(a,b)}{2} \]
+        where \( d_h(a,b) \) is the horizontal distance between both nodes measured by node including the nodes themselves.
+    <div style="float:left; width: 30%">
+        <p>
+            Example: \( a := (6,9), b := (10,4) \in \BTG{10 \times 10} \)
+        <ul>
+            <li> \( \comprun{a,b} = (6,4) \)
+            <li> \( \pruninglevel{P}{\comprun{a,b}} = 15 < \pruninglevel{P}{a,b} = 18 \)
+            <li> Penalty: \( d_h(a,b) = 6 \)
+            <li> \( \pruninglevel{P}{\comprun{a,b}} + P = \pruninglevel{P}{a,b} = 18 \)
+    <div .incremental .slidy-image style="float:right; width: 40%">
+        <img alt="BTG" src=@{StaticR img_slides_btg_0609_1004_1010a_jpg}>
+        <img alt="BTG" src=@{StaticR img_slides_btg_0609_1004_1010b_jpg}>
+
+<div .slide>
+    <h1>Huge Gap: Heuristic
+    <p>This method is heuristic!
+    <p>Example: \( a := (1,10), b := (8,3) \in \BTG{10 \times 10} \)
+
+    <div style="float:left; width: 50%">
+        <ul>
+            <li> \( \comprun{a,b} = (1,3) \)
+            <li> \( \pruninglevel{P}{\comprun{a,b}} = 13 < \pruninglevel{P}{a,b} = 17 \)
+            <li> Penalty: \( d_h(a,b) = 5 \)
+            <li> \( \pruninglevel{P}{\comprun{a,b}} + P > \pruninglevel{P}{a,b} = 17 \)
+
+    <div .incremental .slidy-image style="float:right; width: 40%">
+        <img alt="BTG" src=@{StaticR img_slides_btg_0110_0803a_jpg}>
+        <img alt="BTG" src=@{StaticR img_slides_btg_0110_0803b_jpg}>
+
+<div .slide>
+    <h1>Assymmetric BTGs
+    <p>Definitions
+    <ul>
+        <li>A \( \BTG{\nu} \) is called assymetric if \( \exists i,j : \nu_i \neq \nu_j\).
+        <li>A node is called 0-node if one coordinate is equal to zero.
+
+        If g or b are 0-zero nodes of a assymetric BTG, then we
+        climb from the better node \(g\) down to the direction of the greatest difference between both nodes 
+        and count the steps \(s\) until we reach a node \(t\) that is on the same level as the worse node.
+        The penalty is calculated as 
+        \\[ P := \frac{l_1(b,t)}{2} + \max\menge{s-1,0} \]
+
+<div .slide>
+    <h1>Assymmetric BTGs: Example
+    <p>Example: \( a := (0,7), b := (1,1) \in \BTG{2 \times 10} \)
+    <ul>
+        <li> \( \comprun{a,b} = (0,1) \)
+        <li> \( \pruninglevel{P}{\comprun{a,b}} = 3 < \pruninglevel{P}{a,b} = 8 \)
+        <li> Penalty: \( P = 5  \)
+    <div .slidy-image style="float:right; width: 50%">
+        <img alt="BTG" src=@{StaticR img_slides_btg_007_101_210_jpg}>
+<div .slide>
+    <h1>Extremities
+    <p>Definitions
+    <ul>
+        <li>An extremal node is a node \(n\) holding that \(\exists j: n_j = 0 \vee n_j = \max P_j \)
+        <li>An upper node is a node \(n\) which holds \( \level{P}{n} < \frac{\max P}{2} \)
+    <p>
+        If a is an extremal node and b is an upper node or vice versa,
+        then we take a new pivot element \(n\) which holds
+        \\[ \pruninglevel{P}{n} = \min\menge{ \pruninglevel{P}{a}, \pruninglevel{P}{b}} - 1 \]
+        <div .slidy-image style="float:right; width: 40%">
+            <img alt="BTG" src=@{StaticR img_slides_btg_010_201_210_jpg}>
+
+<div .slide>
+    <h1>Combinations
+    <p>Example: \( a := (0,10), b := (1,2) \in \BTG{2 \times 10} \)
+    <ul>
+        <li>\( a \) is extremal node, \( b \) is upper node, so we have an extremity.
+        <li>We could use a node \( n = (0,8) \) that fulfills the extermity condition:
+            \\[ 10 = \pruninglevel{P}{n} = \min\menge{ \pruninglevel{P}{a}, \pruninglevel{P}{b}} - 1 \]
+        <li>But:
+            \\[ \pruninglevel{P}{n} = \min\menge{\level{P}{a}, \level{P}{b}} \]
+        <li> \( \Rightarrow \) we move \( n \) down, until
+            \\[ \pruninglevel{P}{n} > \min\menge{\level{P}{a}, \level{P}{b}} \]
+
+<div .slide>
+    <h1>The Multidimensional Problem
     <p>For \( m > 2 \) we likely get some nasty behaviour:
-    <div .incremental .slidy-image>
+    <div .incremental .slidy-image .slidy-image-single>
         <img alt="BTG" src=@{StaticR img_slides_btg262_001_110a_jpg}>
         <img alt="BTG" src=@{StaticR img_slides_btg262_001_110b_jpg}>
 <div .slide>

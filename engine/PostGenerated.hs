@@ -18,6 +18,7 @@ class (Show a, Read a) => BeamerSlide a where
 	getBeamerSlideWidget :: a -> GWidget App App ()
 
 instance BeamerSlide BeamerSlidePublic where
+	getBeamerSlideWidget BEAMER_SILDE_SPEICHERANALYSE_VON_B_TREES = $(whamletFile "templates/beamer/public/speicheranalyse_von_b_trees.hamlet")
 	getBeamerSlideWidget BEAMER_SILDE_TEST = $(whamletFile "templates/beamer/public/test.hamlet")
 instance BeamerSlide BeamerSlidePrivate where
 	getBeamerSlideWidget BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS = $(whamletFile "templates/beamer/private/combined_pruning_level_of_better_than_graphs.hamlet")

@@ -14,7 +14,6 @@ Comment
 	posted UTCTime
 	content Html
 	text Textarea
-
 VocabBook id=_id sql=books
 	name Text sql=book_name
 	language TatoebaLanguage sql=book_language
@@ -67,3 +66,10 @@ VocabSelection id=_id sql=selection
 	cardId VocabCardId DeleteCascade sql=selection_card_id
 	forgotten Bool default=False sql=selection_forgotten
 	UniqueSelection userId cardId
+VocabBookManip
+	userId UserId
+	bookId VocabBookId
+	type UserManipType
+	timestamp UTCTime default=CURRENT_TIMESTAMP
+	content Text
+	deriving Show

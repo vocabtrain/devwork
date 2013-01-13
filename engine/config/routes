@@ -17,6 +17,7 @@
 
 /vocabtrain VocabtrainR GET
 /vocabtrain/book VocabtrainBookR POST
+/vocabtrain/books/log/#VocabBookId VocabtrainBookLogR GET
 /vocabtrain/books/update/#VocabBookId VocabtrainBookUpdateR GET POST
 /vocabtrain/books/delete/#VocabBookId VocabtrainBookDeleteR GET POST
 

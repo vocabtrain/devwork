@@ -21,6 +21,11 @@
                                     <a href=@{VocabtrainBookDeleteR $ bookId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainBookDeleteR}">
                                         <i .icon-trash>
                                         _{MsgBookDelete}
+                                <li>
+                                    <a href=@{VocabtrainBookLogR $ bookId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainBookLogR}">
+                                        <i .icon-calendar>
+                                        _{MsgBookLog}
+                    <p>_{MsgBookLastChanged $ vocabBookTimestamp $ entityVal $ fst result}
                     <h3>_{MsgChapterListHeader}
                     <ol>
                         $forall chapterEntity <- snd result

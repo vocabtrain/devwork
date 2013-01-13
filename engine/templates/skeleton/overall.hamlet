@@ -21,7 +21,9 @@ $newline never
                         <div .nav-collapse .collapse>
                             <p .navbar-text .pull-right>
                                 $maybe aid <- maid
-                                    <a href=@{UserUpdateR aid}>Profile
+                                    <a href=@{UserUpdateR aid} .navbar-link>
+                                        <i .icon-user .icon-white>
+                                        Profile
                                     <span> # 
                                     <a href=@{AuthR LogoutR} .navbar-link>Logout
                                 $nothing

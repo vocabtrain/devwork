@@ -24,18 +24,12 @@ dominikLayoutSheet widget = SheetLayout {
 	}
 
 courseLayout :: GWidget App App () -> GHandler App App RepHtml
-courseLayout widget = globalLayout $ SheetLayout { 
-	  sheetTitle = sheetTitle $ dominikLayoutSheet widget
-	, sheetNav = Just $(ihamletFile "templates/dominik/navcourse.hamlet")
-	, sheetBanner =  sheetBanner $ dominikLayoutSheet widget
-	, sheetContent = sheetContent $ dominikLayoutSheet widget
+courseLayout widget = globalLayout $ (dominikLayoutSheet widget) { 
+	 sheetNav = Just $(ihamletFile "templates/dominik/navcourse.hamlet")
 	}
 projectLayout :: GWidget App App () -> GHandler App App RepHtml
-projectLayout widget = globalLayout $ SheetLayout { 
-	  sheetTitle = sheetTitle $ dominikLayoutSheet widget
-	, sheetNav = Just $(ihamletFile "templates/dominik/navproject.hamlet")
-	, sheetBanner =  sheetBanner $ dominikLayoutSheet widget
-	, sheetContent = sheetContent $ dominikLayoutSheet widget
+projectLayout widget = globalLayout $ (dominikLayoutSheet widget) { 
+	 sheetNav = Just $(ihamletFile "templates/dominik/navproject.hamlet")
 	}
 
 

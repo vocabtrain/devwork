@@ -5,6 +5,8 @@ import Import
 import ToAppMessage 
 import PostGenerated () 
 import CardType
+import UserManipType
+import UserManipLog
 import qualified Prelude
 import qualified Data.Text as Text
 import qualified Data.Ord as Ord
@@ -69,11 +71,8 @@ getVocabtrainR = do
 	(bookFormWidget, bookFormEnctype) <- generateFormPost $ renderDivs $ bookForm Nothing
 
 	widgetBook <- widgetToPageContent $ widgetVocabtrainBookCreate bookFormWidget bookFormEnctype
-	let vocabBookLayout widget = globalLayout $ SheetLayout { 
-				  sheetTitle = sheetTitle $ vocabLayoutSheet widget
-				, sheetNav = Just $(ihamletFile "templates/vocabtrain/navbook.hamlet")
-				, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
-				, sheetContent = sheetContent $ vocabLayoutSheet widget
+	let vocabBookLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
+				 sheetNav = Just $(ihamletFile "templates/vocabtrain/navbook.hamlet")
 				}
 	vocabBookLayout $ toWidget $(whamletFile "templates/vocabtrain/books.hamlet") 
 
@@ -90,7 +89,8 @@ postVocabtrainBookR = do
 			((result, bookFormWidget), bookFormEnctype) <- runFormPost $ renderDivs $ bookForm Nothing
 			case result of
 				FormSuccess book -> do -- vocabLayout [whamlet|<p>#{show book}|]
-					_ <- runDB $ insert book
+					bookId <- runDB $ insert book
+					_ <- runDB $ insert $ VocabBookManip (entityKey aid) bookId USERMANIP_INSERT (vocabBookTimestamp book) $ vocabBookName book
 					$(logInfo) $ Text.concat [ "Insertion: ", userEmail $ entityVal $ aid , " -> ",Text.pack $ show book ]
 					setMessageI $ MsgBookCreated $ vocabBookName book
 					redirect $ VocabtrainR
@@ -111,15 +111,16 @@ postVocabtrainBookDeleteR bookId = do
 			msgShow <- getMessageRender
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
-			book <- runDB $ get bookId
-			if isJust book 
-				then do
+			mbook <- runDB $ get bookId
+			case mbook of
+				Just book -> do
 					$(logInfo) $ Text.concat [ "Deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show book ]
 					_ <- runDB $ delete bookId
+					_ <- runDB $ insert $ VocabBookManip (entityKey aid) bookId USERMANIP_DELETE (vocabBookTimestamp book) ""
 					runDB $ deleteCascadeWhere [VocabChapterBookId ==. bookId]
-					setMessageI $ MsgBookDeleted $ vocabBookName $ fromJust book
+					setMessageI $ MsgBookDeleted $ vocabBookName book
 					redirect $ VocabtrainR
-				else do
+				Nothing -> do
 					setMessageI $ MsgBookNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey bookId
 					redirect $ VocabtrainR
 
@@ -142,6 +143,7 @@ postVocabtrainBookUpdateR bookId = do
 				FormSuccess book -> do -- vocabLayout [whamlet|<p>#{show book}|]
 					_ <- runDB $ replace bookId book
 					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show book ]
+					_ <- runDB $ insert $ VocabBookManip (entityKey aid) bookId USERMANIP_UPDATE (vocabBookTimestamp book) $ vocabBookName book
 					setMessageI $ MsgBookUpdated $ vocabBookName book
 					redirect $ VocabtrainR
 				_ -> do
@@ -150,9 +152,24 @@ postVocabtrainBookUpdateR bookId = do
 						setTitleI MsgBookPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/book_update.hamlet") 
 
+getVocabtrainBookLogR :: VocabBookId -> GHandler App App RepHtml
+getVocabtrainBookLogR bookId = do
+	mbook <- runDB $ get bookId
+	case mbook of
+		Nothing -> notFound
+		Just book -> do
+			bookLogs <- runDB $ selectList [ VocabBookManipBookId ==. bookId] [Desc VocabBookManipTimestamp]
+			vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/book_log.hamlet") 
+
+widgetVocabtrainUserManipLog :: ToUserManipLog a => [Entity a] -> GWidget App App ()
+widgetVocabtrainUserManipLog entityValues = do
+	values <- mapM (lift . toUserManipLog . entityVal) entityValues
+	toWidget $(whamletFile "templates/vocabtrain/log.hamlet") 
+
 {-
 -- Chapter Form
 -}
+
 
 
 chapterForm :: Maybe VocabChapter -> VocabBookId -> AForm App App VocabChapter
@@ -278,11 +295,8 @@ getVocabtrainChapterR chapterId = do
 	
 	setUltDestCurrent
 	widgetChapter <- widgetToPageContent $ widgetVocabtrainChapterCreate' $ vocabChapterBookId chapter
-	let vocabChapterLayout widget = globalLayout $ SheetLayout { 
-				  sheetTitle = sheetTitle $ vocabLayoutSheet widget
-				, sheetNav = Just $(ihamletFile "templates/vocabtrain/navchapter.hamlet")
-				, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
-				, sheetContent = sheetContent $ vocabLayoutSheet widget
+	let vocabChapterLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
+				 sheetNav = Just $(ihamletFile "templates/vocabtrain/navchapter.hamlet")
 				}
 	let cardListExtraButtonWidget = Just $ widgetCardListTatoebaSearch $ vocabBookLanguage book
 	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
@@ -306,11 +320,8 @@ getVocabtrainCardR cardId = do
 				{ somOrderOne = [Asc VocabBookName]
 				, somFilterMany = [ VocabChapterId <-. (map (vocabContentChapterId . entityVal) contentResults) ]
 				}
-			let vocabCardLayout widget = globalLayout $ SheetLayout { 
-						  sheetTitle = sheetTitle $ vocabLayoutSheet widget
-						, sheetNav = Just $(ihamletFile "templates/vocabtrain/navcard.hamlet")
-						, sheetBanner =  sheetBanner $ vocabLayoutSheet widget
-						, sheetContent = sheetContent $ vocabLayoutSheet widget
+			let vocabCardLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
+						 sheetNav = Just $(ihamletFile "templates/vocabtrain/navcard.hamlet")
 						}
 			vocabCardLayout $ toWidget $(whamletFile "templates/vocabtrain/card.hamlet") 
 
