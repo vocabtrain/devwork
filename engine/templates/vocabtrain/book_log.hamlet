@@ -1,2 +1,2 @@
-<h1>_{MsgBookLogHeader book}
+<h1>_{MsgBookLogHeader $ vocabBookName book}
 ^{widgetVocabtrainUserManipLog bookLogs}

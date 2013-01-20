@@ -73,3 +73,24 @@ VocabBookManip
 	timestamp UTCTime default=CURRENT_TIMESTAMP
 	content Text
 	deriving Show
+VocabChapterManip
+	userId UserId
+	chapterId VocabChapterId
+	type UserManipType
+	timestamp UTCTime default=CURRENT_TIMESTAMP
+	content Text
+	deriving Show
+VocabTranslationManip
+	userId UserId
+	translationId VocabTranslationId
+	type UserManipType
+	timestamp UTCTime default=CURRENT_TIMESTAMP
+	content Text
+	deriving Show
+VocabCardManip
+	userId UserId
+	cardId VocabCardId
+	type UserManipType
+	timestamp UTCTime default=CURRENT_TIMESTAMP
+	content Text
+	deriving Show

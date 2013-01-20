@@ -3,7 +3,7 @@ module UserManipLog where
 
 import Data.Time
 import UserManipType
-import Data.Text (Text)
+--import Data.Text (Text)
 import Import
 import ToAppMessage
 
@@ -24,18 +24,51 @@ getUserNick userId = do
 		Nothing -> return Nothing
 
 instance ToUserManipLog VocabBookManip where
-	toUserManipLog log = do
-		nick <- getUserNick $ vocabBookManipUserId log
+	toUserManipLog manipLog= do
+		nick <- getUserNick $ vocabBookManipUserId manipLog 
 		return UserManipLog
 			{ userManipUserNick = nick
-			, userManipType = vocabBookManipType log
-			, userManipTimestamp = vocabBookManipTimestamp log
-			, userManipContent = vocabBookManipContent log
+			, userManipType = vocabBookManipType manipLog
+			, userManipTimestamp = vocabBookManipTimestamp manipLog
+			, userManipContent = vocabBookManipContent manipLog
 			}
+
+instance ToUserManipLog VocabChapterManip where
+	toUserManipLog manipLog= do
+		nick <- getUserNick $ vocabChapterManipUserId manipLog 
+		return UserManipLog
+			{ userManipUserNick = nick
+			, userManipType = vocabChapterManipType manipLog
+			, userManipTimestamp = vocabChapterManipTimestamp manipLog
+			, userManipContent = vocabChapterManipContent manipLog
+			}
+instance ToUserManipLog VocabTranslationManip where
+	toUserManipLog manipLog= do
+		nick <- getUserNick $ vocabTranslationManipUserId manipLog 
+		return UserManipLog
+			{ userManipUserNick = nick
+			, userManipType = vocabTranslationManipType manipLog
+			, userManipTimestamp = vocabTranslationManipTimestamp manipLog
+			, userManipContent = vocabTranslationManipContent manipLog
+			}
+instance ToUserManipLog VocabCardManip where
+	toUserManipLog manipLog= do
+		nick <- getUserNick $ vocabCardManipUserId manipLog 
+		return UserManipLog
+			{ userManipUserNick = nick
+			, userManipType = vocabCardManipType manipLog
+			, userManipTimestamp = vocabCardManipTimestamp manipLog
+			, userManipContent = vocabCardManipContent manipLog
+			}
+
+
+
 getUserManipTypeIcon :: UserManipType -> Text
 getUserManipTypeIcon USERMANIP_INSERT = "icon-file"
 getUserManipTypeIcon USERMANIP_UPDATE = "icon-refresh"
 getUserManipTypeIcon USERMANIP_DELETE = "icon-trash"
+getUserManipTypeIcon USERMANIP_PUT = "icon-star"
+getUserManipTypeIcon USERMANIP_REMOVE = "icon-star-empty"
 
 userManipTypeWidget :: UserManipType -> GWidget App App()
 userManipTypeWidget t = do

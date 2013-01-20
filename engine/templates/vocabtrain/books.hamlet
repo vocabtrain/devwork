@@ -38,6 +38,8 @@
                                             <i .icon-edit>
                                         <a href=@{VocabtrainChapterDeleteR chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainChapterDeleteR}">
                                             <i .icon-trash>
+                                        <a href=@{VocabtrainChapterLogR $ chapterId} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainChapterLogR}">
+                                            <i .icon-calendar>
                     $maybe _ <- maid
                         ^{widgetVocabtrainChapterCreate' $ entityKey $ fst result}
 

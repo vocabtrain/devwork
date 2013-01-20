@@ -13,6 +13,7 @@ module Foundation
     , requireAuth
     , module Settings
     , module Model
+	, fromRightText
     , getExtra
 	, widgetToHtmlUrlI
 	, hamletToHtmlUrlI

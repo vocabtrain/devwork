@@ -57,7 +57,7 @@ sort -b "$datadir/available_languages.txt" | uniq > "$datadir/available_language
 mv "$datadir/available_languages.txt2" "$datadir/available_languages.txt"
 cp "$scriptdir/sphinx.conf.head"  "$datadir/sphinx.conf"
 ./genSphinxConf "$database" >> "$datadir/sphinx.conf"
-mkdir -p "$datadir/sphinx"
+mkdir -p "$datadir/sphinx/vocabtrain"
 indexer --config "$datadir/sphinx.conf" --all
 searchd --config "$datadir/sphinx.conf" 
 

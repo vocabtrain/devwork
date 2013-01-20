@@ -94,8 +94,14 @@ UserManipulationPermissionDenied: You cannot edit the profile of another user!
 UserNickAlreadyForgiven: Sorry, but this nickname is already forgiven.
 NotTrustedUser: You are not a trusted user.
 
-BookLogHeader book@VocabBook: ChangeLog of book #{vocabBookName book}
+BookLogHeader title@Text: ChangeLog of book #{title}
+ChapterLogHeader title@Text: ChangeLog of chapter #{title}
+TranslationLogHeader title@Text: ChangeLog of translation #{title}
+CardLogHeader title@Text: ChangeLog of card #{title}
 
+TooltipVocabtrainTranslationLogR: Show Changelog of this translation
+TooltipVocabtrainCardLogR: Show Changelog of this card
+TooltipVocabtrainChapterLogR: Show Changelog of this chapter
 TooltipVocabtrainBookLogR: Show Changelog of this book
 TooltipVocabtrainCardShow: Show Card
 CardChapterCreated: Successfully added card to chapter.
@@ -313,6 +319,8 @@ FieldContent: Content
 UserManipInsert: Inserted
 UserManipDelete: Deleted
 UserManipUpdate: Updated
+UserManipPut: Put
+UserManipRemove: Remove
 
 PleaseCorrectEntry: Your submitted entry had some errors, please correct and try again.
 EntryCreated title@Text: Your new blog post, #{title}, has been created

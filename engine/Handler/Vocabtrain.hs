@@ -63,6 +63,7 @@ widgetVocabtrainBookCreate bookFormWidget bookFormEnctype = toWidget $(whamletFi
 
 getVocabtrainR :: GHandler App App RepHtml
 getVocabtrainR = do
+	setUltDestCurrent
 	maid <- maybeAuth
 	bookResult <- runDB $ selectList [] [Asc VocabBookName] --VocabBookId ==. (Key $ toPersistValue (1::Int)) ] [] 
 	chapterResults <- forM bookResult (\bookEntity -> runDB $ selectList [VocabChapterBookId ==. (entityKey $ bookEntity)] [Asc VocabChapterVolume])
@@ -201,6 +202,7 @@ postVocabtrainChapterInsertR bookId = do
 			case result of
 				FormSuccess chapter -> do 
 					chapterId <- runDB $ insert chapter
+					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_INSERT time $ vocabChapterVolume chapter)
 					$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapter]
 					setMessageI $ MsgChapterCreated $ vocabChapterVolume chapter
 					redirect $ VocabtrainChapterR chapterId
@@ -226,6 +228,7 @@ postVocabtrainChapterDeleteR chapterId = do
 				Just chapter -> do
 					_ <- runDB $ delete chapterId
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId]
+					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_DELETE time "" )
 					setMessageI $ MsgChapterDeleted $ vocabChapterVolume chapter
 					redirect $ VocabtrainR
 				_ -> do
@@ -252,6 +255,7 @@ postVocabtrainChapterUpdateR chapterId = do
 			case result of
 				FormSuccess chapter' -> do 
 					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ",Text.pack $ show chapter', " old: ", Text.pack $ show chapter ]
+					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_UPDATE time $ vocabChapterVolume chapter')
 					_ <- runDB $ replace chapterId chapter'
 					setMessageI $ MsgChapterUpdated $ vocabChapterVolume chapter'
 					redirect $ VocabtrainChapterR chapterId
@@ -349,6 +353,15 @@ getVocabtrainCardR cardId = do
 
 -}
 
+getVocabtrainChapterLogR :: VocabChapterId -> GHandler App App RepHtml
+getVocabtrainChapterLogR chapterId = do
+	mchapter <- runDB $ get chapterId
+	case mchapter of
+		Nothing -> notFound
+		Just chapter -> do
+			chapterLogs <- runDB $ selectList [ VocabChapterManipChapterId ==. chapterId] [Desc VocabChapterManipTimestamp]
+			vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter_log.hamlet") 
+
 {-
 -- Translation Form
 -}
@@ -380,8 +393,11 @@ postVocabtrainTranslationInsertR cardId = do
 			((result, translationFormWidget), translationFormEnctype) <- runFormPost $ renderDivs $ translationForm Nothing cardId
 			case result of
 				FormSuccess translation -> do 
-					_ <- runDB $ insert translation
+					translationId <- runDB $ insert translation
 					$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation]
+					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabTranslationManip (entityKey aid) translationId USERMANIP_INSERT time $ 
+						Text.intercalate " ," $ catMaybes $ map (\c -> c translation) [Just . vocabTranslationContent, vocabTranslationComment]
+						)
 					setMessageI $ MsgTranslationCreated $ vocabTranslationContent translation
 					redirectUltDest VocabtrainR
 				_ -> vocabLayout $ do
@@ -407,6 +423,7 @@ deleteVocabtrainTranslationR translationId = do
 			case mtranslation of
 				Just translation -> do
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation]
+					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabTranslationManip (entityKey aid) translationId USERMANIP_DELETE time "")
 					_ <- runDB $ delete translationId
 					setMessageI $ MsgTranslationDeleted $ vocabTranslationContent translation
 					redirectUltDest VocabtrainR
@@ -434,12 +451,23 @@ postVocabtrainTranslationUpdateR translationId = do
 				FormSuccess translation' -> do 
 					_ <- runDB $ replace translationId translation'
 					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation', " old: ", Text.pack $ show translation ]
+					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabTranslationManip (entityKey aid) translationId USERMANIP_UPDATE time $ 
+						Text.intercalate " ," $ catMaybes $ map (\c -> c translation') [Just . vocabTranslationContent, vocabTranslationComment]
+						)
 					setMessageI $ MsgTranslationUpdated $ vocabTranslationContent translation'
 					redirectUltDest VocabtrainR
 				_ -> vocabLayout $ do
 						setTitleI MsgTranslationPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/translation_update.hamlet") 
 
+getVocabtrainTranslationLogR :: VocabTranslationId -> GHandler App App RepHtml
+getVocabtrainTranslationLogR translationId = do
+	mtranslation <- runDB $ get translationId
+	case mtranslation of
+		Nothing -> notFound
+		Just translation -> do
+			translationLogs <- runDB $ selectList [ VocabTranslationManipTranslationId ==. translationId] [Desc VocabTranslationManipTimestamp]
+			vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/translation_log.hamlet") 
 
 {-
 -- Card Form
@@ -515,17 +543,25 @@ postVocabtrainCardInsertR chapterId = do
 							cardId <- runDB $ insert card
 							_ <- runDB $ insert $ VocabContent chapterId cardId
 							$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
+							_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabCardManip (entityKey aid) cardId USERMANIP_INSERT time $ 
+								Text.intercalate " ," $ catMaybes $ map (\c -> c card) [Just . vocabCardScript, vocabCardScriptComment, vocabCardSpeech, vocabCardSpeechComment]
+								)
 							setMessageI $ MsgCardCreated $ vocabCardScript card
 							redirect $ VocabtrainChapterR chapterId 
 						else do
 							let dup = duplicateCards !! 0
 							_ <- runDB $ insert $ VocabContent chapterId (entityKey dup) -- TODO: perhaps already in this chapter?
 							$(logInfo) $ Text.concat [ "Card added: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " To chapter ", Text.pack $ show chapterId]
+							_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_PUT time $ keyToText $ entityKey dup)
 							setMessageI $ MsgCardChapterAdded $ vocabCardScript card
 							redirect $ VocabtrainChapterR chapterId 
 				_ -> vocabLayout $ do
 					setTitleI MsgCardPleaseCorrectEntry
 					widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype
+
+
+keyToText :: KeyBackend backend entity -> Text
+keyToText = fromRightText . fromPersistValue . unKey
 
 getVocabtrainCardDeleteR :: VocabCardId -> GHandler App App RepHtml
 getVocabtrainCardDeleteR cardId = do
@@ -545,6 +581,7 @@ postVocabtrainCardDeleteR cardId = do
 				Just card -> do
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
 					_ <- runDB $ delete cardId
+					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabCardManip (entityKey aid) cardId USERMANIP_DELETE time "")
 					setMessageI $ MsgCardDeleted $ vocabCardScript card
 					redirectUltDest VocabtrainR
 				_ -> do
@@ -606,6 +643,9 @@ postVocabtrainCardUpdateR cardId = do
 						then do
 							_ <- runDB $ replace cardId card'
 							$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card', " old: ", Text.pack $ show card]
+							_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabCardManip (entityKey aid) cardId USERMANIP_UPDATE time $ 
+								Text.intercalate " ," $ catMaybes $ map (\c -> c card') [Just . vocabCardScript, vocabCardScriptComment, vocabCardSpeech, vocabCardSpeechComment]
+								)
 							setMessageI $ MsgCardUpdated $ vocabCardScript card'
 							redirectUltDest VocabtrainR
 						else invalidArgs [msgShow MsgCardUpdateToDuplicate]
@@ -627,11 +667,24 @@ postVocabtrainCardChaptersDeleteR cardId = do
 				FormSuccess cardChapters -> do 
 					_ <- runDB $ deleteWhere [VocabContentChapterId <-. cardChapters, VocabContentCardId ==. cardId ]
 					$(logInfo) $ Text.concat [ "Deleted Card from Chapters: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " chapters: ", Text.pack $ show cardChapters]
+					time <- liftIO getCurrentTime
+					mapM_ (\chapterId -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_REMOVE time $ keyToText cardId) cardChapters
 					setMessageI $ MsgCardChaptersDeleted $ vocabCardScript $ fromJust card
 					redirect $ VocabtrainR
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/cardchapter_update.hamlet") 
+
+getVocabtrainCardLogR :: VocabCardId -> GHandler App App RepHtml
+getVocabtrainCardLogR cardId = do
+	mcard <- runDB $ get cardId
+	case mcard of
+		Nothing -> notFound
+		Just card -> do
+			cardLogs <- runDB $ selectList [ VocabCardManipCardId ==. cardId] [Desc VocabCardManipTimestamp]
+			vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_log.hamlet") 
+
+
 
 cardSearchForm :: AForm App App Text
 cardSearchForm = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) Nothing
@@ -707,6 +760,7 @@ postVocabtrainCardChapterInsertR cardId chapterId = do
 		Just aid -> do
 			_ <- runDB $ insert $ VocabContent chapterId cardId
 			$(logInfo) $ Text.concat [ "Added link chapter<->card: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId, Text.pack $ show cardId]
+			_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_PUT time $ keyToText cardId)
 			setMessageI $ MsgCardChapterCreated 
 			redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
 

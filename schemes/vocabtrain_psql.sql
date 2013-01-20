@@ -51,6 +51,7 @@ translation_card_id INTEGER NOT NULL,
 translation_language CHARACTER VARYING NOT NULL,
 translation_content CHARACTER VARYING NOT NULL ,
 translation_comment CHARACTER VARYING ,
+constraint translation_primary PRIMARY KEY(_id),
 constraint translation_unique UNIQUE ( translation_card_id, translation_language),
 constraint translation_foreign_card foreign key (translation_card_id) references cards (_id) ON DELETE CASCADE
 );

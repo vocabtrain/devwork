@@ -62,6 +62,8 @@ instance ToAppMessage UserManipType where
 	toAppMessage USERMANIP_INSERT = MsgUserManipInsert
 	toAppMessage USERMANIP_DELETE = MsgUserManipDelete
 	toAppMessage USERMANIP_UPDATE = MsgUserManipUpdate
+	toAppMessage USERMANIP_PUT = MsgUserManipPut
+	toAppMessage USERMANIP_REMOVE = MsgUserManipRemove
 
 getCardTypeText :: (AppMessage -> Text) -> CardType -> Text
 getCardTypeText msgShow t = Text.intercalate " " $ map msgShow $ getCardTypeMessages t

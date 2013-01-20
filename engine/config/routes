@@ -22,11 +22,13 @@
 /vocabtrain/books/delete/#VocabBookId VocabtrainBookDeleteR GET POST
 
 /vocabtrain/chapter/#VocabChapterId VocabtrainChapterR GET
+/vocabtrain/chapter/log/#VocabChapterId VocabtrainChapterLogR GET
 /vocabtrain/chapter/insert/#VocabBookId VocabtrainChapterInsertR POST
 /vocabtrain/chapter/update/#VocabChapterId VocabtrainChapterUpdateR GET POST
 /vocabtrain/chapter/delete/#VocabChapterId VocabtrainChapterDeleteR GET POST
 
 /vocabtrain/translation/#VocabTranslationId VocabtrainTranslationR DELETE
+/vocabtrain/translation/log/#VocabTranslationId VocabtrainTranslationLogR GET
 /vocabtrain/translation/insert/#VocabCardId VocabtrainTranslationInsertR POST
 /vocabtrain/translation/update/#VocabTranslationId VocabtrainTranslationUpdateR GET POST
 /vocabtrain/translation/delete/#VocabTranslationId VocabtrainTranslationDeleteR GET POST
@@ -36,6 +38,7 @@
 /vocabtrain/cardchapters/delete/#VocabCardId VocabtrainCardChaptersDeleteR POST
 
 /vocabtrain/card/#VocabCardId VocabtrainCardR GET
+/vocabtrain/card/log/#VocabCardId VocabtrainCardLogR GET
 /vocabtrain/card/insert/#VocabChapterId VocabtrainCardInsertR POST
 /vocabtrain/card/update/#VocabCardId VocabtrainCardUpdateR GET POST
 /vocabtrain/card/delete/#VocabCardId VocabtrainCardDeleteR GET POST

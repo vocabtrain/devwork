@@ -35,6 +35,22 @@ languagesWithCJK = [
 	"yue"
 	]
 
+genVocabtrainLang (SqlByteString langB) =
+				"source source_vocabtrain_" ++ lang ++ " : default {\n" ++
+				"\tsql_query = SELECT DISTINCT cards._id, card_script, card_speech FROM cards JOIN content ON content_card_id = cards._id JOIN chapters ON content_chapter_id = chapters._id JOIN books on books._id = chapter_book_id WHERE book_language = '" ++ lang ++ "';\n" ++
+				"}\n" ++
+				"index vocabtrain_" ++ lang ++ " : " ++
+				( if elem lang languagesWithCJK
+					then "cjk_common_index" 
+					else "common_index" ) ++ " {\n" ++
+				"\ttype = plain\n" ++
+				"\tsource = source_vocabtrain_" ++ lang ++ "\n" ++
+				"\tpath = /home/niki/data/sphinx/vocabtrain/" ++ lang ++ "\n" ++
+				( if elem lang languagesWithStemmer then 
+					"\tmorphology = libstemmer_" ++ lang ++ "\n\tmin_stemming_len=4\n" 
+					else "") ++
+				"}\n\n"
+					where lang = B.toString langB
 
 genLang (SqlByteString langB) =
 				"source source_" ++ lang ++ " : default {\n" ++
@@ -57,8 +73,9 @@ main = do
 	args <- getArgs
 	dbh <- connectPostgreSQL $ "host=localhost dbname=" ++ (args!!0) ++ " user=postgres"
 	langs <- quickQuery' dbh "SELECT sentence_language FROM tatoeba_sentences GROUP BY sentence_language" []
-	forM_ langs (\lang ->
-		putStr $ genLang (lang !! 0) )
+	forM_ langs $ \lang -> do
+		putStr $ genLang (lang !! 0) 
+		putStr $ genVocabtrainLang (lang !! 0) 
 	putStr $ "index und : common_index {\n" ++
 		"type = distributed\n"
 	forM_ langs (\lang -> putStr $ "\t local = " ++ ( fromSql (lang !! 0) ) ++ "\n")

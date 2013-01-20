@@ -22,6 +22,8 @@
                                 <i .icon-edit>
                             <a href=@{VocabtrainCardDeleteR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardDelete}">
                                 <i .icon-trash>
+                            <a href=@{VocabtrainCardLogR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardLogR}">
+                                <i .icon-calendar>
                     <td>#{vocabCardScript card}
                     <td>
                         $maybe scriptComment <- vocabCardScriptComment card
@@ -48,6 +50,8 @@
                                                 <i .icon-edit> 
                                             <a href=@{VocabtrainTranslationDeleteR $ entityKey lang} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationDeleteR}">
                                                 <i .icon-trash> 
+                                            <a href=@{VocabtrainTranslationLogR $ entityKey lang} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainTranslationLogR}">
+                                                <i .icon-calendar>
                         $maybe _ <- maid
                             $with cardId <- either Prelude.id Prelude.id $ fromPersistValue $ unKey $ entityKey $ fst result
                                 <div .accordion #new_translation_#{cardId}>
