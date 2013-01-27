@@ -1,9 +1,13 @@
 User
 	email Text
     nick Text Maybe
+    UniqueUser email
     password Text Maybe
 	authToken Text Maybe
-    UniqueUser email
+VocabUserLanguageFilter
+	userId UserId
+	language TatoebaLanguage
+	UniqueUserLanguageFilter userId language
 Entry
 	title Text
 	posted UTCTime
@@ -14,83 +18,3 @@ Comment
 	posted UTCTime
 	content Html
 	text Textarea
-VocabBook id=_id sql=books
-	name Text sql=book_name
-	language TatoebaLanguage sql=book_language
-	timestamp UTCTime default=CURRENT_TIMESTAMP sql=book_timestamp
-	UniqueName name
-	deriving Show
-VocabChapter id=_id sql=chapters
-	bookId VocabBookId DeleteCascade sql=chapter_book_id
-	volume Text sql=chapter_volume
-	deriving Show
-VocabCard id=_id sql=cards
-	script Text sql=card_script
-	scriptComment Text Maybe sql=card_script_comment
-	speech Text Maybe sql=card_speech
-	speechComment Text Maybe sql=card_speech_comment
-	type CardType sql=card_type
-	deriving Show
-VocabContent id=_id sql=content
-	chapterId VocabChapterId DeleteCascade sql=content_chapter_id
-	cardId VocabCardId DeleteCascade sql=content_card_id
-	UniqueContent chapterId cardId
-	deriving Show
-VocabTranslation id=_id sql=translations
-	cardId VocabCardId DeleteCascade sql=translation_card_id
-	language TatoebaLanguage sql=translation_language
-	content Text sql=translation_content
-	comment Text Maybe sql=translation_comment
-	UniqueTranslation cardId language
-	deriving Show
-VocabFiling id=_id sql=filing
-	userId UserId DeleteCascade sql=filing_user_id
-	cardId VocabCardId DeleteCascade sql=filing_card_id
-	rank Int sql=filing_rank
-	session Int sql=filing_session
-	interval Int sql=filing_interval
-	grades Int sql=filing_grades
-	priority Int sql=filing_priority
-	count Int sql=filing_count
-	difficulty Double sql=filing_difficulty
-	sequence Int sql=filing_sequence
-	UniqueFiling userId cardId sequence
-VocabFilingData id=_id sql=filing_data
-	userId UserId DeleteCascade sql=filing_user_id
-	timestamp UTCTime default=CURRENT_TIMESTAMP sql=filing_timestamp
-	session Int sql=filing_session
-	sequence Int sql=filing_sequence
-	UniqueFilingData userId sequence
-VocabSelection id=_id sql=selection
-	userId UserId DeleteCascade sql=selection_user_id 
-	cardId VocabCardId DeleteCascade sql=selection_card_id
-	forgotten Bool default=False sql=selection_forgotten
-	UniqueSelection userId cardId
-VocabBookManip
-	userId UserId
-	bookId VocabBookId
-	type UserManipType
-	timestamp UTCTime default=CURRENT_TIMESTAMP
-	content Text
-	deriving Show
-VocabChapterManip
-	userId UserId
-	chapterId VocabChapterId
-	type UserManipType
-	timestamp UTCTime default=CURRENT_TIMESTAMP
-	content Text
-	deriving Show
-VocabTranslationManip
-	userId UserId
-	translationId VocabTranslationId
-	type UserManipType
-	timestamp UTCTime default=CURRENT_TIMESTAMP
-	content Text
-	deriving Show
-VocabCardManip
-	userId UserId
-	cardId VocabCardId
-	type UserManipType
-	timestamp UTCTime default=CURRENT_TIMESTAMP
-	content Text
-	deriving Show

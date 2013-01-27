@@ -1,0 +1,29 @@
+VocabBook id=_id sql=books
+	name Text sql=book_name
+	language TatoebaLanguage sql=book_language
+	timestamp UTCTime default=CURRENT_TIMESTAMP sql=book_timestamp
+	UniqueName name
+	deriving Show
+VocabChapter id=_id sql=chapters
+	bookId VocabBookId DeleteCascade sql=chapter_book_id
+	volume Text sql=chapter_volume
+	deriving Show
+VocabCard id=_id sql=cards
+	script Text sql=card_script
+	scriptComment Text Maybe sql=card_script_comment
+	speech Text Maybe sql=card_speech
+	speechComment Text Maybe sql=card_speech_comment
+	type CardType sql=card_type
+	deriving Show
+VocabContent id=_id sql=content
+	chapterId VocabChapterId DeleteCascade sql=content_chapter_id
+	cardId VocabCardId DeleteCascade sql=content_card_id
+	UniqueContent chapterId cardId
+	deriving Show
+VocabTranslation id=_id sql=translations
+	cardId VocabCardId DeleteCascade sql=translation_card_id
+	language TatoebaLanguage sql=translation_language
+	content Text sql=translation_content
+	comment Text Maybe sql=translation_comment
+	UniqueTranslation cardId language
+	deriving Show

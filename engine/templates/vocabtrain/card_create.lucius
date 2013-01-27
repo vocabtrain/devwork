@@ -1,0 +1,9 @@
+#cardCreateForm
+{
+    float: left;
+    padding-right: 2em;
+}
+#cardFormSuggestions form
+{
+    display: inline;
+}

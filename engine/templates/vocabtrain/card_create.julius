@@ -1,0 +1,34 @@
+var cardFormScriptText  '';
+function OnCardFormScriptText() {
+    var text = $('#cardFormScript').val();
+    var dest= '@{VocabtrainCardQueryJR (vocabBookLanguage book) ""}'.slice(0,-1) + text;
+    if(text == cardFormScriptText) return;
+    if(text.length > 1)
+    $.get(dest,
+        function(data) { 
+            var div = $('#cardFormSuggestions');
+            var s = ['<ul class="nav nav-tabs nav-stacked">'];
+            for(var i = 0; i < data.length; ++i)
+            {
+                var dest='@{VocabtrainCardChapterInsertR (Key $ PersistInt64 $ 0) chapterId}'.replace('/0/', '/' + data[i]._id + '/');
+
+                s.push
+                ( "<li>"
+                , "<form method=post action=\"" + dest + "\">"
+                , '<button type="submit" class="btn btn-warn"><i class="icon-plus-sign"/></button>'
+                , '</form>'
+                , data[i].card_script
+                , data[i].card_script_comment == null ? "" : " (" + data[i].card_script_comment + ") "
+                , data[i].card_speech == null ? "" : " - " + data[i].card_speech
+                , data[i].card_speech_comment == null ? "" : " (" + data[i].card_speech_comment + ") "
+                , "</li>"
+                );
+            }
+            s.push('</ul>');
+            div.html(s.join(""));
+        }, "json");
+}
+
+
+$('#cardFormScript').keyup(OnCardFormScriptText);
+$('#cardFormScript').onchange(OnCardFormScriptText);
