@@ -3,9 +3,7 @@ module Handler.Dominik where
 
 import Import
 import qualified Prelude
-import Text.Hamlet (ihamletFile)
 import qualified Text.Blaze.Html
-
 
 showTenth :: Int -> String
 showTenth i
@@ -16,21 +14,17 @@ getHomeR :: GHandler App App RepHtml
 getHomeR = redirect DKHomeR
 
 dominikLayoutSheet :: GWidget App App () -> SheetLayout App (Route App)
-dominikLayoutSheet widget = SheetLayout { 
-	  sheetTitle = "Dominik Köppl"
+dominikLayoutSheet widget = SheetLayout 
+	{ sheetTitle = "Dominik Köppl"
 	, sheetNav = Nothing
-	, sheetBanner =  Just $(ihamletFile "templates/dominik/banner.hamlet")
+	, sheetBanner =  Just $(whamletFile "templates/dominik/banner.hamlet")
 	, sheetContent = widget
 	}
 
 courseLayout :: GWidget App App () -> GHandler App App RepHtml
-courseLayout widget = globalLayout $ (dominikLayoutSheet widget) { 
-	 sheetNav = Just $(ihamletFile "templates/dominik/navcourse.hamlet")
-	}
+courseLayout widget = globalLayout $ (dominikLayoutSheet widget) { sheetNav = Just $(whamletFile "templates/dominik/navcourse.hamlet") }
 projectLayout :: GWidget App App () -> GHandler App App RepHtml
-projectLayout widget = globalLayout $ (dominikLayoutSheet widget) { 
-	 sheetNav = Just $(ihamletFile "templates/dominik/navproject.hamlet")
-	}
+projectLayout widget = globalLayout $ (dominikLayoutSheet widget) { sheetNav = Just $(whamletFile "templates/dominik/navproject.hamlet") }
 
 
 getQtProjectListR :: GHandler App App RepHtml

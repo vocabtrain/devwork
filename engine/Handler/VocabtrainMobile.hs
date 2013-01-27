@@ -278,14 +278,10 @@ postVocabtrainMobileBooksR = do
 			auth <- tokenAuth
 			case auth of 
 				BasicAuthAuthorized userId -> do
-					muser <- runDB $ get userId
-					case muser of
-						Just user -> do
-							timestampResult <- runDB $ C.runResourceT $ withStmt
-								"SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = ?;"
-								[unKey $ userId] C.$$ CL.consume
-							return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> "0"::Text) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
-						Nothing -> return Nothing
+					timestampResult <- runDB $ C.runResourceT $ withStmt
+						"SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = ?;"
+						[unKey $ userId] C.$$ CL.consume
+					return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> "0"::Text) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
 				_ -> return Nothing
 
 		
@@ -332,16 +328,73 @@ getVocabtrainMobileFilingDownloadR = do
 			selectionResult <- runDB $ selectList [ VocabSelectionUserId ==. userId] []
 			liftIO $ withTempFile "filingdownload" (\ file fileh  -> do
 				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
-					_ <- runSqlConn' dbh $ runMigration migrateAll
-					forM_ filingResult $ \row -> runSqlConn' dbh $ insert $ entityVal row
-					forM_ filingDataResult $ \row -> runSqlConn' dbh $ insert $ entityVal row
-					forM_ selectionResult $ \row -> runSqlConn' dbh $ insert $ entityVal row
+					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrain, migrateVocabtrainMobile]
+					forM_ filingResult $ \row -> runSqlConn' dbh $ insert $ exportMobileFiling $ entityVal row
+					forM_ filingDataResult $ \row -> runSqlConn' dbh $ insert $ exportMobileFilingData $ entityVal row
+					forM_ selectionResult $ \row -> runSqlConn' dbh $ insert $ exportMobileSelection $ entityVal row
 				content <- liftIO $ BS.hGetContents fileh
 				return $ RepSqlite $ toContent content
 				)	
 			where
 				runSqlConn' pers conn = runSqlConn conn pers
 		_ -> permissionDenied ""
+
+importMobileFiling :: UserId -> VocabMobileFiling -> VocabFiling
+importMobileFiling userId mf = VocabFiling
+	{ vocabFilingUserId = userId
+	, vocabFilingCardId     = vocabMobileFilingCardId mf 
+	, vocabFilingRank       = vocabMobileFilingRank mf
+	, vocabFilingSession    = vocabMobileFilingSession mf
+	, vocabFilingInterval   = vocabMobileFilingInterval mf
+	, vocabFilingGrades     = vocabMobileFilingGrades mf
+	, vocabFilingPriority   = vocabMobileFilingPriority mf
+	, vocabFilingCount      = vocabMobileFilingCount mf
+	, vocabFilingDifficulty = vocabMobileFilingDifficulty mf
+	, vocabFilingSequence   = vocabMobileFilingSequence mf
+	}
+
+importMobileFilingData :: UserId -> VocabMobileFilingData -> VocabFilingData
+importMobileFilingData userId mf = VocabFilingData
+	{ vocabFilingDataUserId = userId
+	, vocabFilingDataTimestamp = vocabMobileFilingDataTimestamp mf
+	, vocabFilingDataSession   = vocabMobileFilingDataSession mf
+	, vocabFilingDataSequence  = vocabMobileFilingDataSequence mf
+	}
+
+importMobileSelection :: UserId -> VocabMobileSelection -> VocabSelection
+importMobileSelection userId mf = VocabSelection
+	{ vocabSelectionUserId      = userId
+	, vocabSelectionCardId      = vocabMobileSelectionCardId mf
+	, vocabSelectionForgotten   = vocabMobileSelectionForgotten mf
+	}
+
+exportMobileFiling :: VocabFiling -> VocabMobileFiling
+exportMobileFiling mf = VocabMobileFiling
+	{ vocabMobileFilingCardId     = vocabFilingCardId mf 
+	, vocabMobileFilingRank       = vocabFilingRank mf
+	, vocabMobileFilingSession    = vocabFilingSession mf
+	, vocabMobileFilingInterval   = vocabFilingInterval mf
+	, vocabMobileFilingGrades     = vocabFilingGrades mf
+	, vocabMobileFilingPriority   = vocabFilingPriority mf
+	, vocabMobileFilingCount      = vocabFilingCount mf
+	, vocabMobileFilingDifficulty = vocabFilingDifficulty mf
+	, vocabMobileFilingSequence   = vocabFilingSequence mf
+	}
+
+exportMobileFilingData :: VocabFilingData -> VocabMobileFilingData
+exportMobileFilingData mf = VocabMobileFilingData
+	{ vocabMobileFilingDataTimestamp = vocabFilingDataTimestamp mf
+	, vocabMobileFilingDataSession   = vocabFilingDataSession mf
+	, vocabMobileFilingDataSequence  = vocabFilingDataSequence mf
+	}
+
+exportMobileSelection :: VocabSelection -> VocabMobileSelection
+exportMobileSelection mf = VocabMobileSelection
+	{ vocabMobileSelectionCardId      = vocabSelectionCardId mf
+	, vocabMobileSelectionForgotten   = vocabSelectionForgotten mf
+	}
+
+
 
 postVocabtrainMobileFilingUploadR :: GHandler App App RepPlain
 postVocabtrainMobileFilingUploadR = do
@@ -358,9 +411,9 @@ postVocabtrainMobileFilingUploadR = do
 				BSL.hPut fileh $ decompress $ BSL.fromChunks bss
 				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
 --					$(logInfo) $ fromPersistValue $ unKey userId
-					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `filing` ADD COLUMN `filing_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
+{-					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `filing` ADD COLUMN `filing_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
 					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `filing_data` ADD COLUMN `filing_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
-					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `selection` ADD COLUMN `selection_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
+					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `selection` ADD COLUMN `selection_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) [] -}
 					$(logInfo) "a"
 		--			runSqlConn' dbh $ updateWhere [] [VocabFilingUserId =. 1] -- TODO = 1
 		--			filingList <- runSqlConn' dbh $ selectList [] [] 
@@ -373,9 +426,9 @@ postVocabtrainMobileFilingUploadR = do
 						runDB $ deleteWhere [VocabFilingUserId ==. userId]
 						runDB $ deleteWhere [VocabFilingDataUserId ==. userId]
 						runDB $ deleteWhere [VocabSelectionUserId ==. userId]
-						mapM_ (\row -> runDB $ insert $ entityVal $ row) (filingList :: [Entity VocabFiling])
-						mapM_ (\row -> runDB $ insert $ entityVal $ row) (filingDataList :: [Entity VocabFilingData])
-						mapM_ (\row -> runDB $ insert $ entityVal $ row) (selectionList :: [Entity VocabSelection])
+						mapM_ (\row -> runDB $ insert $ importMobileFiling userId $ entityVal row) (filingList :: [Entity VocabMobileFiling])
+						mapM_ (\row -> runDB $ insert $ importMobileFilingData userId $ entityVal row) (filingDataList :: [Entity VocabMobileFilingData])
+						mapM_ (\row -> runDB $ insert $ importMobileSelection userId $ entityVal row) (selectionList :: [Entity VocabMobileSelection])
 				return $ RepPlain $ toContent (""::Text)
 			where
 				runSqlConn' pers conn = runSqlConn conn pers
@@ -406,7 +459,7 @@ postVocabtrainMobileDownloadR = do
 				VocabTranslationLanguage <-. ( map (read . Text.unpack) $ requestLanguages request)] []
 			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
 				C.runResourceT $ withSqliteConn (Text.pack file) (\dbh -> do
-					_ <- runSqlConn' dbh $ runMigration migrateAll
+					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrain, migrateVocabtrainMobile]
 --					runSqlConn' dbh $ runMigration $ migrate $ entityDefs -- (undefined :: VocabFiling)
 					forM_ bookResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
 					forM_ chapterResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )

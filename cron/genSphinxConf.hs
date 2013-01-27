@@ -46,9 +46,8 @@ genVocabtrainLang (SqlByteString langB) =
 				"\ttype = plain\n" ++
 				"\tsource = source_vocabtrain_" ++ lang ++ "\n" ++
 				"\tpath = /home/niki/data/sphinx/vocabtrain/" ++ lang ++ "\n" ++
-				( if elem lang languagesWithStemmer then 
-					"\tmorphology = libstemmer_" ++ lang ++ "\n\tmin_stemming_len=4\n" 
-					else "") ++
+				"\tenable_star = true\n" ++
+				"\tmin_prefix_len = 3\n" ++
 				"}\n\n"
 					where lang = B.toString langB
 
@@ -79,5 +78,9 @@ main = do
 	putStr $ "index und : common_index {\n" ++
 		"type = distributed\n"
 	forM_ langs (\lang -> putStr $ "\t local = " ++ ( fromSql (lang !! 0) ) ++ "\n")
+	putStr "}\n"
+	putStr $ "index vocabtrain_und : common_index {\n" ++
+		"type = distributed\n"
+	forM_ langs (\lang -> putStr $ "\t local = vocabtrain_" ++ ( fromSql (lang !! 0) ) ++ "\n")
 	putStr "}\n"
 	disconnect dbh

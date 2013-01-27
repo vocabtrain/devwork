@@ -6,8 +6,12 @@ $newline never
 \<!--[if gt IE 8]><!-->
 <html class="no-js" lang="en"> <!--<![endif]-->
     <head>
-        ^{hamletToHtmlUrlI headTags}
-        ^{hamletToHtmlUrlI $ pageHead pc}
+        ^{headTags}
+        ^{pageHead content}
+        $maybe nav <- mnav
+            ^{pageHead nav}
+        $maybe banner <- mbanner
+            ^{pageHead banner}
     <body data-spy="scroll" data-target=".bs-docs-sidebar">
         <header class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar navbar-inverse navbar-fixed-top">
@@ -28,8 +32,8 @@ $newline never
                                     <a href=@{AuthR LogoutR} .navbar-link>Logout
                                 $nothing
                                     <a href=@{AuthR LoginR} .navbar-link>Login
-                            $maybe banner <- sheetBanner sheet
-                                ^{banner}
+                            $maybe banner <- mbanner
+                                ^{pageBody banner}
         <div #breadcrumbs>
             <ul .breadcrumb>
                 $forall parent <- page_parents
@@ -38,26 +42,26 @@ $newline never
                         <span .divider>/
                 <li .active>
                     $if Text.null page_title
-                        #{pageTitle pc}
+                        #{pageTitle content}
                     $else
                         #{page_title}
         $maybe msg <- mmsg
             <div .alert .alert-block>#{msg}
         <div id="wrapper">
-            $maybe nav <- sheetNav sheet
+            $maybe nav <- mnav
                 <div class="container-fluid">
                     <div class="row-fluid">
                         <div class="span2">
                             <div class="well sidebar-nav">
-                                ^{nav}
+                                ^{pageBody nav}
                         <div id="main" class="span9">
                             <div id="maincontent">
-                                ^{hamletToHtmlUrlI bodyTags}
-                                ^{hamletToHtmlUrlI $ pageBody pc}
+                                ^{bodyTags}
+                                ^{pageBody content}
             $nothing
                 <div #main .standalone>
-                    ^{hamletToHtmlUrlI bodyTags}
-                    ^{hamletToHtmlUrlI $ pageBody pc}
+                    ^{bodyTags}
+                    ^{pageBody content}
 
         <footer>
             <i>#{extraCopyright $ appExtra $ settings master}

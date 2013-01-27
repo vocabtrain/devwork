@@ -30,7 +30,7 @@
     <ul>
         <li>Let \(\Omega\) denote the set of points of interests (e.g. pivot elements).
         <li>Generate a matrix of all netdistances \( \left( \distance{p_i}{p_j} \right)_\{i,j} \; \forall p_i,p_j \in \Omega \)
-        <li>Note: The matrix is non-symmetric like \( p \).
+        <li>Note: The matrix is non-symmetric like \( d \).
 <div .slide>
     <h1>New (symmetric) distances
     <ul>

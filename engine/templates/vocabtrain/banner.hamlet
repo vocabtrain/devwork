@@ -6,7 +6,7 @@
         <a href=@{VocabtrainR}>
             <i .icon-book .icon-white>
             _{MsgBooks}
-<form .navbar-search method=get action=@{VocabtrainCardSearchPostR}>
-    <input type="text" .search-query placeholder="_{MsgFieldSearchCard}" name="text">
+<form .navbar-search method=post action=@{VocabtrainCardSearchR}>
+    ^{cardSearchFormWidget}
     <button type="submit" .btn .btn-info>
         <i .icon-search>

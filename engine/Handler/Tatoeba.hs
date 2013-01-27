@@ -5,14 +5,11 @@ import Import
 import Data.Maybe
 import qualified Prelude
 
-import qualified Data.Text
+import qualified Data.Text as Text
 import qualified Data.Map as Map
 import Text.XML
 
-
-import qualified Text.Search.Sphinx as Sphinx
-import qualified Text.Search.Sphinx.Types as SphinxT
-import GHC.Int
+import Sphinx
 
 import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
@@ -58,23 +55,23 @@ relationsToXml relations = Element "relations" Map.empty $ map (NodeElement . re
 relationToXml :: TatoebaRelation -> Element
 relationToXml (TatoebaRelation sentence translations) = 
 	Element "relation" Map.empty ([ 
-		NodeElement $ Element "mainsentence" (Map.fromList [("id", Data.Text.pack . show $ sentenceId sentence), ("language", sentenceLanguage sentence)  ]) [ NodeContent $ sentenceText sentence]
+		NodeElement $ Element "mainsentence" (Map.fromList [("id", Text.pack . show $ sentenceId sentence), ("language", sentenceLanguage sentence)  ]) [ NodeContent $ sentenceText sentence]
 		]  ++ map sentenceToXml translations)
 
 sentenceToXml :: TatoebaSentence -> Node
-sentenceToXml sentence = NodeElement $ Element "sentence" (Map.fromList [("id", Data.Text.pack . show $ sentenceId sentence), ("language", sentenceLanguage sentence)  ]) [ NodeContent $ sentenceText sentence]
+sentenceToXml sentence = NodeElement $ Element "sentence" (Map.fromList [("id", Text.pack . show $ sentenceId sentence), ("language", sentenceLanguage sentence)  ]) [ NodeContent $ sentenceText sentence]
 
 
 getTatoebaQueryR :: TatoebaLanguage -> Text -> Handler RepXml
 getTatoebaQueryR language queryString = do
---	liftIO $ putStr (Data.Text.unpack queryString)
+--	liftIO $ putStr (Text.unpack queryString)
 	relations <- querySentences 
 	let content = toContent $ renderText def $ Document (Prologue [] Nothing []) (relationsToXml relations) []
 	return $ RepXml content
 	where
 		querySentences :: GHandler App App [TatoebaRelation]
 		querySentences = do
-			sphinxResult <- liftIO $ querySphinx (Data.Text.pack . show $ language) queryString
+			sphinxResult <- liftIO $ querySphinx (Text.pack . show $ language) queryString
 			fmap catMaybes $ sequence $ map (\sentence_id -> do
 				textResult <- runDB $ C.runResourceT $ withStmt
 					"SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences WHERE sentence_id = ?"
@@ -82,19 +79,6 @@ getTatoebaQueryR language queryString = do
 				tatoebaRelationFromQuery $ textResult !! 0
 				) sphinxResult
 
-		querySphinx :: Text -> Text -> IO [Int64]
-		querySphinx lang queryStr = do
-			result <- liftIO $ Sphinx.query config lang queryStr
-			case result of
-				SphinxT.Ok res -> return $ map SphinxT.documentId $ SphinxT.matches res
-				_ -> return []
-
-				where config = Sphinx.defaultConfig {
-					Sphinx.port = 9312
-				,	Sphinx.mode = SphinxT.Any
-				}
-
-	
 handleTatoebaQueryLanguageR :: TatoebaLanguage -> Handler RepXml
 handleTatoebaQueryLanguageR language = do
 	relation <- queryRandomSentenceIn

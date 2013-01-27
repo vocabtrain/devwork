@@ -10,11 +10,14 @@
 
 ~ CardShow + CardEditDeleteChapters -> Chapters in Nav mit Books -> TreeView?
 
-LiveCardSearch with Sphinx! -> feed sphinx daily with cards
+~ LiveCardSearch with Sphinx! 
+~ FIX Searchbar with Yesod Forms
+~ Migration of MobileData -> weniger RawSQL
+
+feed sphinx daily with cards
 Split User in (User, VocabUser)
 VocabUserLanguages: Only these Languages are shown to the user
-Migration of MobileData -> weniger RawSQL
 
-VocabManip Für Card,Translation, Chapter
+~ VocabManip Für Card,Translation, Chapter
 
 HamletFile + Variable -> Template Haskell!

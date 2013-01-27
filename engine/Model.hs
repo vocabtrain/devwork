@@ -39,8 +39,17 @@ instance PersistField CardType where
 -- You can find more information on persistent and how to declare entities
 -- at:
 -- http://www.yesodweb.com/book/persistent/
-share [mkPersist sqlSettings, mkMigrate "migrateAll", mkDeleteCascade sqlSettings, mkSave "entityDefs"]
+share [mkPersist sqlSettings, mkMigrate "migrateCore", mkDeleteCascade sqlSettings]
     $(persistFileWith lowerCaseSettings "config/models")
+
+share [mkPersist sqlSettings, mkMigrate "migrateVocabtrain", mkDeleteCascade sqlSettings]
+    $(persistFileWith lowerCaseSettings "config/vocabtrainmodels")
+
+share [mkPersist sqlSettings, mkMigrate "migrateVocabtrainServer", mkDeleteCascade sqlSettings]
+    $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
+
+share [mkPersist sqlSettings, mkMigrate "migrateVocabtrainMobile", mkDeleteCascade sqlSettings]
+    $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels")
 
 --instance ToMessage VocabBookId where
 --    toMessage i = Data.Text.pack $ show i

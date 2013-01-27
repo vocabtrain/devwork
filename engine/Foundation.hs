@@ -144,6 +144,7 @@ instance Yesod App where
     isAuthorized VocabtrainMobileDownloadR _ = return Authorized
     isAuthorized VocabtrainMobileDeltaR _ = return Authorized
     isAuthorized VocabtrainMobileFilingUploadR _ = return Authorized
+    isAuthorized VocabtrainCardSearchR _ = return Authorized
     isAuthorized _ True = isUser
     isAuthorized _ False = return Authorized
 
@@ -304,20 +305,29 @@ hamletToHtmlUrlI hu _msgRender _urlRender = hu _urlRender
 
 data SheetLayout sub url = SheetLayout {
 	  sheetTitle :: Text
-	, sheetNav :: Maybe (HtmlUrlI18n AppMessage url)
-	, sheetBanner :: Maybe (HtmlUrlI18n AppMessage url)
+	, sheetNav :: Maybe (GWidget sub App ())
+	, sheetBanner :: Maybe (GWidget sub App ())
 	, sheetContent :: GWidget sub App ()
 }
 
 globalLayout' :: Text -> GWidget sub App () -> GHandler sub App RepHtml
 globalLayout' title widget = globalLayout $ SheetLayout title Nothing Nothing widget
 
+readSheetWidget mwidget =
+	case mwidget of
+		Nothing -> return Nothing
+		Just w -> do 
+			v <- widgetToPageContent w
+			return $ Just v
+
 globalLayout :: SheetLayout sub (Route App) -> GHandler sub App RepHtml
 --globalLayout subtitle contents = do
 globalLayout sheet = do
 	master <- getYesod
 	mmsg <- getMessage
-	pc <- widgetToPageContent $ sheetContent sheet
+	content <- widgetToPageContent $ sheetContent sheet
+	mnav <- readSheetWidget $ sheetNav sheet
+	mbanner <- readSheetWidget $ sheetBanner sheet
 	maid <- maybeAuthId
 	(page_title, page_parents) <- breadcrumbs
 
@@ -329,5 +339,5 @@ globalLayout sheet = do
 		addStylesheet $ StaticR css_normalize_css
 		addStylesheet $ StaticR css_flags_css
 		addStylesheet $ StaticR css_main_css
-	ihamletToRepHtml $(ihamletFile "templates/skeleton/overall.hamlet")
+	hamletToRepHtml $(hamletFile "templates/skeleton/overall.hamlet")
 

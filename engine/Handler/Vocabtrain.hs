@@ -1,7 +1,8 @@
-{-# LANGUAGE TupleSections, OverloadedStrings, DeriveGeneric #-}
+{-# LANGUAGE TupleSections, OverloadedStrings, DeriveGeneric, FlexibleInstances #-}
 module Handler.Vocabtrain where
 
 import Import
+import Sphinx
 import ToAppMessage 
 import PostGenerated () 
 import CardType
@@ -13,6 +14,7 @@ import qualified Data.Ord as Ord
 import qualified Data.List as List
 
 import Data.Maybe
+import Control.Monad.Maybe
 
 --import Database.Persist.Query.Join.Sql (runJoin)
 import Database.Persist.Query.Join (SelectOneMany (..), selectOneMany, runJoin)
@@ -22,24 +24,23 @@ import Control.Monad
 import Database.Persist.GenericSql.Raw (SqlBackend)
 import Database.Persist.GenericSql
 import Database.Persist.Store
-import Text.Hamlet
 
 import Data.Time (getCurrentTime) 
 
 import Control.Arrow
 
+import qualified Data.Aeson as JS
 
 vocabLayoutSheet :: GWidget App App () -> SheetLayout App (Route App)
 vocabLayoutSheet widget = SheetLayout { 
 	  sheetTitle = "Vocabtrain"
 	, sheetNav = Nothing
-	, sheetBanner = Just $(ihamletFile "templates/vocabtrain/banner.hamlet") 
+	, sheetBanner = Just $(widgetFile "vocabtrain/banner") 
 	, sheetContent = widget
 	}
 
 vocabLayout :: GWidget App App () -> GHandler App App RepHtml
-vocabLayout widget = do
-	globalLayout $ vocabLayoutSheet widget
+vocabLayout widget = globalLayout $ vocabLayoutSheet widget
 
 {-
 -- Book Form
@@ -73,7 +74,7 @@ getVocabtrainR = do
 
 	widgetBook <- widgetToPageContent $ widgetVocabtrainBookCreate bookFormWidget bookFormEnctype
 	let vocabBookLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
-				 sheetNav = Just $(ihamletFile "templates/vocabtrain/navbook.hamlet")
+				 sheetNav = Just $(whamletFile "templates/vocabtrain/navbook.hamlet")
 				}
 	vocabBookLayout $ toWidget $(whamletFile "templates/vocabtrain/books.hamlet") 
 
@@ -300,7 +301,7 @@ getVocabtrainChapterR chapterId = do
 	setUltDestCurrent
 	widgetChapter <- widgetToPageContent $ widgetVocabtrainChapterCreate' $ vocabChapterBookId chapter
 	let vocabChapterLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
-				 sheetNav = Just $(ihamletFile "templates/vocabtrain/navchapter.hamlet")
+				 sheetNav = Just $(whamletFile "templates/vocabtrain/navchapter.hamlet")
 				}
 	let cardListExtraButtonWidget = Just $ widgetCardListTatoebaSearch $ vocabBookLanguage book
 	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
@@ -325,7 +326,7 @@ getVocabtrainCardR cardId = do
 				, somFilterMany = [ VocabChapterId <-. (map (vocabContentChapterId . entityVal) contentResults) ]
 				}
 			let vocabCardLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
-						 sheetNav = Just $(ihamletFile "templates/vocabtrain/navcard.hamlet")
+						 sheetNav = Just $(whamletFile "templates/vocabtrain/navcard.hamlet")
 						}
 			vocabCardLayout $ toWidget $(whamletFile "templates/vocabtrain/card.hamlet") 
 
@@ -475,7 +476,7 @@ getVocabtrainTranslationLogR translationId = do
 
 cardForm :: Maybe VocabCard -> AForm App App VocabCard
 cardForm mcard = VocabCard 
-	<$> areq textField (fieldSettingsLabel MsgFieldScript) (vocabCardScript <$> mcard)
+	<$> areq textField ( (fieldSettingsLabel MsgFieldScript) { fsId = Just "cardFormScript"} ) (vocabCardScript <$> mcard)
 	<*> aopt textField (fieldSettingsLabel MsgFieldScriptComment) (vocabCardScriptComment <$> mcard)
 	<*> aopt textField (fieldSettingsLabel MsgFieldSpeech) (vocabCardSpeech <$> mcard)
 	<*> aopt textField (fieldSettingsLabel MsgFieldSpeechComment) (vocabCardSpeechComment <$> mcard)
@@ -519,7 +520,15 @@ widgetVocabtrainCardCreate' chapterId = do
 	widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype
 
 widgetVocabtrainCardCreate :: VocabChapterId -> GWidget App App () -> Enctype -> GWidget App App ()
-widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype = toWidget $(whamletFile "templates/vocabtrain/card_create.hamlet") 
+widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype = do
+	res <- r
+	case res of 
+		Just a -> a
+		Nothing -> lift $ notFound
+	where r = runMaybeT $ do 
+		chapter <- MaybeT . lift . runDB . get $ chapterId
+		book <- MaybeT . lift . runDB . get . vocabChapterBookId $ chapter
+		return $ toWidget $(widgetFile "vocabtrain/card_create")
 
 postVocabtrainCardInsertR :: VocabChapterId -> GHandler App App RepHtml
 postVocabtrainCardInsertR chapterId = do
@@ -685,23 +694,36 @@ getVocabtrainCardLogR cardId = do
 			vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_log.hamlet") 
 
 
+cardSearchForm :: Text -> AForm App App Text
+cardSearchForm queryString = areq (searchField True) ((fieldSettingsLabel MsgFieldSearchCard) { fsLabel = "", fsAttrs = [("placeholder", queryString), ("class", "search-query")] }) Nothing
 
-cardSearchForm :: AForm App App Text
-cardSearchForm = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) Nothing
--- cardSearchForm = areq (searchField True) (FieldSettings { fsLabel = fsLabel $ fieldSettingsLabel MsgFieldSearchCard, fsAttrs = [("class", "search-query")] } ) Nothing
 
-defaultCardSearchFormWidget :: GWidget App App ()
-defaultCardSearchFormWidget = do
-	((_, cardSearchFormWidget), _) <- lift $ generateFormGet $ renderDivs $ cardSearchForm
-	cardSearchFormWidget
+
+cardSearchFormWidget :: GWidget App App ()
+cardSearchFormWidget = do
+	msgShow <- lift $ getMessageRender
+	(widget, _) <- lift $ generateFormPost $ renderDivs $ cardSearchForm $ msgShow MsgFieldSearchCard
+	widget
+
+
+cardQueryForm :: AForm App App Text
+cardQueryForm = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) Nothing
+-- cardQueryForm = areq (searchField True) (FieldSettings { fsLabel = fsLabel $ fieldSettingsLabel MsgFieldSearchCard, fsAttrs = [("class", "search-query")] } ) Nothing
+
+{-
+defaultCardQueryFormWidget :: GWidget App App ()
+defaultCardQueryFormWidget = do
+	((_, cardQueryFormWidget), _) <- lift $ generateFormGet $ renderDivs $ cardQueryForm
+	cardQueryFormWidget
+-}
 
 widgetVocabtrainCardChapterAddSearch' :: VocabChapterId -> GWidget App App ()
 widgetVocabtrainCardChapterAddSearch' chapterId = do
-	((_, cardSearchFormWidget), cardSearchFormEnctype) <- lift $ generateFormGet $ renderDivs $ cardSearchForm
-	widgetVocabtrainCardChapterAddSearch chapterId cardSearchFormWidget cardSearchFormEnctype
+	((_, cardQueryFormWidget), cardQueryFormEnctype) <- lift $ generateFormGet $ renderDivs $ cardQueryForm
+	widgetVocabtrainCardChapterAddSearch chapterId cardQueryFormWidget cardQueryFormEnctype
 
 widgetVocabtrainCardChapterAddSearch :: VocabChapterId -> GWidget App App () -> Enctype -> GWidget App App ()
-widgetVocabtrainCardChapterAddSearch chapterId cardSearchFormWidget cardSearchFormEnctype = toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
+widgetVocabtrainCardChapterAddSearch chapterId cardQueryFormWidget cardQueryFormEnctype = toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
 
 
 icontains :: EntityField v Text -> Text -> Filter v
@@ -719,7 +741,7 @@ getVocabtrainCardChapterAddR chapterId = do
 		Nothing -> do
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
-			((result', cardSearchFormWidget), cardSearchFormEnctype) <- runFormGet $ renderDivs $ cardSearchForm
+			((result', cardQueryFormWidget), cardQueryFormEnctype) <- runFormGet $ renderDivs $ cardQueryForm
 			case result' of
 				FormSuccess searchPhrase -> do 
 					cardResults <- runDB $ selectList 
@@ -739,10 +761,17 @@ getVocabtrainCardChapterAddR chapterId = do
 		Nothing -> do
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
-			((result', cardSearchFormWidget), cardSearchFormEnctype) <- runFormGet $ renderDivs $ cardSearchForm
+			((result', cardQueryFormWidget), cardQueryFormEnctype) <- runFormGet $ renderDivs $ cardQueryForm
 			case result' of
-				FormSuccess searchPhrase -> do 
-					getVocabtrainCardSearch searchPhrase (Just $ widgetCardListChapterAdd chapterId)
+				FormSuccess searchPhrase -> do
+					res <- r
+					case res of 
+						Just a -> a
+						Nothing -> notFound
+					where r = runMaybeT $ do 
+						chapter <- MaybeT . runDB . get $ chapterId
+						book <- MaybeT . runDB . get . vocabChapterBookId $ chapter
+						return $ getVocabtrainCardSearch (vocabBookLanguage book) searchPhrase (Just $ widgetCardListChapterAdd chapterId)
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
@@ -765,30 +794,32 @@ postVocabtrainCardChapterInsertR cardId chapterId = do
 			redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
 
 
-getVocabtrainCardSearchPostR :: GHandler App App RepHtml
-getVocabtrainCardSearchPostR = do
---	((result, cardSearchFormWidget), cardSearchFormEnctype) <- runFormGet $ renderDivs $ cardSearchForm
-	mtext <- lookupGetParam "text"
-	case mtext of
-		Just searchPhrase -> do 
-			getVocabtrainCardSearch searchPhrase Nothing
-		Nothing -> vocabLayout $ do
+postVocabtrainCardSearchR :: GHandler App App RepHtml
+postVocabtrainCardSearchR = do
+	msgShow <- getMessageRender
+	((result, _), _) <- runFormPost $ renderDivs $ cardSearchForm $ msgShow MsgFieldSearchCard
+	case result of
+		FormSuccess searchPhrase -> do 
+			getVocabtrainCardSearch LANG_UND searchPhrase Nothing
+		_ -> vocabLayout $ do
 			lift $ setMessageI MsgCardPleaseCorrectEntry
 			lift $ redirectUltDest VocabtrainR
 			
-getVocabtrainCardSearchR :: Text -> GHandler App App RepHtml
-getVocabtrainCardSearchR searchPhrase = getVocabtrainCardSearch searchPhrase Nothing
-	
+getVocabtrainCardQueryR :: TatoebaLanguage -> Text -> Handler RepHtml
+getVocabtrainCardQueryR language searchPhrase = getVocabtrainCardSearch language searchPhrase Nothing
 
-getVocabtrainCardSearch :: Text -> Maybe ( Entity VocabCard -> GWidget App App ()) -> GHandler App App RepHtml
-getVocabtrainCardSearch searchPhrase cardListExtraButtonWidget = do
+getVocabtrainCardSearch :: TatoebaLanguage -> Text -> Maybe ( Entity VocabCard -> GWidget App App ()) -> GHandler App App RepHtml
+getVocabtrainCardSearch language searchPhrase cardListExtraButtonWidget = do
 	msgShow <- getMessageRender
 	maid <- maybeAuth 
 	setUltDestCurrent
+	cardResults <- vocabtrainCardQuery language searchPhrase
+	{-
 	cardResults <- runDB $ selectList 
 		(     [ icontains VocabCardScript        searchPhrase ]
 		  ||. [ icontainsMaybe VocabCardSpeech   searchPhrase ]
 		) []
+	-}
 	translationResults <- forM cardResults 
 		(\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
 	results <- return $ Prelude.zip cardResults translationResults
@@ -1084,3 +1115,40 @@ postUserUpdateR' userId newUser = do
 	setMessageI $ maybe MsgNobodyUpdated (\t -> MsgUserUpdated t) $ userNick newUser
 	redirect $ VocabtrainR
 
+
+
+---
+
+{-
+getVocabtrainCardQueryR :: TatoebaLanguage -> Text -> Handler RepHtml
+getVocabtrainCardQueryR language searchPhrase = do
+	let cardListExtraButtonWidget = Nothing :: Maybe ( Entity VocabCard -> GWidget App App ())
+	msgShow <- getMessageRender
+	maid <- maybeAuth 
+	cardResults <- vocabtrainCardQuery language searchPhrase
+	translationResults <- forM cardResults 
+		(\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
+	results <- return $ Prelude.zip cardResults translationResults
+	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_search.hamlet")
+-}	
+
+vocabtrainCardQuery :: TatoebaLanguage -> Text -> GHandler App App [Entity VocabCard]
+vocabtrainCardQuery language searchPhrase = do
+	sphinxResult <- liftIO $ querySphinx (Text.concat [ "vocabtrain_" , Text.pack . show $ language]) searchPhrase
+	runDB $ selectList [VocabCardId <-. ( map (\t -> (Key $ PersistInt64 t) :: VocabCardId) sphinxResult) ] []
+
+getVocabtrainCardQueryJR :: TatoebaLanguage -> Text -> Handler RepJson
+getVocabtrainCardQueryJR language searchPhrase = do
+	cardResults <- vocabtrainCardQuery language searchPhrase
+	jsonToRepJson $ map JS.toJSON cardResults
+
+instance JS.ToJSON (Entity VocabCard) where
+	toJSON ecard = JS.object 
+		[ ("_id", JS.toJSON $ entityKey ecard)
+		, ("card_script", JS.toJSON $ vocabCardScript card)
+		, ("card_script_comment", JS.toJSON $ vocabCardScriptComment card)
+		, ("card_speech", JS.toJSON $ vocabCardSpeech card)
+		, ("card_speech_comment", JS.toJSON $ vocabCardSpeechComment card)
+		]
+		where card = entityVal ecard

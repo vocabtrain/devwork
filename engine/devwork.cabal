@@ -25,6 +25,7 @@ library
                      Foundation
                      Import
                      Model
+                     Sphinx
                      UserManipType 
                      UserManipLog
                      ShowText
@@ -93,6 +94,7 @@ library
                  , blaze-html
                  , blaze-markup
                  , path-pieces
+                 , MaybeT
                  , time
                  , wai
                  , attoparsec

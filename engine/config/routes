@@ -50,7 +50,7 @@
 
 /vocabtrain/card/queryj/#TatoebaLanguage/#Text VocabtrainCardQueryJR GET
 /vocabtrain/card/query/#TatoebaLanguage/#Text VocabtrainCardQueryR GET
-/vocabtrain/cardsearch VocabtrainCardSearchPostR GET
+/vocabtrain/cardsearch VocabtrainCardSearchR POST
 /vocabtrain/orphanedcards VocabtrainOrphanedCardsR GET
 
 /user/#UserId UserR GET

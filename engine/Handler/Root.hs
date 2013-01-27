@@ -3,12 +3,12 @@ module Handler.Root where
 
 import Import
 
+{-
 import qualified Network.Wai as Wai
 import Data.Text.Encoding as E
 import qualified Data.ByteString as B
 import qualified Data.Text as Text
 import qualified Data.ByteString.Base64 as B64
-
 basicHTTPAuthPrefix :: B.ByteString
 basicHTTPAuthPrefix = "Basic "
 
@@ -61,7 +61,7 @@ getFooR = do
 									defaultLayout [whamlet| KEY wrong text |]
 				else do
 						defaultLayout [whamlet| KEY failed prefix |]
-
+-}
 {-
 getHomeR :: Handler RepHtml
 getHomeR = defaultLayout $ do

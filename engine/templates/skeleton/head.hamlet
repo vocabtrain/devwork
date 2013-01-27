@@ -10,7 +10,7 @@
 -->
 <title>
     $if Text.null page_title
-        #{pageTitle pc}
+        #{sheetTitle sheet}
     $else
         #{page_title}
     :: #{sheetTitle sheet}

@@ -1,5 +1,8 @@
-<form method=post action=@{VocabtrainCardInsertR chapterId} enctype=#{cardFormEnctype}>
+<form #cardCreateForm method=post action=@{VocabtrainCardInsertR chapterId} enctype=#{cardFormEnctype}>
     <fieldset>
         <legend>_{MsgCardNewHeader}
         ^{cardFormWidget}
         <button type=submit .btn .btn-success>_{MsgCardNew}
+
+<div #cardFormSuggestions>
+<div .clearfix>

@@ -4,5 +4,5 @@
         <li>
             <a href="@{VocabtrainChapterR $ entityKey result}">#{vocabChapterVolume $ entityVal result}
 $maybe _ <- maid
-    ^{hamletToHtmlUrlI $ pageBody $ widgetChapter}
+    ^{pageBody $ widgetChapter}
 
