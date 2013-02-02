@@ -26,7 +26,7 @@
 
         <dt>
             <a href=@{TatoebaQueryR LANG_UND "connaissance"}>@{TatoebaQueryR LANG_UND "connaissance"}
-        <dd>Search for example sentences containing the word/phrase <i>love</i> in <i>every language</i>.
+        <dd>Search for example sentences containing the word/phrase <i>connaissance</i> in <i>every language</i>.
 
     where
     <ul>

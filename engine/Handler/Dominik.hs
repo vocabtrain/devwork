@@ -4,6 +4,7 @@ module Handler.Dominik where
 import Import
 import qualified Prelude
 import qualified Text.Blaze.Html
+import GlobalLayout
 
 showTenth :: Int -> String
 showTenth i

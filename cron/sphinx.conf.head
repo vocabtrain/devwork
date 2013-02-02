@@ -128,8 +128,8 @@ searchd
     seamless_rotate      = 1
     preopen_indexes      = 1
     unlink_old            = 1
-log                     = /home/niki/data/log/logsearchd.log
-query_log               = /home/niki/data/log/logquery.log
-pid_file                = /home/niki/data/log/logsearchd.pid
+log                     = @LOGDIR@/logsearchd.log
+query_log               = @LOGDIR@/logquery.log
+pid_file                = @LOGDIR@/logsearchd.pid
 compat_sphinxql_magics = 0 # the future is now
 }

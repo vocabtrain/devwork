@@ -16,6 +16,23 @@
         \\[ p := p_1 \cup p_2 \]
         so that our preference can be simplified to
         \\[ \mathtt{WITHIN }\; p \]
+
+<div .slide>
+    <h1>Geo-Caching: Current Situation
+    <ul>
+        <li>Preference SQL can cache the results of a geo-preference-query.
+        <li>Currently the cache can only be used when invoking the same query again.
+        <li>This kind of use is problematic!
+            <ul>
+                <li>Current architecture:
+                    <ul>
+                        <li>Many users for one server.
+                        <li>\(\Rightarrow\) Caching benefit is marginal in respect to tremendous need of memory
+                <li>Desired solution
+                    <ul>
+                        <li>If a query is invoked from a nearly point already cached, use this cache to boost up the preference!
+                        <li>\(\Rightarrow\) Preferences with movements can be much faster calculated
+
 <div .slide>
     <h1>Pruning Filter for Net-Distances
     <h2>Idea

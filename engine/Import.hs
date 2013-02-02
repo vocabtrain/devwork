@@ -8,6 +8,7 @@ module Import
     , module Control.Applicative
 	, module Generated
     , Text
+	, fromRightText
 #if __GLASGOW_HASKELL__ < 704
     , (<>)
 #endif
@@ -34,6 +35,9 @@ infixr 5 <>
 #endif
 
 	
+fromRightText :: Either a Text -> Text
+fromRightText (Right c) = c
+fromRightText _ = ""
 
 {-cardTypeField :: Field sub master CardTypePrimary
 cardTypeField = selectFieldList cardTypePrimaryList

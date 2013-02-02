@@ -23,28 +23,28 @@ VocabSelection id=_id sql=selection
 	UniqueSelection userId cardId
 VocabBookManip
 	userId UserId
-	bookId VocabBookId
+	bookId VocabBookId DeleteCascade
 	type UserManipType
 	timestamp UTCTime default=CURRENT_TIMESTAMP
 	content Text
 	deriving Show
 VocabChapterManip
 	userId UserId
-	chapterId VocabChapterId
+	chapterId VocabChapterId DeleteCascade
 	type UserManipType
 	timestamp UTCTime default=CURRENT_TIMESTAMP
 	content Text
 	deriving Show
 VocabTranslationManip
 	userId UserId
-	translationId VocabTranslationId
+	translationId VocabTranslationId DeleteCascade
 	type UserManipType
 	timestamp UTCTime default=CURRENT_TIMESTAMP
 	content Text
 	deriving Show
 VocabCardManip
 	userId UserId
-	cardId VocabCardId
+	cardId VocabCardId DeleteCascade
 	type UserManipType
 	timestamp UTCTime default=CURRENT_TIMESTAMP
 	content Text

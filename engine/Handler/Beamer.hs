@@ -40,3 +40,5 @@ getBeamerSlidePrivateR slide = do
 
 getBeamerSlideR :: (BeamerSlide a) => a -> GHandler App App RepHtml
 getBeamerSlideR beamerslide = beamerLayout (getBeamerSlideTitle beamerslide) (toWidget $ getBeamerSlideWidget beamerslide)
+
+

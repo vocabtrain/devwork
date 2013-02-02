@@ -12,6 +12,7 @@ import qualified Prelude
 import qualified Data.Text as Text
 import qualified Data.Ord as Ord
 import qualified Data.List as List
+import GlobalLayout
 
 import Data.Maybe
 import Control.Monad.Maybe
@@ -80,8 +81,8 @@ getVocabtrainR = do
 
 
 
-postVocabtrainBookR :: GHandler App App RepHtml
-postVocabtrainBookR = do
+postVocabtrainBookInsertR :: GHandler App App RepHtml
+postVocabtrainBookInsertR = do
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
@@ -118,7 +119,6 @@ postVocabtrainBookDeleteR bookId = do
 				Just book -> do
 					$(logInfo) $ Text.concat [ "Deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show book ]
 					_ <- runDB $ delete bookId
-					_ <- runDB $ insert $ VocabBookManip (entityKey aid) bookId USERMANIP_DELETE (vocabBookTimestamp book) ""
 					runDB $ deleteCascadeWhere [VocabChapterBookId ==. bookId]
 					setMessageI $ MsgBookDeleted $ vocabBookName book
 					redirect $ VocabtrainR
@@ -229,7 +229,6 @@ postVocabtrainChapterDeleteR chapterId = do
 				Just chapter -> do
 					_ <- runDB $ delete chapterId
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId]
-					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_DELETE time "" )
 					setMessageI $ MsgChapterDeleted $ vocabChapterVolume chapter
 					redirect $ VocabtrainR
 				_ -> do
@@ -424,7 +423,6 @@ deleteVocabtrainTranslationR translationId = do
 			case mtranslation of
 				Just translation -> do
 					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show translation]
-					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabTranslationManip (entityKey aid) translationId USERMANIP_DELETE time "")
 					_ <- runDB $ delete translationId
 					setMessageI $ MsgTranslationDeleted $ vocabTranslationContent translation
 					redirectUltDest VocabtrainR
@@ -588,14 +586,18 @@ postVocabtrainCardDeleteR cardId = do
 			mcard <- runDB $ get cardId
 			case mcard of
 				Just card -> do
-					$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
-					_ <- runDB $ delete cardId
-					_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabCardManip (entityKey aid) cardId USERMANIP_DELETE time "")
+					vocabtrainCardDelete cardId aid
 					setMessageI $ MsgCardDeleted $ vocabCardScript card
 					redirectUltDest VocabtrainR
 				_ -> do
 					setMessageI $ MsgCardNotFound $ either (\_ -> (-1)::Int) Prelude.id $ fromPersistValue $ unKey cardId
 					redirectUltDest VocabtrainR
+
+vocabtrainCardDelete :: VocabCardId -> Entity User -> GHandler App App ()
+vocabtrainCardDelete cardId aid = do
+	$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show cardId]
+	_ <- runDB $ delete cardId
+	return ()
 
 cardChapterForm :: VocabCardId -> AForm App App [VocabChapterId]
 cardChapterForm cardId = areq (multiSelectField chapters) (fieldSettingsLabel MsgFieldChapters) Nothing
@@ -706,9 +708,55 @@ cardSearchFormWidget = do
 	widget
 
 
-cardQueryForm :: AForm App App Text
-cardQueryForm = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) Nothing
+cardQueryForm :: Maybe Text -> AForm App App Text
+cardQueryForm query = areq (searchField True) (fieldSettingsLabel MsgFieldSearchCard) query
 -- cardQueryForm = areq (searchField True) (FieldSettings { fsLabel = fsLabel $ fieldSettingsLabel MsgFieldSearchCard, fsAttrs = [("class", "search-query")] } ) Nothing
+
+
+getVocabtrainCardDuplicateSearchR :: VocabCardId -> GHandler App App RepHtml
+getVocabtrainCardDuplicateSearchR dupCardId = do
+	mdupCard <- runDB $ get dupCardId
+	case mdupCard of
+		Just dupCard -> do
+			(cardQueryFormWidget, cardQueryFormEnctype) <- generateFormPost $ renderDivs $ cardQueryForm $ Just $ vocabCardScript dupCard
+			vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/cardduplicate_search.hamlet")
+		Nothing -> notFound
+
+postVocabtrainCardDuplicateSearchR :: VocabCardId -> GHandler App App RepHtml
+postVocabtrainCardDuplicateSearchR dupCardId = do
+	dupCard <- runDB $ get dupCardId
+	((result, _), _) <- runFormPost $ renderDivs $ cardQueryForm $ maybe Nothing (Just . vocabCardScript) dupCard
+	case result of
+		FormSuccess searchPhrase -> do 
+			getVocabtrainCardSearch LANG_UND searchPhrase $ Just widgetCardReplaceDuplicateWithThis
+		_ -> do
+			setMessageI MsgCardPleaseCorrectEntry
+			redirect $ VocabtrainCardDuplicateSearchR dupCardId
+	where
+		widgetCardReplaceDuplicateWithThis :: Entity VocabCard -> GWidget App App ()
+		widgetCardReplaceDuplicateWithThis card = do toWidget $(whamletFile "templates/vocabtrain/card_list_icon_replaceduplicatewiththis.hamlet")
+
+postVocabtrainCardReplaceDuplicateR :: VocabCardId -> VocabCardId -> GHandler App App RepHtml
+postVocabtrainCardReplaceDuplicateR dupCardId origCardId = do
+	maid <- maybeAuth 
+	msgShow <- getMessageRender
+	case maid of
+		Nothing -> do
+			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
+		Just aid -> do
+			if dupCardId == origCardId
+				then invalidArgs [msgShow $ MsgCardDuplicateCannotReplaceWithItself]
+				else do
+					origContentResults <- runDB $ selectList [ VocabContentCardId ==. origCardId ] []
+					runDB $ updateWhere [ VocabContentCardId ==. dupCardId, VocabContentChapterId /<-. (map (vocabContentChapterId . entityVal) origContentResults) ] [ VocabContentCardId =. origCardId]
+					vocabtrainCardDelete dupCardId aid
+					$(logInfo) $ Text.concat [ "duplicateReplacement: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show dupCardId, " <-> ", Text.pack $ show origCardId]
+{-			_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabTranslationManip (entityKey aid) translationId USERMANIP_INSERT time $ 
+				Text.intercalate " ," $ catMaybes $ map (\c -> c translation) [Just . vocabTranslationContent, vocabTranslationComment]
+				)
+				-}
+					setMessageI $ MsgCardDuplicateReplaced
+					redirectUltDest VocabtrainR
 
 {-
 defaultCardQueryFormWidget :: GWidget App App ()
@@ -719,7 +767,7 @@ defaultCardQueryFormWidget = do
 
 widgetVocabtrainCardChapterAddSearch' :: VocabChapterId -> GWidget App App ()
 widgetVocabtrainCardChapterAddSearch' chapterId = do
-	((_, cardQueryFormWidget), cardQueryFormEnctype) <- lift $ generateFormGet $ renderDivs $ cardQueryForm
+	((_, cardQueryFormWidget), cardQueryFormEnctype) <- lift $ generateFormGet $ renderDivs $ cardQueryForm Nothing
 	widgetVocabtrainCardChapterAddSearch chapterId cardQueryFormWidget cardQueryFormEnctype
 
 widgetVocabtrainCardChapterAddSearch :: VocabChapterId -> GWidget App App () -> Enctype -> GWidget App App ()
@@ -755,13 +803,14 @@ getVocabtrainCardChapterAddR chapterId = do
 -}
 getVocabtrainCardChapterAddR :: VocabChapterId -> Handler RepHtml
 getVocabtrainCardChapterAddR chapterId = do
+	setUltDestCurrent
 	msgShow <- getMessageRender
 	maid <- maybeAuth 
 	case maid of
 		Nothing -> do
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
-			((result', cardQueryFormWidget), cardQueryFormEnctype) <- runFormGet $ renderDivs $ cardQueryForm
+			((result', cardQueryFormWidget), cardQueryFormEnctype) <- runFormGet $ renderDivs $ cardQueryForm Nothing
 			case result' of
 				FormSuccess searchPhrase -> do
 					res <- r
@@ -812,7 +861,6 @@ getVocabtrainCardSearch :: TatoebaLanguage -> Text -> Maybe ( Entity VocabCard -
 getVocabtrainCardSearch language searchPhrase cardListExtraButtonWidget = do
 	msgShow <- getMessageRender
 	maid <- maybeAuth 
-	setUltDestCurrent
 	cardResults <- vocabtrainCardQuery language searchPhrase
 	{-
 	cardResults <- runDB $ selectList 

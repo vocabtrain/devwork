@@ -53,7 +53,7 @@ import org.apache.lucene.util.Version;
 
 public class LuceneFunctions
 {
-	public static final Version LUCENE_VERSION = Version.LUCENE_40;
+	public static final Version LUCENE_VERSION = Version.LUCENE_41;
 
 	public static Analyzer getLanguageAnalyzer(final String language)
 	{

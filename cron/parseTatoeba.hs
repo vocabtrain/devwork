@@ -5,8 +5,8 @@ import qualified Data.ByteString.Char8 as C
 import Database.HDBC
 import Database.HDBC.PostgreSQL
 import Prelude
-import System.IO 
 import MyQQ 
+import MyTools
 import System.Environment
 
 createTables :: String
@@ -43,7 +43,8 @@ CREATE RULE "link_rule" AS ON INSERT TO tatoeba_links
 main :: IO ()
 main = do
 	args <- getArgs
-	dbh <- connectPostgreSQL $ "host=localhost dbname=" ++ (args!!0) ++ " user=postgres"
+	connectionString <- getPostgresConnectionString (args!!0) (read $ args!!1)
+	dbh <- connectPostgreSQL $ B.toString connectionString
 	runRaw dbh createTables 
 	commit dbh
 

@@ -14,7 +14,7 @@
 /tatoeba/query TatoebaQueryRandomR GET
 
 /vocabtrain VocabtrainR GET
-/vocabtrain/book VocabtrainBookR POST
+/vocabtrain/book/insert VocabtrainBookInsertR POST
 /vocabtrain/books/log/#VocabBookId VocabtrainBookLogR GET
 /vocabtrain/books/update/#VocabBookId VocabtrainBookUpdateR GET POST
 /vocabtrain/books/delete/#VocabBookId VocabtrainBookDeleteR GET POST
@@ -34,6 +34,10 @@
 /vocabtrain/cardchapter/add/#VocabChapterId VocabtrainCardChapterAddR GET
 /vocabtrain/cardchapter/insert/#VocabCardId/#VocabChapterId VocabtrainCardChapterInsertR POST
 /vocabtrain/cardchapters/delete/#VocabCardId VocabtrainCardChaptersDeleteR POST
+
+/vocabtrain/card/duplicate/search/#VocabCardId VocabtrainCardDuplicateSearchR GET POST
+/vocabtrain/card/duplicate/replace/#VocabCardId/#VocabCardId VocabtrainCardReplaceDuplicateR POST
+
 
 /vocabtrain/card/#VocabCardId VocabtrainCardR GET
 /vocabtrain/card/log/#VocabCardId VocabtrainCardLogR GET

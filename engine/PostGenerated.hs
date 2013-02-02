@@ -11,6 +11,7 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Char as Char
 import qualified Data.List as List
+import Widgets
 
 class (Show a, Read a) => BeamerSlide a where
 	getBeamerSlideTitle :: a -> Text

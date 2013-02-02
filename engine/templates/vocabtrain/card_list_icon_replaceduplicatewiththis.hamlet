@@ -1,0 +1,3 @@
+<form method=post action=@{VocabtrainCardReplaceDuplicateR dupCardId $ (entityKey $ card)}>
+    <button type=submit .btn .btn-danger>_{MsgCardReplaceDuplicateWithThis}
+

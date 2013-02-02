@@ -1,14 +1,12 @@
 {-# LANGUAGE TypeFamilies, QuasiQuotes, MultiParamTypeClasses, TemplateHaskell, OverloadedStrings #-}
 
 import qualified Data.ByteString.UTF8 as B
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as C
 import Control.Monad
 import Prelude
-import System.IO 
 import Database.HDBC
 import Database.HDBC.PostgreSQL
 import System.Environment
+import MyTools
 
 languagesWithStemmer :: [String]
 languagesWithStemmer = [
@@ -35,6 +33,7 @@ languagesWithCJK = [
 	"yue"
 	]
 
+genVocabtrainLang :: SqlValue -> String
 genVocabtrainLang (SqlByteString langB) =
 				"source source_vocabtrain_" ++ lang ++ " : default {\n" ++
 				"\tsql_query = SELECT DISTINCT cards._id, card_script, card_speech FROM cards JOIN content ON content_card_id = cards._id JOIN chapters ON content_chapter_id = chapters._id JOIN books on books._id = chapter_book_id WHERE book_language = '" ++ lang ++ "';\n" ++
@@ -45,12 +44,14 @@ genVocabtrainLang (SqlByteString langB) =
 					else "common_index" ) ++ " {\n" ++
 				"\ttype = plain\n" ++
 				"\tsource = source_vocabtrain_" ++ lang ++ "\n" ++
-				"\tpath = /home/niki/data/sphinx/vocabtrain/" ++ lang ++ "\n" ++
+				"\tpath = @DATADIR@/sphinx/vocabtrain/" ++ lang ++ "\n" ++
 				"\tenable_star = true\n" ++
 				"\tmin_prefix_len = 3\n" ++
 				"}\n\n"
 					where lang = B.toString langB
+genVocabtrainLang _ = ""
 
+genLang :: SqlValue -> String
 genLang (SqlByteString langB) =
 				"source source_" ++ lang ++ " : default {\n" ++
 				"\tsql_query = SELECT sentence_id, sentence_text FROM tatoeba_sentences WHERE sentence_language = '" ++ lang ++ "';\n" ++
@@ -61,16 +62,18 @@ genLang (SqlByteString langB) =
 					else "common_index" ) ++ " {\n" ++
 				"\ttype = plain\n" ++
 				"\tsource = source_" ++ lang ++ "\n" ++
-				"\tpath = /home/niki/data/sphinx/" ++ lang ++ "\n" ++
+				"\tpath = @DATADIR@/data/sphinx/" ++ lang ++ "\n" ++
 				( if elem lang languagesWithStemmer then 
 					"\tmorphology = libstemmer_" ++ lang ++ "\n\tmin_stemming_len=4\n" 
 					else "") ++
 				"}\n\n"
 					where lang = B.toString langB
+genLang _ =  ""
 main :: IO ()
 main = do
 	args <- getArgs
-	dbh <- connectPostgreSQL $ "host=localhost dbname=" ++ (args!!0) ++ " user=postgres"
+	connectionString <- getPostgresConnectionString (args!!0) (read $ args!!1)
+	dbh <- connectPostgreSQL $ B.toString connectionString
 	langs <- quickQuery' dbh "SELECT sentence_language FROM tatoeba_sentences GROUP BY sentence_language" []
 	forM_ langs $ \lang -> do
 		putStr $ genLang (lang !! 0) 

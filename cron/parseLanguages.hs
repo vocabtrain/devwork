@@ -5,12 +5,11 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as C
 import Control.Monad
 import Prelude
-import System.IO 
 import Database.HDBC
 import Database.HDBC.PostgreSQL
 import qualified Data.Map as Map
-import Data.Maybe
 import System.Environment
+import MyTools
 
 mapLine :: [C.ByteString] -> [(C.ByteString,C.ByteString)]
 mapLine cols 
@@ -20,11 +19,12 @@ mapLine cols
 
 main :: IO ()
 main = do
-	args <- getArgs
 	contents <- B.readFile "ISO-639-2_utf-8.txt" 
 	let langMap = Map.fromList $ concat $ map (\line -> mapLine $ (C.split '|') line) $ B.lines contents
 
-	dbh <- connectPostgreSQL $ "host=localhost dbname=" ++ (args!!0) ++ " user=postgres"
+	args <- getArgs
+	connectionString <- getPostgresConnectionString (args!!0) (read $ args!!1)
+	dbh <- connectPostgreSQL $ B.toString connectionString
 	langs <- quickQuery' dbh "SELECT sentence_language FROM tatoeba_sentences GROUP BY sentence_language" []
 	
 	forM_ langs (\lang -> do

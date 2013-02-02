@@ -12,7 +12,7 @@ import Database.Persist
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import Web.PathPieces
-import ShowText
+import ShowText ()
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static

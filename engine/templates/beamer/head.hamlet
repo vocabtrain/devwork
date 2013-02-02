@@ -17,10 +17,11 @@
 <link rel="stylesheet" type="text/css" media="screen, projection, print"  href="@{StaticR css_beamer_css}">
 <meta name="copyright" content="Copyright &#169; 2012 Dominik K&ouml;ppl, Institute for Databases and Information Systems">
 <meta name="duration" content="5">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
 <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-<script type="text/javascript" src="@{StaticR js_jquery_zoomooz_min_js}">
+<script type="text/javascript" src="@{StaticR js_jquery_zoomooz_js}">
 <script type="text/javascript" src="@{StaticR js_beamer_js}">
-<script src="http://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js" charset="utf-8" type="text/javascript">
+<script src="@{StaticR js_slidy_js}" charset="utf-8" type="text/javascript">
 <link rel="shortcut icon" href=@{StaticR img_favicon_057_png}>
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href=@{StaticR img_favicon_144_png}>
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href=@{StaticR img_favicon_114_png}>

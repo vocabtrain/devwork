@@ -66,9 +66,8 @@ instance ToUserManipLog VocabCardManip where
 getUserManipTypeIcon :: UserManipType -> Text
 getUserManipTypeIcon USERMANIP_INSERT = "icon-file"
 getUserManipTypeIcon USERMANIP_UPDATE = "icon-refresh"
-getUserManipTypeIcon USERMANIP_DELETE = "icon-trash"
 getUserManipTypeIcon USERMANIP_PUT = "icon-star"
-getUserManipTypeIcon USERMANIP_REMOVE = "icon-star-empty"
+getUserManipTypeIcon USERMANIP_REMOVE = "icon-trash"
 
 userManipTypeWidget :: UserManipType -> GWidget App App()
 userManipTypeWidget t = do

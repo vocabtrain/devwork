@@ -42,7 +42,10 @@ library
                      Generated
                      PostGenerated
                      ToAppMessage
+                     Breadcrumbs
                      MyQQ
+                     GlobalLayout
+                     Widgets 
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

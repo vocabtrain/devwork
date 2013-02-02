@@ -9,7 +9,7 @@
 \\newcommand{\level}[2]{\mathrm{lvl}_\{#1}\left(#2\right)}
 \\newcommand{\domL}[2]{\mathrm{Dom}_\{#1}\left(#2\right)}
 \\newcommand{\dom}[1]{\mathrm{Dom}\left(#1\right)}
-\\newcommand{\comprun}[1]{\mathcal{M}\left(#1\right)}
+\\newcommand{\comprun}[1]{\sup\left(#1\right)}
 \\newcommand{\domhull}[2]{\left.#1\right.^\{(#2)}}
 \\newcommand{\pareto}[2]{#1 \otimes #2}
 \\newcommand{\priorto}[2]{#1 \& #2}

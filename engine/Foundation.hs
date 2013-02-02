@@ -8,16 +8,14 @@ module Foundation
 	, isTrustedUser
 	, isAdmin
     , Form
-	, globalLayout
     , maybeAuth
     , requireAuth
     , module Settings
     , module Model
-	, fromRightText
     , getExtra
 	, widgetToHtmlUrlI
 	, hamletToHtmlUrlI
-	, SheetLayout (..)
+	, appExtra
 --	, DominikSub (..)
 --    , resourcesDominikSub
     ) where
@@ -35,13 +33,12 @@ import Network.HTTP.Conduit (Manager)
 import qualified Settings
 import Settings.Development (development)
 import qualified Database.Persist.Store
-import Settings.StaticFiles
+--import Settings.StaticFiles
 import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
-import Text.Hamlet (hamletFile, ihamletFile, HtmlUrlI18n)
 import Generated (TatoebaLanguage (..), BeamerSlidePrivate (..), BeamerSlidePublic (..) )
 
 import qualified Data.Text as Text
@@ -112,7 +109,7 @@ instance Yesod App where
 --        return . Just $ clientSessionBackend key timeout
 	
     --defaultLayout = globalLayout' "/dev/work"
-    defaultLayout = globalLayout . (SheetLayout "/dev/work" Nothing Nothing)
+    --defaultLayout = globalLayout . (SheetLayout "/dev/work" Nothing Nothing)
 
 {-    defaultLayout widget = do
         master <- getYesod
@@ -228,56 +225,6 @@ instance RenderMessage App FormMessage where
 getExtra :: Handler Extra
 getExtra = fmap (appExtra . settings) getYesod
 
-instance YesodBreadcrumbs App where
-	breadcrumb HomeR = return("Start", Nothing)
-
-	breadcrumb DKHomeR = return("Kurshomepage", Just HomeR)
-	breadcrumb DKProjectHomeR = return("Projekthomepage", Just HomeR)
-	breadcrumb QtDescR = return("Qt Kurs", Just DKHomeR)
-	breadcrumb QtDossierR = return("Qt Unterlagen", Just QtDescR)
-	breadcrumb QtProjectListR = return("Qt Projekte", Just QtDescR)
-	breadcrumb QtGalleryR = return("Qt Galerie", Just QtDescR)
-	breadcrumb QtOpenGLR = return("Qt OpenGL", Just QtDescR)
-	breadcrumb OpenGLR = return("OpenGL", Just DKHomeR)
-	breadcrumb JavaDescR = return("Java Kurs", Just DKHomeR)
-	breadcrumb JavaDossierR = return("Java Unterlagen", Just JavaDescR)
-	breadcrumb JavaProjectListR = return("Java Projekte", Just JavaDescR)
-	breadcrumb (JavaProjectR _) = return("", Just JavaProjectListR) 
-
-	breadcrumb ProjectAnnualR = return("Annual", Just DKProjectHomeR)
-	breadcrumb ProjectFritzContactR = return("FritzContact", Just DKProjectHomeR)
-	breadcrumb TatoebaAppR = return("Tatoeba App", Just DKProjectHomeR)
-	breadcrumb TatoebaWebServiceR = return("Tatoeba Webservice", Just DKProjectHomeR)
-	breadcrumb BeamerSlidesR = return("Slides", Just DKProjectHomeR)
-	
-	breadcrumb VocabtrainR = return("Vocabtrain", Just HomeR)
-	breadcrumb (VocabtrainBookUpdateR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookUpdate . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
-	breadcrumb (VocabtrainBookDeleteR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookDelete . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
-
-	breadcrumb (VocabtrainChapterR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapter . fromRightText . fromPersistValue . unKey $ chapterId, Just VocabtrainR)
-	breadcrumb (VocabtrainChapterInsertR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterInsert . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
-	breadcrumb (VocabtrainChapterUpdateR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterUpdate . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
-	breadcrumb (VocabtrainChapterDeleteR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterDelete . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
-
-	breadcrumb (VocabtrainTranslationInsertR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationInsert . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
-	breadcrumb (VocabtrainTranslationUpdateR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationUpdate . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainR)
-	breadcrumb (VocabtrainTranslationDeleteR translationId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbTranslationDelete . fromRightText . fromPersistValue . unKey $ translationId, Just VocabtrainR)
-
-	breadcrumb (VocabtrainCardChapterAddR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardChapterAdd . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
-	breadcrumb (VocabtrainCardChapterInsertR cardId chapterId) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbCardChapterInsert (fromRightText . fromPersistValue . unKey $ cardId) (fromRightText . fromPersistValue . unKey $ chapterId), Just (VocabtrainChapterR chapterId))
-	breadcrumb (VocabtrainCardChaptersDeleteR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardChaptersDelete . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
-
-	breadcrumb (VocabtrainCardR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCard . fromRightText . fromPersistValue . unKey $ cardId, Just VocabtrainR)
-	breadcrumb (VocabtrainCardInsertR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardInsert . fromRightText . fromPersistValue . unKey $ chapterId, Just (VocabtrainChapterR chapterId))
-	breadcrumb (VocabtrainCardUpdateR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardUpdate . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
-	breadcrumb (VocabtrainCardDeleteR cardId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbCardDelete . fromRightText . fromPersistValue . unKey $ cardId, Just (VocabtrainCardR cardId))
-
-
-	breadcrumb _ = return("", Nothing)
-
-fromRightText :: Either a Text -> Text
-fromRightText (Right c) = c
-fromRightText _ = ""
 
 -- Note: previous versions of the scaffolding included a deliver function to
 -- send emails. Unfortunately, there are too many different options for us to
@@ -302,42 +249,4 @@ widgetToHtmlUrlI :: GWidget App App () -> msg -> url -> GWidget App App ()
 widgetToHtmlUrlI hu _msgRender _urlRender = hu
 hamletToHtmlUrlI :: (t2 -> t1) -> t -> t2 -> t1
 hamletToHtmlUrlI hu _msgRender _urlRender = hu _urlRender
-
-data SheetLayout sub url = SheetLayout {
-	  sheetTitle :: Text
-	, sheetNav :: Maybe (GWidget sub App ())
-	, sheetBanner :: Maybe (GWidget sub App ())
-	, sheetContent :: GWidget sub App ()
-}
-
-globalLayout' :: Text -> GWidget sub App () -> GHandler sub App RepHtml
-globalLayout' title widget = globalLayout $ SheetLayout title Nothing Nothing widget
-
-readSheetWidget mwidget =
-	case mwidget of
-		Nothing -> return Nothing
-		Just w -> do 
-			v <- widgetToPageContent w
-			return $ Just v
-
-globalLayout :: SheetLayout sub (Route App) -> GHandler sub App RepHtml
---globalLayout subtitle contents = do
-globalLayout sheet = do
-	master <- getYesod
-	mmsg <- getMessage
-	content <- widgetToPageContent $ sheetContent sheet
-	mnav <- readSheetWidget $ sheetNav sheet
-	mbanner <- readSheetWidget $ sheetBanner sheet
-	maid <- maybeAuthId
-	(page_title, page_parents) <- breadcrumbs
-
-	PageContent title headTags bodyTags <- widgetToPageContent $ do
-		toWidgetHead $(hamletFile "templates/skeleton/head.hamlet")
-		setTitle . toHtml $ sheetTitle sheet
-		addStylesheet $ StaticR css_bootstrap_css
-		addStylesheet $ StaticR css_bootstrap_docs_css
-		addStylesheet $ StaticR css_normalize_css
-		addStylesheet $ StaticR css_flags_css
-		addStylesheet $ StaticR css_main_css
-	hamletToRepHtml $(hamletFile "templates/skeleton/overall.hamlet")
 

@@ -28,6 +28,27 @@ BookUpdate: Update Book
 BookNew: Create a new book
 BookNewHeader: New book
 
+CardReplaceDuplicateWithThis: Replace Duplicate with this card
+CardReplaceDuplicateHeader title@Text: Search the original card for #{title}
+CardSearchOriginal: Search Original
+CardDuplicateReplaced: Duplicate is successfully replaced with the original.
+TooltipVocabtrainCardDuplicateSearchR: Is Duplicate
+
+CardDuplicateCannotReplaceWithItself: You cannot replace a card with itself!
+
+BreadcrumbBookLog _id@Text: Log Book ##{_id}
+BreadcrumbCardLog _id@Text: Log Card ##{_id}
+BreadcrumbTranslationLog _id@Text: Log Translation ##{_id}
+BreadcrumbChapterLog _id@Text: Log Chapter ##{_id}
+
+BreadcrumbCardDuplicateSearch _id@Text: Search original for ##{_id}
+BreadcrumbCardReplaceDuplicate dupCardId@Text origCardId@Text: Replace card ##{dupCardId} with ##{origCardId}
+BreadcrumbBookInsert: Insert Book
+BreadcrumbCardQuery language@Text searchPhrase@Text: Search #{searchPhrase} in #{language}
+BreadcrumbCardSearch: Search Cards
+BreadcrumbOrphanedCards: Orphaned Cards
+BreadcrumbUserUpdate _id@Text: Update User ##{_id}
+
 BreadcrumbBookUpdate bookId@Text: Update Book ##{bookId}
 BreadcrumbBookDelete bookId@Text: Delete Book ##{bookId}
 BreadcrumbChapter chapterId@Text: Chapter ##{chapterId}
@@ -41,7 +62,7 @@ BreadcrumbCardChapterAdd chapterId@Text: Add Card to Chapter ##{chapterId}
 BreadcrumbCardChapterInsert cardId@Text chapterId@Text: Connect Chapter ##{chapterId} and Card ##{cardId}
 BreadcrumbCardChaptersDelete cardId@Text: Unlink Card ##{cardId} from Chapters
 BreadcrumbCard cardId@Text: Card ##{cardId}
-BreadcrumbCardInsert cardId@Text: Insert Card ##{cardId}
+BreadcrumbCardInsert chapterId@Text: Insert Card in Chapter ##{chapterId}
 BreadcrumbCardUpdate cardId@Text: Update Card ##{cardId}
 BreadcrumbCardDelete cardId@Text: Delete Card ##{cardId}
 
@@ -317,10 +338,9 @@ FieldTimestamp: Timestamp
 FieldContent: Content
 
 UserManipInsert: Inserted
-UserManipDelete: Deleted
 UserManipUpdate: Updated
 UserManipPut: Put
-UserManipRemove: Remove
+UserManipRemove: Removed
 
 PleaseCorrectEntry: Your submitted entry had some errors, please correct and try again.
 EntryCreated title@Text: Your new blog post, #{title}, has been created

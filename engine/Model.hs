@@ -39,6 +39,7 @@ instance PersistField CardType where
 -- You can find more information on persistent and how to declare entities
 -- at:
 -- http://www.yesodweb.com/book/persistent/
+{-
 share [mkPersist sqlSettings, mkMigrate "migrateCore", mkDeleteCascade sqlSettings]
     $(persistFileWith lowerCaseSettings "config/models")
 
@@ -47,9 +48,21 @@ share [mkPersist sqlSettings, mkMigrate "migrateVocabtrain", mkDeleteCascade sql
 
 share [mkPersist sqlSettings, mkMigrate "migrateVocabtrainServer", mkDeleteCascade sqlSettings]
     $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
+-}
 
-share [mkPersist sqlSettings, mkMigrate "migrateVocabtrainMobile", mkDeleteCascade sqlSettings]
-    $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels")
+share [mkPersist sqlSettings, mkDeleteCascade sqlSettings] $
+	 $(persistFileWith lowerCaseSettings "config/models") 
+	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainmodels")
+	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
+	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels")
+
+share [mkMigrate "migrateVocabtrain"] $(persistFileWith lowerCaseSettings "config/vocabtrainmodels") 
+share [mkMigrate "migrateVocabtrainMobile"] $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels") 
+
+share [mkMigrate "migrateServer"] $
+	 $(persistFileWith lowerCaseSettings "config/models") 
+	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainmodels") 
+	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
 
 --instance ToMessage VocabBookId where
 --    toMessage i = Data.Text.pack $ show i

@@ -1,4 +1,4 @@
-User
+User sql=benutzer
 	email Text
     nick Text Maybe
     UniqueUser email

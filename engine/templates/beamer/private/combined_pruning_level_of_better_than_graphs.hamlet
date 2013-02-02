@@ -26,8 +26,8 @@
         Consider a BTG of the dimensions \(5 \times 5 \times 5\). 
         Then the pair \( \left( (1,1,4), (1,5,1) \right) \not\in \Omega \)
     <div .incremental .slidy-image .slidy-image-single>
-        <img alt="BTG" src=@{StaticR img_slides_btg555_114_151a_jpg} .zoomTarget>
-        <img alt="BTG" src=@{StaticR img_slides_btg555_114_151b_jpg} .zoomTarget>
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg555_114_151a_jpg}
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg555_114_151b_jpg}
 <div .slide>
     <h1>Lemma: Can't combine zero
     <p>
@@ -53,6 +53,7 @@
     <h1>Lemma: Level Swapping
     <p>
         If there are \(l,k = 1,...,m\) such that \(a - e_l + e_k = b\), then \( (a,b) \in \Omega \), 
+        but only if \( \level{P}{a} +1 \not= \max{P} \not= \level{P}{b}+1 \),
         where \(e_j \) is a tuple with zero as entries except with a one at dimension \( j \).
     <h2>Proof
     <p>
@@ -110,8 +111,8 @@
             <li> Penalty: \( d_h(a,b) = 6 \)
             <li> \( \pruninglevel{P}{\comprun{a,b}} + P = \pruninglevel{P}{a,b} = 18 \)
     <div .incremental .slidy-image style="float:right; width: 40%">
-        <img alt="BTG" src=@{StaticR img_slides_btg_0609_1004_1010a_jpg} .zoomTarget>
-        <img alt="BTG" src=@{StaticR img_slides_btg_0609_1004_1010b_jpg} .zoomTarget>
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg_0609_1004_1010a_jpg}
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg_0609_1004_1010b_jpg}
 
 <div .slide>
     <h1>Huge Gap: Heuristic
@@ -126,8 +127,8 @@
             <li> \( \pruninglevel{P}{\comprun{a,b}} + P > \pruninglevel{P}{a,b} = 17 \)
 
     <div .incremental .slidy-image style="float:right; width: 40%">
-        <img alt="BTG" src=@{StaticR img_slides_btg_0110_0803a_jpg} .zoomTarget>
-        <img alt="BTG" src=@{StaticR img_slides_btg_0110_0803b_jpg} .zoomTarget>
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg_0110_0803a_jpg}
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg_0110_0803b_jpg}
 
 <div .slide>
     <h1>Assymmetric BTGs
@@ -150,7 +151,7 @@
         <li> \( \pruninglevel{P}{\comprun{a,b}} = 3 < \pruninglevel{P}{a,b} = 8 \)
         <li> Penalty: \( P = 5  \)
     <div .slidy-image style="float:right; width: 50%">
-        <img alt="BTG" src=@{StaticR img_slides_btg_007_101_210_jpg} .zoomTarget>
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg_007_101_210_jpg}
 <div .slide>
     <h1>Extremities
     <p>Definitions
@@ -162,7 +163,7 @@
         then we take a new pivot element \(n\) which holds
         \\[ \pruninglevel{P}{n} = \min\menge{ \pruninglevel{P}{a}, \pruninglevel{P}{b}} - 1 \]
         <div .slidy-image style="float:right; width: 40%">
-            <img alt="BTG" src=@{StaticR img_slides_btg_010_201_210_jpg} .zoomTarget>
+            ^{zoomImageWidget "BTG" $ StaticR img_slides_btg_010_201_210_jpg}
 
 <div .slide>
     <h1>Combinations
@@ -180,8 +181,8 @@
     <h1>The Multidimensional Problem
     <p>For \( m > 2 \) we likely get some nasty behaviour:
     <div .incremental .slidy-image .slidy-image-single>
-        <img alt="BTG" src=@{StaticR img_slides_btg262_001_110a_jpg}>
-        <img alt="BTG" src=@{StaticR img_slides_btg262_001_110b_jpg}>
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg262_001_110a_jpg}
+        ^{zoomImageWidget "BTG" $ StaticR img_slides_btg262_001_110b_jpg}
 <div .slide>
     <h1>The belly
     <ul>

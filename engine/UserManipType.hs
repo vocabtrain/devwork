@@ -7,11 +7,10 @@ import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import ShowText
 
-data UserManipType = USERMANIP_UPDATE | USERMANIP_DELETE | USERMANIP_INSERT | USERMANIP_PUT | USERMANIP_REMOVE
+data UserManipType = USERMANIP_UPDATE | USERMANIP_INSERT | USERMANIP_PUT | USERMANIP_REMOVE
 	deriving(Eq,Show)
 instance ShowText UserManipType where
 	showText USERMANIP_UPDATE = "u"
-	showText USERMANIP_DELETE = "d"
 	showText USERMANIP_INSERT = "i"
 	showText USERMANIP_PUT = "p"
 	showText USERMANIP_REMOVE = "r"
@@ -24,7 +23,6 @@ instance FromText UserManipType where
 instance Read UserManipType where
 	readPrec = choice $ strValMap 
 		[ ("u",USERMANIP_UPDATE)
-		, ("d",USERMANIP_DELETE)
 		, ("i",USERMANIP_INSERT)
 		, ("p",USERMANIP_PUT)
 		, ("r",USERMANIP_REMOVE)

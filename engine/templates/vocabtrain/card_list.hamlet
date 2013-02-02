@@ -24,6 +24,8 @@
                                 <i .icon-trash>
                             <a href=@{VocabtrainCardLogR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardLogR}">
                                 <i .icon-calendar>
+                            <a href=@{VocabtrainCardDuplicateSearchR (entityKey $ fst result)} rel="tooltip" data-placement="bottom" title="_{MsgTooltipVocabtrainCardDuplicateSearchR}">
+                                <i .icon-repeat>
                     <td>#{vocabCardScript card}
                     <td>
                         $maybe scriptComment <- vocabCardScriptComment card

@@ -4,34 +4,40 @@
 
     <br>
     <h2>Veranstaltungen
-    <h3>WiSe 12/13
+    <h3>
+        <img src=@{StaticR img_unidesign_siegel_uni_augsburg_png} alt="Siegel" .uni-siegel>
+        Universität Augsburg
+    <h4>WiSe 12/13
     <ul>
         <li>Mitbetreuer der Vorlesung <a href="http://www.informatik.uni-augsburg.de/lehrstuehle/dbis/db/lectures/ws1213/datenbanksysteme1/">Datenbanksysteme I</a>
 
-    <h3>SoSe 12
+    <h3>
+        <img src=@{StaticR img_unidesign_siegel_uni_regensburg_gif} alt="Siegel" .uni-siegel>
+        Universität Regensburg
+    <h4>SoSe 12
     <ul>
         <li>Leiter des <a href=@{ QtDossierR}>C++/Qt Kurses</a>
 
-    <h3>WiSe 11/12
+    <h4>WiSe 11/12
     <ul>
         <li>Leiter des <a href=@{ JavaDescR}>Java Kurses</a>
         <li>Leiter des <a href=@{ QtDossierR}>C++/Qt Kurses</a>
-    <h3>SoSe 11
+    <h4>SoSe 11
     <ul>
         <li>Leiter des <a href=@{ QtDossierR}>C++/Qt Kurses</a>
 
-    <h3>WiSe 10/11
+    <h4>WiSe 10/11
     <ul>
         <li>Leiter des <a href=@{ JavaDescR}>Java Kurses</a>
         <li>Leiter des <a href=@{ QtDossierR}>C++/Qt Kurses</a>
-    <h3>SoSe 10
+    <h4>SoSe 10
     <ul>
         <li>Leiter des <a href=@{ QtDossierR}>C++/Qt Kurses</a>
-    <h3>WiSe 09/10
+    <h4>WiSe 09/10
     <ul>
         <li>Vortragreihe <a href=@{ OpenGLR}>3D Graphik und Design</a>
         <li>Übungsleiter <a href="http://www.mathematik.uni-regensburg.de/Mat8/analysis3/analysis3.htm">Analysis III</a> Gruppe 5
         <li>Leiter des <a href=@{ QtDossierR}>C++/Qt Kurses</a>
-    <h3>SoSe 09
+    <h4>SoSe 09
     <ul>
         <li>Leiter des <a href=@{ QtDossierR}>C++/Qt Kurses</a>

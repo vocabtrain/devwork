@@ -1,0 +1,5 @@
+<form method=post action=@{VocabtrainCardDuplicateSearchR dupCardId} enctype=#{cardQueryFormEnctype}>
+    <fieldset>
+        <legend>_{MsgCardReplaceDuplicateHeader $ vocabCardScript dupCard}
+        ^{cardQueryFormWidget}
+        <button type=submit .btn .btn-success>_{MsgCardSearchOriginal}
