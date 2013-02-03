@@ -56,8 +56,9 @@ share [mkPersist sqlSettings, mkDeleteCascade sqlSettings] $
 	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
 	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels")
 
-share [mkMigrate "migrateVocabtrain"] $(persistFileWith lowerCaseSettings "config/vocabtrainmodels") 
-share [mkMigrate "migrateVocabtrainMobile"] $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels") 
+share [mkMigrate "migrateVocabtrainMobile"] $
+	$(persistFileWith lowerCaseSettings "config/vocabtrainmodels")
+	++ $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels") 
 
 share [mkMigrate "migrateServer"] $
 	 $(persistFileWith lowerCaseSettings "config/models") 

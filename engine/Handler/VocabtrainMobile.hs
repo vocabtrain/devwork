@@ -38,6 +38,9 @@ import System.IO
 import Data.Word (Word8)
 import qualified Data.List as List
 
+import UserManipType
+import UserManipLog
+import Data.Time (getCurrentTime) 
 
 
 data BasicAuthResult = BasicAuthAuthorized UserId | BasicAuthNothing | BasicAuthInvalidEncoding | BasicAuthWrongCreds
@@ -113,23 +116,39 @@ postVocabtrainMobileDeltaR = do
 				readRequest :: JS.Result VocabtrainDelta -> GHandler App App RepPlain
 				readRequest (JS.Error err) = invalidArgs [ Text.pack err ]
 				readRequest (JS.Success delta) = do
+					time <- liftIO getCurrentTime
 					$(logInfo) $ Text.concat [ "MobileDelta", Text.pack $ show userId, Text.pack $ show delta ]
-				
-					mapM_ (\dcol -> runDB $ update (deltaCardColumnId dcol) [VocabCardScript =. (deltaCardColumnValue dcol)]) $ deltaCardScript delta
-					mapM_ (\dcol -> runDB $ update (deltaCardTypeColumnId dcol) [VocabCardType =. (deltaCardTypeColumnValue dcol)]) $ deltaCardType delta
-					mapM_ (\(dbcons,deltacons) ->
-						mapM_ (\dcol -> runDB $ update (deltaCardColumnId dcol) [dbcons =. (Just $ deltaCardColumnValue dcol)]) $ deltacons delta
-						) [(VocabCardScriptComment, deltaCardScriptComment), (VocabCardSpeech, deltaCardSpeech), (VocabCardSpeechComment, deltaCardSpeechComment)]
-					
-					mapM_ (\dcol -> runDB $ updateWhere 
-						[VocabTranslationCardId ==. (deltaTranslationColumnCardId dcol), VocabTranslationLanguage ==. (deltaTranslationColumnLanguage dcol)]
-						[VocabTranslationContent =. (deltaTranslationColumnValue dcol)]) $
-						deltaTranslationContent delta
-					mapM_ (\dcol -> runDB $ updateWhere 
-						[VocabTranslationCardId ==. (deltaTranslationColumnCardId dcol), VocabTranslationLanguage ==. (deltaTranslationColumnLanguage dcol)]
-						[VocabTranslationComment =. (Just $ deltaTranslationColumnValue dcol)]) $
-						deltaTranslationComment delta
-				
+					forM_ (deltaCardScript delta) $ \dcol -> do
+						runDB $ update (deltaCardColumnId dcol) [VocabCardScript =. (deltaCardColumnValue dcol)]
+						runDB $ insert $ VocabCardManip userId (deltaCardColumnId dcol) USERMANIP_UPDATE time $ deltaCardColumnValue dcol
+					forM_ (deltaCardType delta) $ \dcol -> do
+						runDB $ update (deltaCardTypeColumnId dcol) [VocabCardType =. (deltaCardTypeColumnValue dcol)]
+						runDB $ insert $ VocabCardManip userId (deltaCardTypeColumnId dcol) USERMANIP_UPDATE time $ Text.pack $ show $ deltaCardTypeColumnValue dcol
+
+					forM_ [(VocabCardScriptComment, deltaCardScriptComment), (VocabCardSpeech, deltaCardSpeech), (VocabCardSpeechComment, deltaCardSpeechComment)] $ 
+						\(dbcons,deltacons) -> mapM_ (\dcol -> do
+							runDB $ update (deltaCardColumnId dcol) [dbcons =. (Just $ deltaCardColumnValue dcol)]
+							runDB $ insert $ VocabCardManip userId (deltaCardColumnId dcol) USERMANIP_UPDATE time $ deltaCardColumnValue dcol
+							) $ deltacons delta
+
+					forM_ (deltaTranslationContent delta) $ \dcol -> do
+						mtranslation <- runDB $ getBy $ UniqueTranslation (deltaTranslationColumnCardId dcol) (deltaTranslationColumnLanguage dcol)
+						case mtranslation of 
+							Just translation -> do
+								let translationId = entityKey translation
+								_ <- runDB $ update translationId [VocabTranslationContent =. (deltaTranslationColumnValue dcol)]
+								_ <- runDB $ insert $ VocabTranslationManip userId translationId USERMANIP_UPDATE time $ deltaTranslationColumnValue dcol
+								return ()
+							Nothing -> return ()
+					forM_ (deltaTranslationComment delta) $ \dcol -> do
+						mtranslation <- runDB $ getBy $ UniqueTranslation  (deltaTranslationColumnCardId dcol) (deltaTranslationColumnLanguage dcol)
+						case mtranslation of 
+							Just translation -> do
+								let translationId = entityKey translation
+								_ <- runDB $ update translationId [VocabTranslationComment =. (Just $ deltaTranslationColumnValue dcol)]
+								_ <- runDB $ insert $ VocabTranslationManip userId translationId USERMANIP_UPDATE time $ deltaTranslationColumnValue dcol
+								return ()
+							Nothing -> return ()
 					return $ RepPlain $ toContent successKeyword 
 		_ -> permissionDenied ""
 	where
@@ -318,9 +337,9 @@ newtype RepSqlite = RepSqlite Content
 instance HasReps RepSqlite where
     chooseRep (RepSqlite c) _ = return (typeSqlite, c)
 
-getVocabtrainMobileFilingDownloadR :: GHandler App App RepSqlite
-getVocabtrainMobileFilingDownloadR = do
-	auth <- basicAuth -- TODO
+postVocabtrainMobileFilingDownloadR :: GHandler App App RepSqlite
+postVocabtrainMobileFilingDownloadR = do
+	auth <- tokenAuth
 	case auth of 
 		BasicAuthAuthorized userId -> do
 			filingResult <- runDB $ selectList [ VocabFilingUserId ==. userId] []
@@ -328,12 +347,12 @@ getVocabtrainMobileFilingDownloadR = do
 			selectionResult <- runDB $ selectList [ VocabSelectionUserId ==. userId] []
 			liftIO $ withTempFile "filingdownload" (\ file fileh  -> do
 				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
-					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrain, migrateVocabtrainMobile]
+					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrainMobile]
 					forM_ filingResult $ \row -> runSqlConn' dbh $ insert $ exportMobileFiling $ entityVal row
 					forM_ filingDataResult $ \row -> runSqlConn' dbh $ insert $ exportMobileFilingData $ entityVal row
 					forM_ selectionResult $ \row -> runSqlConn' dbh $ insert $ exportMobileSelection $ entityVal row
 				content <- liftIO $ BS.hGetContents fileh
-				return $ RepSqlite $ toContent content
+				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
 			where
 				runSqlConn' pers conn = runSqlConn conn pers
@@ -398,7 +417,7 @@ exportMobileSelection mf = VocabMobileSelection
 
 postVocabtrainMobileFilingUploadR :: GHandler App App RepPlain
 postVocabtrainMobileFilingUploadR = do
-	auth <- basicAuth
+	auth <- tokenAuth
 	case auth of 
 		BasicAuthAuthorized userId -> do
 			wr <- waiRequest
@@ -459,7 +478,7 @@ postVocabtrainMobileDownloadR = do
 				VocabTranslationLanguage <-. ( map (read . Text.unpack) $ requestLanguages request)] []
 			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
 				C.runResourceT $ withSqliteConn (Text.pack file) (\dbh -> do
-					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrain, migrateVocabtrainMobile]
+					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrainMobile]
 --					runSqlConn' dbh $ runMigration $ migrate $ entityDefs -- (undefined :: VocabFiling)
 					forM_ bookResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
 					forM_ chapterResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
@@ -468,7 +487,7 @@ postVocabtrainMobileDownloadR = do
 					forM_ translationResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
 					)
 				content <- liftIO $ BS.hGetContents fileh
-				return $ RepSqlite $ toContent content
+				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
 			where
 				runSqlConn' pers conn = runSqlConn conn pers

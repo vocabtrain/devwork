@@ -23,4 +23,9 @@ RemoveDuplicateCard -> Choose the original, replace occurence of duplicate with 
 
 HamletFile + Variable -> Template Haskell!
 
-Beamer: Add <!-- TITLE --> in template makes Title of Beamer. If omitted: Make current status as DEFAULT
+~ Beamer: Add <!-- TITLE --> in template makes Title of Beamer. If omitted: Make current status as DEFAULT
+
+postVocabtrainMobileFilingDownloadR with Conduit instead of withTempFile -> faster
+
+
+BUG: Insert INTEGER Field into TIMESTAMP Field yields in "Exit code: ExitFailure 11"

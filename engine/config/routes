@@ -50,6 +50,7 @@
 /vocabtrain/mobile/auth VocabtrainMobileAuthTokenR GET
 /vocabtrain/mobile/delta VocabtrainMobileDeltaR POST
 /vocabtrain/mobile/filing/upload VocabtrainMobileFilingUploadR POST
+/vocabtrain/mobile/filing/download VocabtrainMobileFilingDownloadR POST
 
 
 /vocabtrain/card/queryj/#TatoebaLanguage/#Text VocabtrainCardQueryJR GET

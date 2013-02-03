@@ -12,7 +12,7 @@ VocabFiling id=_id sql=filing
 	UniqueFiling userId cardId sequence
 VocabFilingData id=_id sql=filing_data
 	userId UserId DeleteCascade sql=filing_user_id
-	timestamp UTCTime default=CURRENT_TIMESTAMP sql=filing_timestamp
+	timestamp Int sql=filing_timestamp
 	session Int sql=filing_session
 	sequence Int sql=filing_sequence
 	UniqueFilingData userId sequence

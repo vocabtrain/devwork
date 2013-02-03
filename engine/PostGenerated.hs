@@ -14,16 +14,22 @@ import qualified Data.List as List
 import Widgets
 
 class (Show a, Read a) => BeamerSlide a where
+	getBeamerSlideTitleDefault :: a -> Text
+	getBeamerSlideTitleDefault slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
 	getBeamerSlideTitle :: a -> Text
-	getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
+	getBeamerSlideTitle = getBeamerSlideTitleDefault
 	getBeamerSlideWidget :: a -> GWidget App App ()
 
 instance BeamerSlide BeamerSlidePublic where
 	getBeamerSlideWidget BEAMER_SILDE_SPEICHERANALYSE_VON_B_TREES = $(whamletFile "templates/beamer/public/speicheranalyse_von_b_trees.hamlet")
 	getBeamerSlideWidget BEAMER_SILDE_TEST = $(whamletFile "templates/beamer/public/test.hamlet")
+	getBeamerSlideTitle BEAMER_SILDE_SPEICHERANALYSE_VON_B_TREES = "Speicheranalyse von B-Bäumen"
+	getBeamerSlideTitle a = getBeamerSlideTitleDefault a
 instance BeamerSlide BeamerSlidePrivate where
 	getBeamerSlideWidget BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS = $(whamletFile "templates/beamer/private/combined_pruning_level_of_better_than_graphs.hamlet")
 	getBeamerSlideWidget BEAMER_SILDE_SPEEDING_UP_GEO_PREFERENCES = $(whamletFile "templates/beamer/private/speeding_up_geo_preferences.hamlet")
+	getBeamerSlideTitle BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS = "Combined pruning Level of Better-Than-Graphs"
+	getBeamerSlideTitle a = getBeamerSlideTitleDefault a
 instance ToAppMessage TatoebaLanguage where 
 	toAppMessage LANG_ACM = MsgLang_acm
 	toAppMessage LANG_AFR = MsgLang_afr

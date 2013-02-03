@@ -23,6 +23,7 @@ instance YesodBreadcrumbs App where
 	breadcrumb (VocabtrainMobileAuthTokenR) = return ("",Nothing)
 	breadcrumb (VocabtrainMobileDeltaR) = return ("",Nothing)
 	breadcrumb (VocabtrainMobileFilingUploadR) = return ("",Nothing)
+	breadcrumb VocabtrainMobileFilingDownloadR = return ("",Nothing)
 --JSON
 	breadcrumb (VocabtrainCardQueryJR _ _) = return ("",Nothing)
 

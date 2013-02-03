@@ -10,7 +10,7 @@ VocabMobileFiling id=_id sql=filing
 	sequence Int sql=filing_sequence
 	UniqueMobileFiling cardId sequence
 VocabMobileFilingData id=_id sql=filing_data
-	timestamp UTCTime default=CURRENT_TIMESTAMP sql=filing_timestamp
+	timestamp Int sql=filing_timestamp
 	session Int sql=filing_session
 	sequence Int sql=filing_sequence
 	UniqueMobileFilingData sequence

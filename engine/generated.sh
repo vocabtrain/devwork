@@ -169,6 +169,7 @@ function beamerSlidesPost
 {
 	a=()
 	files=()
+	titleregex='<!-- *\([^>]\+\) \+-->'
 	for i in `ls *.hamlet`; do
 		files+="$i"
 		e=`echo "$i:r" | tr '[a-z]' '[A-Z]'`
@@ -180,6 +181,14 @@ function beamerSlidesPost
 		e=`echo "$i:r" | tr '[a-z]' '[A-Z]'`
 		echo "\tgetBeamerSlideWidget $a[$i] = \$(whamletFile \"$2/$files[$i]\")"
 	done
+	for i in `seq 1 $max`; do
+		mtitle=`head -n1 "$files[$i]" | grep "$titleregex"`
+		if [[ -n "$mtitle" ]]; then
+			title=`echo $mtitle | sed "s@$titleregex@\1@"`
+			echo "\tgetBeamerSlideTitle $a[$i] = \"$title\""
+		fi
+	done
+	echo "\tgetBeamerSlideTitle a = getBeamerSlideTitleDefault a"
 }
 
 function createPathPieceInstance
@@ -279,8 +288,10 @@ import qualified Data.List as List
 import Widgets
 
 class (Show a, Read a) => BeamerSlide a where
+	getBeamerSlideTitleDefault :: a -> Text
+	getBeamerSlideTitleDefault slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
 	getBeamerSlideTitle :: a -> Text
-	getBeamerSlideTitle slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
+	getBeamerSlideTitle = getBeamerSlideTitleDefault
 	getBeamerSlideWidget :: a -> GWidget App App ()
 
 EOF
