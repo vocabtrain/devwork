@@ -1,0 +1,96 @@
+<div .slide>
+    <h1>What is a Contains-Preference?
+    <p>
+        <em>Simple:
+        A preference based on a search for a complex expression in fulltext.
+    <ul>
+        <li>
+            Should be agnostic according to the database in use (e.g. 
+            <a href="http://docs.oracle.com/cd/B19306_01/text.102/b14218/cqoper.htm">Oracle Contains
+            )
+        <li>
+            Data has to be analyzed 
+            <em>before
+            the query is evaluated (Fulltext search without apriori analysis is slower and/or more error-prone)
+    <p> \( \Rightarrow \) We create an index for fulltext search.
+    <p>
+        <em>Problem:
+    <ul>
+        <li>Index is saved by Preference SQL, 
+            <b>not
+            by the underlying database.
+        <li>Index is agnostic of the internal structure of the database
+    <p> \( \Rightarrow \) The Contains-Index is not a normal database index!
+<div .slide>
+    <h1>Index Creation
+    <pre>
+        <code .sql>
+            CREATE CONTAINSINDEX [IF NOT EXISTS] &lt;indexname&gt; ON TABLE &lt;tablename&gt; (&lt;attribute&gt;)
+            [ ANALYZER &lt;language&gt; ]
+            [ TOKENIZER &lt;tokenizer&gt; &lt;language&gt; ]
+            [ DEFAULT ]
+            [ TEMPORARY | PERMANENT ]
+
+    <dl>
+        <dt>indexname
+        <dd>Identifier of the index
+        <dt>language
+        <dd>Fully qualified name of a spoken language: GERMAN, ENGLISH, LATIN, ...
+        <dt>tokenizer
+        <dd>Is the fulltext semi-structured (e.g. wikipedia-syntax) ?
+        <dt>TEMPORARY
+        <dd>index is session based, e.g. deleted on session-close
+
+<div .slide>
+    <h1>Expressing the preference
+    <pre>
+        <code .sql>
+            SELECT ... PREFERRING
+            &lt;attributename&gt; CONTAINS [EXACTLY] "STR"
+            [INFIXED]
+            [USING INDEX &lt;indexname&gt;]
+            [WITH CACHING]
+            [AS &lt;aliasname&gt;]
+    <dl>
+        <dt>EXACTLY
+        <dd>special characters like * ~, etc. are understood verbatim
+        <dt>INFIXED
+        <dd>The query-string can be the inner part of a word (this results in a slower search
+    <p>
+        <b>Attention!
+        Although with 
+        <tt>USING INDEX
+        you have to specify the attributes that match the specified index.
+<div .slide>
+    <h1>Example
+    <pre>
+        <code .sql>
+           CREATE CONTAINSINDEX meinIndex ON meinTabelle (meinAttribut);
+           SELECT * FROM meinTabelle preferring meinAttribut contains 'foo*';
+    Oder mit mehreren Attributen:
+    <pre>
+        <code .sql>
+           CREATE CONTAINSINDEX meinIndex ON meinTabelle (meinAttributA) ANALYZER GERMAN;
+           CREATE CONTAINSINDEX meinIndex ON meinTabelle (meinAttributB) TOKENIZER WIKIPEDIA ENGLISH;
+           SELECT * FROM meinTabelle preferring (meinAttributA contains 'foo*' | meinAttributB contains 'bar') RANK 'sumRankF';
+
+<div .slide>
+    <h1>Why so complicated?
+    <ul>
+        <li>
+            <b>SQL compatible
+            <br>
+            We can build our Contains-Index on a temporary table so that contain-preferences can be evaluated on joins or other complex SQL-settings.
+        <li>
+            <b>Intuitive
+            <br>
+            It is easisier to express a complex contains-preference as a preference on a index instead of listing all attributes and weights that would identify the index.
+        <li>
+            <b>Expressive
+            <br>
+            One can query
+            <ul>
+                <li>Parts of words with wildcards ("host*" finds host, hostile, ...)
+                <li>Express likeliness ("mouse~1" finds rouse,mouse,louse,...)
+                <li>Explain your data-structure (tokenizer) and language (word stemming) to maximize search results
+
