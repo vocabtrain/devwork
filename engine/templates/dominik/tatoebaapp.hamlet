@@ -17,8 +17,8 @@
     Expect to wait more than 10 minutes while extracting the sqlite-database on older devices.
 
     <h3>Manual Download
-    <p>Fetch the zip-archive located at 
-            <a href="http://web403.webbox555.server-home.org/drake/tatoeba/tatoeba.zip">http://web403.webbox555.server-home.org/drake/tatoeba/tatoeba.zip
+    <p>Fetch the 
+        <a href=@{StaticR bin_gen_tatoeba_zip}>Zip-archive
     and extract its contents in a arbitrary directory on a external storage medium which can be plugged into your device (that's mostly a SD-card, 
     but usb-sticks also work for tablets).
     Note down this arbitrary directory because you have to specify it in the preferences of the Tatoeba-app.
@@ -44,7 +44,7 @@
         <li>ProviderInterface.SearchTable.CONTENT_URI - search example sentences containing certain keywords.
         <li>ProviderInterface.LinkTable.CONTENT_URI - search for a given sentence id all sentences which are connected to this sentence 
             (e.g. are a translation of this sentence)
-        
+
     For each table, you can query the following columns:
     <ul>
         <li>ProviderInterface.LinkTable._ID: The id of the example sentence

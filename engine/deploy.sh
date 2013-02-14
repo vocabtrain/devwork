@@ -1,3 +1,4 @@
 #!/bin/zsh
-cabal install &&
-nohup ~/.cabal/bin/devwork Testing >> ../log/testing.log 2>&1 &
+cabal configure &&
+cabal build &&
+nohup ./dist/build/devwork/devwork Testing >> ../log/testing.log 2>&1 &

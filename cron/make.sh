@@ -18,11 +18,12 @@
 source ../environment.sh
 
 mkdir -p "$datadir/log"
+mkdir -p "$datadir/lucene"
 function dhaskell {
 	of="$datadir/`basename $1 .hs`"
 	[[ -f "$datadir/$of" ]] && rm "$datadir/$of"
 	[[ -f "$datadir/Main.o" ]] && 	rm "$datadir/Main.o" "$datadir/Main.hi"
-	ghc -i "$scriptdir/MyQQ.hs" -outputdir "$datadir" -o $of $1
+	ghc -i "$scriptdir/MyTools.hs" -i "$scriptdir/MyQQ.hs" -outputdir "$datadir" -o $of $1
 }
 dhaskell "$scriptdir/parseTatoeba.hs"
 dhaskell "$scriptdir/parseLanguages.hs"
@@ -69,6 +70,7 @@ ant -Dsentences "$datadir/sentences.csv" -Doutputdir "$datadir/lucene/sentences"
 cd "$datadir/lucene"
 mv "$datadir/tatoeba.sqlite" "$datadir/lucene/"
 zip -r "$datadir/tatoeba.zip" .
+cp "$datadir/tatoeba.zip" "$enginedir/static/bin/gen/"
 
 cd "$datadir"
 #ftp -invd web403.webbox555.server-home.org  << EOF

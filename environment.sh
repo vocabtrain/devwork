@@ -1,6 +1,10 @@
 #!/bin/zsh
 env='Development'
-absdir=/home/niki
+if [[ `hostname` == 'eos' ]]; then
+	absdir=/home/niki/eos
+else
+	absdir=/home/niki/
+fi
 datadir=$absdir/data/
 logdir=$absdir/data/log
 scriptdir=$absdir/devwork/cron

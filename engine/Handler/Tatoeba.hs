@@ -16,6 +16,8 @@ import qualified Data.Conduit.List as CL
 import Database.Persist.Store
 import Database.Persist.GenericSql.Raw (withStmt)
 
+import Data.String
+
 data TatoebaSentence = TatoebaSentence {
 	sentenceId :: Int,
 	sentenceLanguage :: Text,
@@ -61,6 +63,25 @@ relationToXml (TatoebaRelation sentence translations) =
 sentenceToXml :: TatoebaSentence -> Node
 sentenceToXml sentence = NodeElement $ Element "sentence" (Map.fromList [("id", Text.pack . show $ sentenceId sentence), ("language", sentenceLanguage sentence)  ]) [ NodeContent $ sentenceText sentence]
 
+
+
+getVocabtrainMobileVeecheckR :: Handler RepXml
+getVocabtrainMobileVeecheckR = do
+	let content = toContent $ renderText def $ Document (Prologue [] Nothing []) (Element nameVersions Map.empty $ map addVeecheckRule veecheckActions) []
+	return $ RepXml content
+	where
+		addVeecheckRule :: (Text, Text) -> Node 
+		addVeecheckRule (version,action) = NodeElement $ Element nameVersion (Map.fromList [("versionName", version)]) [ NodeElement $ Element nameIntent (Map.fromList [("action", action)]) [] ] 
+		veecheckNamespace :: String
+		veecheckNamespace = "{http://www.tomgibara.com/android/veecheck/SCHEMA.1}"
+		nameVersions :: Name
+		nameVersions = fromString $ veecheckNamespace ++ "versions"
+		nameVersion :: Name
+		nameVersion = fromString $ veecheckNamespace ++ "version"
+		nameIntent :: Name
+		nameIntent = fromString $ veecheckNamespace ++  "intent"
+		veecheckActions :: [(Text, Text)]
+		veecheckActions = [ ("1.0.0", "com.example.app.ACTION_UPGRADE") ]
 
 getTatoebaQueryR :: TatoebaLanguage -> Text -> Handler RepXml
 getTatoebaQueryR language queryString = do

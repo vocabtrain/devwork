@@ -1,6 +1,6 @@
 <meta charset=utf-8>
 <!--
-    Copyright (C) 2011 Dominik Köppl
+    Copyright (C) 2011,2012,2013 Dominik Köppl
     Permission is granted to copy, distribute and/or modify this document
     under the terms of the GNU Free Documentation License, Version 1.3
     or any later version published by the Free Software Foundation;
@@ -15,15 +15,18 @@
 <link rel="stylesheet" type="text/css" media="screen, projection, print"  href="http://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css">
 <link rel="stylesheet" type="text/css" media="screen, projection, print"  href="http://www.w3.org/Talks/Tools/Slidy2/styles/w3c-blue.css">
 <link rel="stylesheet" type="text/css" media="screen, projection, print"  href="@{StaticR css_beamer_css}">
-<meta name="copyright" content="Copyright &#169; 2012 Dominik K&ouml;ppl, Institute for Databases and Information Systems">
+<meta name="copyright" content="Copyright &#169; 2013 Dominik K&ouml;ppl, Institute for Databases and Information Systems">
 <meta name="duration" content="5">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
 <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 <script type="text/javascript" src="@{StaticR js_jquery_zoomooz_js}">
 <script type="text/javascript" src="@{StaticR js_beamer_js}">
+<script src="http://yandex.st/highlightjs/7.3/highlight.min.js">
 <script src="@{StaticR js_slidy_js}" charset="utf-8" type="text/javascript">
 <link rel="shortcut icon" href=@{StaticR img_favicon_057_png}>
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href=@{StaticR img_favicon_144_png}>
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href=@{StaticR img_favicon_114_png}>
 <link rel="apple-touch-icon-precomposed" sizes="72x72"   href=@{StaticR img_favicon_072_png}>
 <link rel="apple-touch-icon-precomposed"                 href=@{StaticR img_favicon_057_png}>
+
+<script type="text/javascript">hljs.initHighlightingOnLoad();

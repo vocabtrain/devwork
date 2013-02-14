@@ -42,6 +42,7 @@ import UserManipType
 import UserManipLog
 import Data.Time (getCurrentTime) 
 
+import Database.Persist.Store
 
 data BasicAuthResult = BasicAuthAuthorized UserId | BasicAuthNothing | BasicAuthInvalidEncoding | BasicAuthWrongCreds
 
@@ -476,6 +477,17 @@ postVocabtrainMobileDownloadR = do
 			translationResult <- runDB $ selectList 
 				[ VocabTranslationCardId <-. ( map entityKey cardResult), 
 				VocabTranslationLanguage <-. ( map (read . Text.unpack) $ requestLanguages request)] []
+			-- probably some translations missing? Add random translations!
+			translationMissingResult <- runDB $ rawSql
+				(
+					Text.concat 
+						[ "select distinct on (translation_card_id) ?? from translations where translation_card_id in "
+						, selectRawList cardResult
+						, " and _id not in "
+						, selectRawList translationResult
+						, ";"]
+				) [] :: GHandler App App [Entity VocabTranslation]
+				--"SELECT _id, book_name, book_language, extract(epoch from book_timestamp) AS book_timestamp FROM books ORDER BY book_name ASC;"
 			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
 				C.runResourceT $ withSqliteConn (Text.pack file) (\dbh -> do
 					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrainMobile]
@@ -485,12 +497,17 @@ postVocabtrainMobileDownloadR = do
 					forM_ contentResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
 					forM_ cardResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
 					forM_ translationResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
+					forM_ translationMissingResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
 					)
 				content <- liftIO $ BS.hGetContents fileh
 				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
 			where
 				runSqlConn' pers conn = runSqlConn conn pers
+
+				selectRawList :: Show a => [Entity a] -> Text
+				selectRawList l = Prelude.flip Text.snoc ')' $ Text.cons '(' $ Text.init . Text.tail . Text.pack . show $ 
+					(map (\key -> either (\_ -> 0) Prelude.id $ fromPersistValue $ unKey $ entityKey key) l :: [Int] )
 
 withTempFile :: String -> (FilePath -> Handle -> IO a) -> IO a
 withTempFile pattern func = do
