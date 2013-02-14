@@ -69,6 +69,7 @@ ant -Dsentences "$datadir/sentences.csv" -Doutputdir "$datadir/lucene/sentences"
 cd "$datadir/lucene"
 mv "$datadir/tatoeba.sqlite" "$datadir/lucene/"
 zip -r "$datadir/tatoeba.zip" .
+cp "$datadir/tatoeba.zip" "$enginedir/static/bin/gen/"
 
 cd "$datadir"
 #ftp -invd web403.webbox555.server-home.org  << EOF

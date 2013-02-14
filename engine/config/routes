@@ -51,7 +51,7 @@
 /vocabtrain/mobile/delta VocabtrainMobileDeltaR POST
 /vocabtrain/mobile/filing/upload VocabtrainMobileFilingUploadR POST
 /vocabtrain/mobile/filing/download VocabtrainMobileFilingDownloadR POST
-
+/vocabtrain/mobile/veecheck VocabtrainMobileVeecheckR GET
 
 /vocabtrain/card/queryj/#TatoebaLanguage/#Text VocabtrainCardQueryJR GET
 /vocabtrain/card/query/#TatoebaLanguage/#Text VocabtrainCardQueryR GET

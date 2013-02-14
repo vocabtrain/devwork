@@ -27,6 +27,7 @@ instance BeamerSlide BeamerSlidePublic where
 	getBeamerSlideTitle a = getBeamerSlideTitleDefault a
 instance BeamerSlide BeamerSlidePrivate where
 	getBeamerSlideWidget BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS = $(whamletFile "templates/beamer/private/combined_pruning_level_of_better_than_graphs.hamlet")
+	getBeamerSlideWidget BEAMER_SILDE_CONTAINS_PREFERENCE = $(whamletFile "templates/beamer/private/contains_preference.hamlet")
 	getBeamerSlideWidget BEAMER_SILDE_SPEEDING_UP_GEO_PREFERENCES = $(whamletFile "templates/beamer/private/speeding_up_geo_preferences.hamlet")
 	getBeamerSlideTitle BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS = "Combined pruning Level of Better-Than-Graphs"
 	getBeamerSlideTitle a = getBeamerSlideTitleDefault a
