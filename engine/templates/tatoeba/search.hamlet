@@ -1,0 +1,11 @@
+<div #maincontentbody>
+    <ul>
+        $forall TatoebaRelation mainsentence sentences <- relations
+            <li>
+                ^{tatoebaLanguageWidget $ tatoebaSentenceLanguage mainsentence}
+                #{tatoebaSentenceText mainsentence}
+                $forall sentence <- sentences
+                    <ul>
+                        <li>
+                            ^{tatoebaLanguageWidget $ tatoebaSentenceLanguage sentence}
+                            #{tatoebaSentenceText sentence}
