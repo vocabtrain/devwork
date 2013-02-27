@@ -6,6 +6,7 @@ function OnCardFormScriptText() {
     if(text.length > 1)
     $.get(dest,
         function(data) { 
+            cardFormScriptText = text;
             var div = $('#cardFormSuggestions');
             var s = ['<ul class="nav nav-tabs nav-stacked">'];
             for(var i = 0; i < data.length; ++i)
@@ -31,4 +32,5 @@ function OnCardFormScriptText() {
 
 
 $('#cardFormScript').keyup(OnCardFormScriptText);
-$('#cardFormScript').onchange(OnCardFormScriptText);
+$('#cardFormScript').change(OnCardFormScriptText);
+$('#cardFormScript').focusout(OnCardFormScriptText);

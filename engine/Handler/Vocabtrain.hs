@@ -2,8 +2,10 @@
 module Handler.Vocabtrain where
 
 import Import
+import BarefootSQL
 import Sphinx
 import ToAppMessage 
+import TatoebaLanguageWidget
 import PostGenerated () 
 import CardType
 import UserManipType
@@ -92,8 +94,9 @@ postVocabtrainBookInsertR = do
 			((result, bookFormWidget), bookFormEnctype) <- runFormPost $ renderDivs $ bookForm Nothing
 			case result of
 				FormSuccess book -> do -- vocabLayout [whamlet|<p>#{show book}|]
-					bookId <- runDB $ insert book
-					_ <- runDB $ insert $ VocabBookManip (entityKey aid) bookId USERMANIP_INSERT (vocabBookTimestamp book) $ vocabBookName book
+					_ <- runDB $ do
+						bookId <- insert book
+						insert $ VocabBookManip (entityKey aid) bookId USERMANIP_INSERT (vocabBookTimestamp book) $ vocabBookName book
 					$(logInfo) $ Text.concat [ "Insertion: ", userEmail $ entityVal $ aid , " -> ",Text.pack $ show book ]
 					setMessageI $ MsgBookCreated $ vocabBookName book
 					redirect $ VocabtrainR
@@ -118,8 +121,9 @@ postVocabtrainBookDeleteR bookId = do
 			case mbook of
 				Just book -> do
 					$(logInfo) $ Text.concat [ "Deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show book ]
-					_ <- runDB $ delete bookId
-					runDB $ deleteCascadeWhere [VocabChapterBookId ==. bookId]
+					_ <- runDB $ do
+						delete bookId
+						deleteCascadeWhere [VocabChapterBookId ==. bookId] -- NEEDED?
 					setMessageI $ MsgBookDeleted $ vocabBookName book
 					redirect $ VocabtrainR
 				Nothing -> do
@@ -143,9 +147,10 @@ postVocabtrainBookUpdateR bookId = do
 			((result, bookFormWidget), bookFormEnctype) <- runFormPost $ renderDivs $ bookForm Nothing
 			case result of
 				FormSuccess book -> do -- vocabLayout [whamlet|<p>#{show book}|]
-					_ <- runDB $ replace bookId book
 					$(logInfo) $ Text.concat [ "manipulation: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show book ]
-					_ <- runDB $ insert $ VocabBookManip (entityKey aid) bookId USERMANIP_UPDATE (vocabBookTimestamp book) $ vocabBookName book
+					_ <- runDB $ do
+						replace bookId book
+						insert $ VocabBookManip (entityKey aid) bookId USERMANIP_UPDATE (vocabBookTimestamp book) $ vocabBookName book
 					setMessageI $ MsgBookUpdated $ vocabBookName book
 					redirect $ VocabtrainR
 				_ -> do
@@ -267,10 +272,11 @@ getVocabtrainOrphanedCardsR :: GHandler App App RepHtml
 getVocabtrainOrphanedCardsR = do
 	msgShow <- getMessageRender
 	maid <- maybeAuth
-	cardResults <- runDB $ rawSql
+	cardResults <- runDB getVocabtrainOrphanedCardsSQL
+{-	cardResults <- runDB $ rawSql
 		"SELECT ?? FROM cards WHERE NOT EXISTS ( SELECT 1 FROM content WHERE content_card_id = cards._id);"
 		[]
-		:: GHandler App App [Entity VocabCard]
+		:: GHandler App App [Entity VocabCard] -}
 	translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
 	results <- return $ Prelude.zip cardResults translationResults
 	setUltDestCurrent
@@ -282,29 +288,28 @@ getVocabtrainChapterR :: VocabChapterId -> GHandler App App RepHtml
 getVocabtrainChapterR chapterId = do
 	msgShow <- getMessageRender
 	maid <- maybeAuth
-	chapterm <- runDB $ get chapterId 
-	let chapter =  fromJust chapterm
-	bookm <- runDB $ get $ vocabChapterBookId chapter
-	let book = fromJust bookm
-	cardResults <- runDB $ rawSql
-		"SELECT ?? FROM cards JOIN content ON content_card_id = cards._id JOIN chapters ON content_chapter_id = chapters._id WHERE chapters._id = ?;"
-		[toPersistValue  chapterId]
-		:: GHandler App App [Entity VocabCard]
-	chapterResults <- runDB $ rawSql -- needed for navchapter.hamlet
-		"SELECT ?? FROM chapters JOIN chapters self ON chapters.chapter_book_id = self.chapter_book_id WHERE self._id = ?;"
-		[toPersistValue  chapterId]
-		:: GHandler App App [Entity VocabChapter]
-	translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
-	results <- return $ Prelude.zip cardResults translationResults
-	
-	setUltDestCurrent
-	widgetChapter <- widgetToPageContent $ widgetVocabtrainChapterCreate' $ vocabChapterBookId chapter
-	let vocabChapterLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
-				 sheetNav = Just $(whamletFile "templates/vocabtrain/navchapter.hamlet")
-				}
-	let cardListExtraButtonWidget = Just $ widgetCardListTatoebaSearch $ vocabBookLanguage book
-	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
-	vocabChapterLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter.hamlet")
+	mchapter <- runDB $ get chapterId 
+	case mchapter of
+		Nothing -> notFound
+		Just chapter -> do
+		let bookId = vocabChapterBookId chapter
+		mbook <- runDB $ get bookId
+		case mbook of 
+			Nothing -> notFound
+			Just book -> do
+			cardResults <- runDB $ getVocabtrainCardsOfChapterSQL chapterId
+			chapterResults <- runDB $ selectList [ VocabChapterBookId ==. bookId] []
+			translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
+			results <- return $ Prelude.zip cardResults translationResults
+			
+			setUltDestCurrent
+			widgetChapter <- widgetToPageContent $ widgetVocabtrainChapterCreate' bookId
+			let vocabChapterLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
+						 sheetNav = Just $(whamletFile "templates/vocabtrain/navchapter.hamlet")
+						}
+			let cardListExtraButtonWidget = Just $ widgetCardListTatoebaSearch $ vocabBookLanguage book
+			let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
+			vocabChapterLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter.hamlet")
 
 widgetCardListTatoebaSearch :: TatoebaLanguage -> Entity VocabCard -> GWidget App App ()
 widgetCardListTatoebaSearch language card = toWidget $(whamletFile "templates/vocabtrain/card_list_icon_tatoeba.hamlet")
@@ -313,21 +318,22 @@ getVocabtrainCardR :: VocabCardId -> GHandler App App RepHtml
 getVocabtrainCardR cardId = do
 	setUltDestCurrent
 	msgShow <- getMessageRender
+	maid <- maybeAuth 
 	mcard <- runDB $ get cardId
 	case mcard of
 		Nothing -> notFound
 		Just card -> do
-			translationResults <- runDB $ selectList [VocabTranslationCardId ==. cardId] [Asc VocabTranslationContent]
-			contentResults <- runDB $ selectList [VocabContentCardId ==. cardId] []
-				
-			chapterBookResult <- runDB $ runJoin (selectOneMany (VocabChapterBookId <-.) vocabChapterBookId)
-				{ somOrderOne = [Asc VocabBookName]
-				, somFilterMany = [ VocabChapterId <-. (map (vocabContentChapterId . entityVal) contentResults) ]
-				}
-			let vocabCardLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
-						 sheetNav = Just $(whamletFile "templates/vocabtrain/navcard.hamlet")
-						}
-			vocabCardLayout $ toWidget $(whamletFile "templates/vocabtrain/card.hamlet") 
+		translationResults <- runDB $ selectList [VocabTranslationCardId ==. cardId] [Asc VocabTranslationContent]
+		contentResults <- runDB $ selectList [VocabContentCardId ==. cardId] []
+			
+		chapterBookResult <- runDB $ runJoin (selectOneMany (VocabChapterBookId <-.) vocabChapterBookId)
+			{ somOrderOne = [Asc VocabBookName]
+			, somFilterMany = [ VocabChapterId <-. (map (vocabContentChapterId . entityVal) contentResults) ]
+			}
+		let vocabCardLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
+					 sheetNav = Just $(whamletFile "templates/vocabtrain/navcard.hamlet")
+					}
+		vocabCardLayout $ toWidget $(whamletFile "templates/vocabtrain/card.hamlet") 
 
 {-
 getVocabtrainCardR :: VocabCardId -> GHandler App App RepHtml
@@ -531,9 +537,9 @@ widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype = do
 postVocabtrainCardInsertR :: VocabChapterId -> GHandler App App RepHtml
 postVocabtrainCardInsertR chapterId = do
 	maid <- maybeAuth 
+	msgShow <- getMessageRender
 	case maid of
 		Nothing -> do
-			msgShow <- getMessageRender
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
 			((result, cardFormWidget), cardFormEnctype) <- runFormPost $ renderDivs $ cardForm Nothing
@@ -550,18 +556,26 @@ postVocabtrainCardInsertR chapterId = do
 							cardId <- runDB $ insert card
 							_ <- runDB $ insert $ VocabContent chapterId cardId
 							$(logInfo) $ Text.concat [ "insertion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card]
-							_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabCardManip (entityKey aid) cardId USERMANIP_INSERT time $ 
-								Text.intercalate " ," $ catMaybes $ map (\c -> c card) [Just . vocabCardScript, vocabCardScriptComment, vocabCardSpeech, vocabCardSpeechComment]
-								)
+							_ <- runDB $ do
+								time <- liftIO getCurrentTime
+								_ <- insert $ VocabCardManip (entityKey aid) cardId USERMANIP_INSERT time $ 
+									Text.intercalate " ," $ catMaybes $ map (\c -> c card) 
+										[Just . vocabCardScript, vocabCardScriptComment, vocabCardSpeech, vocabCardSpeechComment]
+								insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_PUT time $ Text.concat [ "Card #" , keyToText cardId]
 							setMessageI $ MsgCardCreated $ vocabCardScript card
 							redirect $ VocabtrainChapterR chapterId 
 						else do
 							let dup = duplicateCards !! 0
-							_ <- runDB $ insert $ VocabContent chapterId (entityKey dup) -- TODO: perhaps already in this chapter?
-							$(logInfo) $ Text.concat [ "Card added: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " To chapter ", Text.pack $ show chapterId]
-							_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_PUT time $ keyToText $ entityKey dup)
-							setMessageI $ MsgCardChapterAdded $ vocabCardScript card
-							redirect $ VocabtrainChapterR chapterId 
+							let cardId = entityKey dup
+							mcontent <- runDB $ getBy $ UniqueContent chapterId cardId
+							case mcontent of 
+								Just _ -> invalidArgs [msgShow $ MsgCardAlreadyInChapter (keyToText cardId) (keyToText chapterId)]
+								Nothing -> do
+								_ <- runDB $ insert $ VocabContent chapterId (entityKey dup) -- TODO: perhaps already in this chapter?
+								$(logInfo) $ Text.concat [ "Card added: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " To chapter ", Text.pack $ show chapterId]
+								_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_PUT time $ Text.concat [ "Card #",  keyToText $ entityKey dup])
+								setMessageI $ MsgCardChapterAdded $ vocabCardScript card
+								redirect $ VocabtrainChapterR chapterId 
 				_ -> vocabLayout $ do
 					setTitleI MsgCardPleaseCorrectEntry
 					widgetVocabtrainCardCreate chapterId cardFormWidget cardFormEnctype
@@ -596,7 +610,10 @@ postVocabtrainCardDeleteR cardId = do
 vocabtrainCardDelete :: VocabCardId -> Entity User -> GHandler App App ()
 vocabtrainCardDelete cardId aid = do
 	$(logInfo) $ Text.concat [ "deletion: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show cardId]
-	_ <- runDB $ delete cardId
+	runDB $ do
+		deleteWhere [VocabCardManipCardId ==. cardId]  -- TODO: remove!
+		deleteWhere [VocabFilingCardId ==. cardId] -- TODO: remove DeleteCascade
+		delete cardId
 	return ()
 
 cardChapterForm :: VocabCardId -> AForm App App [VocabChapterId]
@@ -676,10 +693,11 @@ postVocabtrainCardChaptersDeleteR cardId = do
 			((result, cardChapterFormWidget), cardChapterFormEnctype) <- runFormPost $ renderDivs $ cardChapterForm cardId
 			case result of
 				FormSuccess cardChapters -> do 
-					_ <- runDB $ deleteWhere [VocabContentChapterId <-. cardChapters, VocabContentCardId ==. cardId ]
 					$(logInfo) $ Text.concat [ "Deleted Card from Chapters: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show card, " chapters: ", Text.pack $ show cardChapters]
 					time <- liftIO getCurrentTime
-					mapM_ (\chapterId -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_REMOVE time $ keyToText cardId) cardChapters
+					runDB $ do
+						deleteWhere [VocabContentChapterId <-. cardChapters, VocabContentCardId ==. cardId ]
+						mapM_ (\chapterId -> insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_REMOVE time $ keyToText cardId) cardChapters
 					setMessageI $ MsgCardChaptersDeleted $ vocabCardScript $ fromJust card
 					redirect $ VocabtrainR
 				_ -> vocabLayout $ do
@@ -728,7 +746,8 @@ postVocabtrainCardDuplicateSearchR dupCardId = do
 	((result, _), _) <- runFormPost $ renderDivs $ cardQueryForm $ maybe Nothing (Just . vocabCardScript) dupCard
 	case result of
 		FormSuccess searchPhrase -> do 
-			getVocabtrainCardSearch LANG_UND searchPhrase $ Just widgetCardReplaceDuplicateWithThis
+			submitField <- runInputPost $ iopt textField "submit"
+			getVocabtrainCardSearch (isFuzzyButtonPressed submitField) LANG_UND searchPhrase $ Just widgetCardReplaceDuplicateWithThis
 		_ -> do
 			setMessageI MsgCardPleaseCorrectEntry
 			redirect $ VocabtrainCardDuplicateSearchR dupCardId
@@ -747,8 +766,19 @@ postVocabtrainCardReplaceDuplicateR dupCardId origCardId = do
 			if dupCardId == origCardId
 				then invalidArgs [msgShow $ MsgCardDuplicateCannotReplaceWithItself]
 				else do
-					origContentResults <- runDB $ selectList [ VocabContentCardId ==. origCardId ] []
-					runDB $ updateWhere [ VocabContentCardId ==. dupCardId, VocabContentChapterId /<-. (map (vocabContentChapterId . entityVal) origContentResults) ] [ VocabContentCardId =. origCardId]
+					runDB $ do
+						origContentResults <- selectList [ VocabContentCardId ==. origCardId ] []
+						updateWhere [ VocabContentCardId ==. dupCardId, VocabContentChapterId /<-. (map (vocabContentChapterId . entityVal) origContentResults) ] [ VocabContentCardId =. origCardId]
+						
+						dupFilingResults <- selectList [VocabFilingCardId ==. dupCardId] []
+						forM_ dupFilingResults $ \filingResult -> do
+							let key = entityKey filingResult
+							let filing = entityVal filingResult
+							morigFiling <- getBy $ UniqueFiling (vocabFilingUserId filing) origCardId (vocabFilingSequence filing)
+							case morigFiling of
+								Just _ -> delete key
+								Nothing -> update key [ VocabFilingCardId =. origCardId]
+
 					vocabtrainCardDelete dupCardId aid
 					$(logInfo) $ Text.concat [ "duplicateReplacement: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show dupCardId, " <-> ", Text.pack $ show origCardId]
 {-			_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabTranslationManip (entityKey aid) translationId USERMANIP_INSERT time $ 
@@ -756,7 +786,7 @@ postVocabtrainCardReplaceDuplicateR dupCardId origCardId = do
 				)
 				-}
 					setMessageI $ MsgCardDuplicateReplaced
-					redirectUltDest VocabtrainR
+					redirect $ VocabtrainCardR origCardId
 
 {-
 defaultCardQueryFormWidget :: GWidget App App ()
@@ -811,6 +841,7 @@ getVocabtrainCardChapterAddR chapterId = do
 			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
 			((result', cardQueryFormWidget), cardQueryFormEnctype) <- runFormGet $ renderDivs $ cardQueryForm Nothing
+			submitField <- runInputGet $ iopt textField "submit" 
 			case result' of
 				FormSuccess searchPhrase -> do
 					res <- r
@@ -820,7 +851,7 @@ getVocabtrainCardChapterAddR chapterId = do
 					where r = runMaybeT $ do 
 						chapter <- MaybeT . runDB . get $ chapterId
 						book <- MaybeT . runDB . get . vocabChapterBookId $ chapter
-						return $ getVocabtrainCardSearch (vocabBookLanguage book) searchPhrase (Just $ widgetCardListChapterAdd chapterId)
+						return $ getVocabtrainCardSearch (isFuzzyButtonPressed submitField) (vocabBookLanguage book) searchPhrase (Just $ widgetCardListChapterAdd chapterId)
 				_ -> vocabLayout $ do
 						setTitleI MsgCardPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/cardchapter_add_search.hamlet") 
@@ -831,17 +862,26 @@ widgetCardListChapterAdd chapterId card = do toWidget $(whamletFile "templates/v
 postVocabtrainCardChapterInsertR :: VocabCardId -> VocabChapterId -> Handler RepHtml
 postVocabtrainCardChapterInsertR cardId chapterId = do
 	maid <- maybeAuth 
+	msgShow <- getMessageRender
 	case maid of
-		Nothing -> do
-			msgShow <- getMessageRender
-			permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
+		Nothing -> permissionDenied $ msgShow MsgVocabManipulationPermissionDenied
 		Just aid -> do
-			_ <- runDB $ insert $ VocabContent chapterId cardId
-			$(logInfo) $ Text.concat [ "Added link chapter<->card: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId, Text.pack $ show cardId]
-			_ <- (liftIO getCurrentTime >>= \time -> runDB $ insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_PUT time $ keyToText cardId)
-			setMessageI $ MsgCardChapterCreated 
-			redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
+			mcontent <- runDB $ getBy $ UniqueContent chapterId cardId
+			case mcontent of 
+				Just _ -> invalidArgs [msgShow $ MsgCardAlreadyInChapter (keyToText cardId) (keyToText chapterId)]
+				Nothing -> do 
+				time <- liftIO getCurrentTime
+				_ <- runDB $ do
+					_ <- insert $ VocabContent chapterId cardId
+					insert $ VocabChapterManip (entityKey aid) chapterId USERMANIP_PUT time $ Text.concat [ "Card #" , keyToText cardId]
+				$(logInfo) $ Text.concat [ "Added link chapter<->card: ", userEmail $ entityVal $ aid , " -> ", Text.pack $ show chapterId, Text.pack $ show cardId]
+				setMessageI $ MsgCardChapterCreated 
+				redirect $ VocabtrainChapterR chapterId -- TODO TranslationR translationId
 
+isFuzzyButtonPressed :: Maybe Text -> Bool
+isFuzzyButtonPressed Nothing = False
+isFuzzyButtonPressed (Just "fuzzy") = True
+isFuzzyButtonPressed _ = False
 
 postVocabtrainCardSearchR :: GHandler App App RepHtml
 postVocabtrainCardSearchR = do
@@ -849,30 +889,33 @@ postVocabtrainCardSearchR = do
 	((result, _), _) <- runFormPost $ renderDivs $ cardSearchForm $ msgShow MsgFieldSearchCard
 	case result of
 		FormSuccess searchPhrase -> do 
-			getVocabtrainCardSearch LANG_UND searchPhrase Nothing
+			submitField <- runInputPost $ iopt textField "submit" 
+			getVocabtrainCardSearch (isFuzzyButtonPressed submitField) LANG_UND searchPhrase Nothing
 		_ -> vocabLayout $ do
 			lift $ setMessageI MsgCardPleaseCorrectEntry
 			lift $ redirectUltDest VocabtrainR
 			
 getVocabtrainCardQueryR :: TatoebaLanguage -> Text -> Handler RepHtml
-getVocabtrainCardQueryR language searchPhrase = getVocabtrainCardSearch language searchPhrase Nothing
+getVocabtrainCardQueryR language searchPhrase = getVocabtrainCardSearch True language searchPhrase Nothing
 
-getVocabtrainCardSearch :: TatoebaLanguage -> Text -> Maybe ( Entity VocabCard -> GWidget App App ()) -> GHandler App App RepHtml
-getVocabtrainCardSearch language searchPhrase cardListExtraButtonWidget = do
+getVocabtrainCardSearch :: Bool -> TatoebaLanguage -> Text -> Maybe ( Entity VocabCard -> GWidget App App ()) -> GHandler App App RepHtml
+getVocabtrainCardSearch isFuzzy language searchPhrase cardListExtraButtonWidget = do
 	msgShow <- getMessageRender
 	maid <- maybeAuth 
-	cardResults <- vocabtrainCardQuery language searchPhrase
-	{-
-	cardResults <- runDB $ selectList 
-		(     [ icontains VocabCardScript        searchPhrase ]
-		  ||. [ icontainsMaybe VocabCardSpeech   searchPhrase ]
-		) []
-	-}
+	cardResults <- getCardResults isFuzzy
 	translationResults <- forM cardResults 
 		(\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
 	results <- return $ Prelude.zip cardResults translationResults
 	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
 	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_search.hamlet")
+	where
+		getCardResults :: Bool -> GHandler App App [Entity VocabCard]
+		getCardResults False = runDB $ selectList 
+					(     [ icontains VocabCardScript        searchPhrase ]
+					  ||. [ icontainsMaybe VocabCardSpeech   searchPhrase ]
+					) []
+		getCardResults True = vocabtrainCardFuzzyQuery language searchPhrase
+			
 {-
 		where 
 			cardListExtraButtonWidget :: Maybe ( Entity VocabCard -> GWidget App App ())
@@ -1072,12 +1115,6 @@ INSERT INTO "android_metadata" VALUES(\'en_US\');
 -}
 
 
-tatoebaLanguageWidget :: TatoebaLanguage -> GWidget App App()
-tatoebaLanguageWidget lang = do
-	msgShow <- lift $ getMessageRender
-	toWidget $ [hamlet|<i .flag-#{Text.pack $ show $ lang} title=#{msgShow $ toAppMessage lang} data-placement="bottom" rel="tooltip"> |]
-
-
 -- Account
 
 getUserR :: UserId -> GHandler App App RepHtml
@@ -1181,14 +1218,24 @@ getVocabtrainCardQueryR language searchPhrase = do
 	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_search.hamlet")
 -}	
 
-vocabtrainCardQuery :: TatoebaLanguage -> Text -> GHandler App App [Entity VocabCard]
-vocabtrainCardQuery language searchPhrase = do
+vocabtrainCardFuzzyQuery :: TatoebaLanguage -> Text -> GHandler App App [Entity VocabCard]
+vocabtrainCardFuzzyQuery language searchPhrase = do
 	sphinxResult <- liftIO $ querySphinx (Text.concat [ "vocabtrain_" , Text.pack . show $ language]) searchPhrase
-	runDB $ selectList [VocabCardId <-. ( map (\t -> (Key $ PersistInt64 t) :: VocabCardId) sphinxResult) ] []
+	cardResults <- runDB $ forM sphinxResult $ \k -> get (Key $ PersistInt64 k :: VocabCardId)
+	
+{-	cardResults <- forM sphinxResult $ \k -> do -- proabably too slow!
+		let key = Key $ PersistInt64 k :: VocabCardId
+		mval <- runDB $ get key
+		case mval of
+			Just val -> return $ Just $ Entity key val
+			Nothing -> return Nothing
+-}
+	return $ map (\(key,val) -> Entity (Key $ PersistInt64 key :: VocabCardId) val) $ (\ls -> [ (a,b) | (a, Just b) <- ls]) $ zip sphinxResult cardResults
+--	runDB $ selectList [VocabCardId <-. ( map (\(key,score) -> (Key $ PersistInt64 key) :: VocabCardId) sphinxResult) ] []
 
 getVocabtrainCardQueryJR :: TatoebaLanguage -> Text -> Handler RepJson
 getVocabtrainCardQueryJR language searchPhrase = do
-	cardResults <- vocabtrainCardQuery language searchPhrase
+	cardResults <- vocabtrainCardFuzzyQuery language searchPhrase
 	jsonToRepJson $ map JS.toJSON cardResults
 
 instance JS.ToJSON (Entity VocabCard) where

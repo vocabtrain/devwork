@@ -14,10 +14,10 @@
 ~ FIX Searchbar with Yesod Forms
 ~ Migration of MobileData -> weniger RawSQL
 
-feed sphinx daily with cards
+~ feed sphinx daily with cards
 Split User in (User, VocabUser)
 VocabUserLanguages: Only these Languages are shown to the user
-RemoveDuplicateCard -> Choose the original, replace occurence of duplicate with original
+~ RemoveDuplicateCard -> Choose the original, replace occurence of duplicate with original
 
 ~ VocabManip Für Card,Translation, Chapter
 
@@ -29,3 +29,20 @@ postVocabtrainMobileFilingDownloadR with Conduit instead of withTempFile -> fast
 
 
 BUG: Insert INTEGER Field into TIMESTAMP Field yields in "Exit code: ExitFailure 11"
+
+
+~ Trigger: NEW Book -> cacheBookLanguages.sql
+~ Harte Suche neben Fuzzy Search
+
+
+~ TatoebaSearch XML/HTML!
+~ Testing TaotebaApp -> XML/HTML Route + static package zip
+SearchButtonMinus shall be default
+~ SearchFuzzy: ORDER BY Scoring 
+~ Sqlite Timestamp @ Android : http://stackoverflow.com/questions/2930768/how-to-compare-sqlite-timestamp-values
+
+Check where infoLogs are saved, psql database changes can be undone
+yesod SSL
+Vocabtrain: Wenn Translation noch nicht existiert, legt Android translation an -> server sync? Error?
+
+Book: Show cards missing translation of a certain language

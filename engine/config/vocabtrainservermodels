@@ -49,4 +49,8 @@ VocabCardManip
 	timestamp UTCTime default=CURRENT_TIMESTAMP
 	content Text
 	deriving Show
-
+VocabBookCache sql=cache_book_translang
+	bookId VocabBookId sql=book_id
+	bookLanguage TatoebaLanguage sql=book_language
+	UniqueBookCache bookId bookLanguage
+	deriving Show

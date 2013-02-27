@@ -8,5 +8,7 @@
             _{MsgBooks}
 <form .navbar-search method=post action=@{VocabtrainCardSearchR}>
     ^{cardSearchFormWidget}
-    <button type="submit" .btn .btn-info>
+    <button type="submit" name="submit" value="fuzzy" .btn .btn-info>
         <i .icon-search>
+    <button type="submit" name="submit" value="strict" .btn .btn-info>
+        <i .icon-zoom-out>

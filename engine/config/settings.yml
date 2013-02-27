@@ -11,8 +11,8 @@ Development:
   host: "*4" # any IPv4 host
   port: 4000
   ssl: True
-  approot: "http://eos.informatik.uni-augsburg.de"
-  #approot: "http://ursamajor.informatik.uni-augsburg.de:2235"
+  #approot: "http://eos.informatik.uni-augsburg.de"
+  approot: "http://ursamajor.informatik.uni-augsburg.de:2235"
   <<: *defaults
 
 Testing:

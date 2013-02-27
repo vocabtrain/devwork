@@ -5,7 +5,9 @@ if [[ `hostname` == 'eos' ]]; then
 else
 	absdir=/home/niki/
 fi
-datadir=$absdir/data/
+absdir=/home/niki
+backupdir=$absdir/backup/db
+datadir=$absdir/data
 logdir=$absdir/data/log
 scriptdir=$absdir/devwork/cron
 schemedir=$absdir/devwork/schemes

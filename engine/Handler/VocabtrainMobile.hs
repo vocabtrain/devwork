@@ -1,7 +1,9 @@
-{-# LANGUAGE TupleSections, OverloadedStrings, DeriveGeneric #-}
+{-# LANGUAGE TupleSections, OverloadedStrings, DeriveGeneric, FlexibleInstances #-}
 module Handler.VocabtrainMobile where
 
+import Database.Esqueleto (Value (..))
 import Import
+import BarefootSQL
 import Codec.Compression.GZip
 import CardType
 import Prelude (map)
@@ -18,7 +20,7 @@ import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Database.Persist.GenericSql.Raw (withStmt, execute)
+import Database.Persist.GenericSql.Raw (withStmt,execute)
 import Database.Persist.GenericSql
 import Database.Persist.Sqlite
 
@@ -39,7 +41,7 @@ import Data.Word (Word8)
 import qualified Data.List as List
 
 import UserManipType
-import UserManipLog
+--import UserManipLog
 import Data.Time (getCurrentTime) 
 
 import Database.Persist.Store
@@ -100,6 +102,7 @@ generateTokenString g = do
 
 postVocabtrainMobileDeltaR :: GHandler App App RepPlain
 postVocabtrainMobileDeltaR = do
+--	let auth = BasicAuthAuthorized (Key $ PersistInt64 1)
 	auth <- tokenAuth
 	case auth of 
 		BasicAuthAuthorized userId -> do
@@ -119,37 +122,38 @@ postVocabtrainMobileDeltaR = do
 				readRequest (JS.Success delta) = do
 					time <- liftIO getCurrentTime
 					$(logInfo) $ Text.concat [ "MobileDelta", Text.pack $ show userId, Text.pack $ show delta ]
-					forM_ (deltaCardScript delta) $ \dcol -> do
-						runDB $ update (deltaCardColumnId dcol) [VocabCardScript =. (deltaCardColumnValue dcol)]
-						runDB $ insert $ VocabCardManip userId (deltaCardColumnId dcol) USERMANIP_UPDATE time $ deltaCardColumnValue dcol
-					forM_ (deltaCardType delta) $ \dcol -> do
-						runDB $ update (deltaCardTypeColumnId dcol) [VocabCardType =. (deltaCardTypeColumnValue dcol)]
-						runDB $ insert $ VocabCardManip userId (deltaCardTypeColumnId dcol) USERMANIP_UPDATE time $ Text.pack $ show $ deltaCardTypeColumnValue dcol
+					_ <- runDB $ do
+						forM_ (deltaCardScript delta) $ \dcol -> do
+								update (deltaCardColumnId dcol) [VocabCardScript =. (deltaCardColumnValue dcol)]
+								insert $ VocabCardManip userId (deltaCardColumnId dcol) USERMANIP_UPDATE time $ deltaCardColumnValue dcol
+						forM_ (deltaCardType delta) $ \dcol -> do
+								update (deltaCardTypeColumnId dcol) [VocabCardType =. (deltaCardTypeColumnValue dcol)]
+								insert $ VocabCardManip userId (deltaCardTypeColumnId dcol) USERMANIP_UPDATE time $ Text.pack $ show $ deltaCardTypeColumnValue dcol
 
-					forM_ [(VocabCardScriptComment, deltaCardScriptComment), (VocabCardSpeech, deltaCardSpeech), (VocabCardSpeechComment, deltaCardSpeechComment)] $ 
-						\(dbcons,deltacons) -> mapM_ (\dcol -> do
-							runDB $ update (deltaCardColumnId dcol) [dbcons =. (Just $ deltaCardColumnValue dcol)]
-							runDB $ insert $ VocabCardManip userId (deltaCardColumnId dcol) USERMANIP_UPDATE time $ deltaCardColumnValue dcol
-							) $ deltacons delta
+						forM_ [(VocabCardScriptComment, deltaCardScriptComment), (VocabCardSpeech, deltaCardSpeech), (VocabCardSpeechComment, deltaCardSpeechComment)] $ 
+							\(dbcons,deltacons) -> mapM_ (\dcol -> do
+								update (deltaCardColumnId dcol) [dbcons =. (Just $ deltaCardColumnValue dcol)]
+								insert $ VocabCardManip userId (deltaCardColumnId dcol) USERMANIP_UPDATE time $ deltaCardColumnValue dcol
+								) $ deltacons delta
 
-					forM_ (deltaTranslationContent delta) $ \dcol -> do
-						mtranslation <- runDB $ getBy $ UniqueTranslation (deltaTranslationColumnCardId dcol) (deltaTranslationColumnLanguage dcol)
-						case mtranslation of 
-							Just translation -> do
-								let translationId = entityKey translation
-								_ <- runDB $ update translationId [VocabTranslationContent =. (deltaTranslationColumnValue dcol)]
-								_ <- runDB $ insert $ VocabTranslationManip userId translationId USERMANIP_UPDATE time $ deltaTranslationColumnValue dcol
-								return ()
-							Nothing -> return ()
-					forM_ (deltaTranslationComment delta) $ \dcol -> do
-						mtranslation <- runDB $ getBy $ UniqueTranslation  (deltaTranslationColumnCardId dcol) (deltaTranslationColumnLanguage dcol)
-						case mtranslation of 
-							Just translation -> do
-								let translationId = entityKey translation
-								_ <- runDB $ update translationId [VocabTranslationComment =. (Just $ deltaTranslationColumnValue dcol)]
-								_ <- runDB $ insert $ VocabTranslationManip userId translationId USERMANIP_UPDATE time $ deltaTranslationColumnValue dcol
-								return ()
-							Nothing -> return ()
+						forM_ (deltaTranslationContent delta) $ \dcol -> do
+							mtranslation <- getBy $ UniqueTranslation (deltaTranslationColumnCardId dcol) (deltaTranslationColumnLanguage dcol)
+							case mtranslation of 
+								Just translation -> do
+									let translationId = entityKey translation
+									update translationId [VocabTranslationContent =. (deltaTranslationColumnValue dcol)]
+									_ <- insert $ VocabTranslationManip userId translationId USERMANIP_UPDATE time $ deltaTranslationColumnValue dcol
+									return ()
+								Nothing -> return ()
+						forM_ (deltaTranslationComment delta) $ \dcol -> do
+							mtranslation <- getBy $ UniqueTranslation  (deltaTranslationColumnCardId dcol) (deltaTranslationColumnLanguage dcol)
+							case mtranslation of 
+								Just translation -> do
+									let translationId = entityKey translation
+									update translationId [VocabTranslationComment =. (Just $ deltaTranslationColumnValue dcol)]
+									_ <- insert $ VocabTranslationManip userId translationId USERMANIP_UPDATE time $ deltaTranslationColumnValue dcol
+									return ()
+								Nothing -> return ()
 					return $ RepPlain $ toContent successKeyword 
 		_ -> permissionDenied ""
 	where
@@ -248,6 +252,7 @@ data BookSupply = BookSupply {
 	}
 	deriving Show
 
+{-
 instance JS.FromJSON BookSupply where
 	parseJSON (JS.Object v) = BookSupply <$>
 		v .: "_id" <*>
@@ -256,29 +261,42 @@ instance JS.FromJSON BookSupply where
 		v .: "book_timestamp" <*>
 		v .: "book_translations"
 	parseJSON _ = mzero
+-}
 
+instance JS.ToJSON TatoebaLanguage where
+	toJSON = toJSON . show
 
-instance JS.ToJSON BookSupply where
+instance JS.ToJSON (Entity VocabBook, [Entity VocabBookCache]) where
 --	toJSON :: BookSupply -> JS.Value
-	toJSON book = JS.object [
-		("_id", JS.toJSON $ bookSupplyId book), 
-		("book_name", JS.toJSON $ bookSupplyName book), 
-		("book_language", JS.toJSON $ bookSupplyLanguage book), 
-		("book_timestamp", JS.toJSON $ bookSupplyTimestamp book), 
-		("book_translations", JS.toJSON $ bookSupplyTranslatedLanguages book)
+	toJSON (ebook, cachedLanguages) = JS.object
+		[ ("_id", JS.toJSON $ book_id)
+		, ("book_name", JS.toJSON $ vocabBookName book)
+		, ("book_language", JS.toJSON $ vocabBookLanguage book)
+		, ("book_timestamp", JS.toJSON $ vocabBookTimestamp book)
+		, ("book_translations", JS.toJSON $ map (vocabBookCacheBookLanguage . entityVal) cachedLanguages)
 		]
+			where 
+				book_id = entityKey ebook
+				book = entityVal ebook
 
 postVocabtrainMobileBooksR :: Handler RepJson
 postVocabtrainMobileBooksR = do
 	bookSupply <- getBookSupply
-	languageSupply <- getTranslationLanguageSupply
+--	languageSupply <- getTranslationLanguageSupply
+	languageSupply <- runDB $ getVocabtrainTranslationLanguagesSQL
 	userData <- getUserData
 	$(logDebug) $ Text.pack $ show userData
 	$(logDebug) $ Text.pack $ show $ (maybe [] (\t -> [("userdata", t)]) userData)
-	jsonToRepJson $ JS.object ( [ ("books", JS.toJSON bookSupply), ("translation_languages", JS.toJSON languageSupply)] ++ (maybe [] (\t -> [("userdata", t)]) userData)   )
+	jsonToRepJson $ JS.object ( [ ("books", JS.toJSON bookSupply), ("translation_languages", JS.toJSON $ map (\(Value a) -> a) languageSupply)] ++ (maybe [] (\t -> [("userdata", t)]) userData)   )
 	where
-		getBookSupply :: GHandler App App [BookSupply]
+		getBookSupply :: GHandler App App [(Entity VocabBook, [Entity VocabBookCache])]
 		getBookSupply = do
+			bookResults <- runDB $ selectList [] [Asc VocabBookName]
+			forM bookResults $ \bookResult -> do
+				let book_id  = entityKey bookResult
+				cacheResults <- runDB $ selectList [VocabBookCacheBookId ==. book_id] []
+				return $ (bookResult, cacheResults)
+			{-
 			bookResult <- runDB $ C.runResourceT $ withStmt
 				"SELECT _id, book_name, book_language, extract(epoch from book_timestamp) AS book_timestamp FROM books ORDER BY book_name ASC;"
 				[] C.$$ CL.consume
@@ -293,25 +311,45 @@ postVocabtrainMobileBooksR = do
 					(either (\_ -> ""::Text) Prelude.id $ fromPersistValue (book !! 3)) 
 					(map (\language -> either (\_ -> ""::Text) Prelude.id $ fromPersistValue (language !! 0)) languageResult)
 				) bookResult
+			-}
+		{-
+		getUserData = do
+					timestampResult <- runDB $ C.runResourceT $ withStmt
+						"SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = 1;"
+						[] C.$$ CL.consume
+					return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> 0::Int) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
+		-}
 		getUserData :: GHandler App App (Maybe JS.Value)
 		getUserData = do
-			auth <- tokenAuth
+			--auth <- tokenAuth
+			let auth = BasicAuthAuthorized (Key $ PersistInt64 1)
 			case auth of 
 				BasicAuthAuthorized userId -> do
+--					timestampResult <- runDB $ getVocabtrainMaximumFilingTimestampOfUserSQL userId
+					
 					timestampResult <- runDB $ C.runResourceT $ withStmt
 						"SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = ?;"
 						[unKey $ userId] C.$$ CL.consume
-					return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> "0"::Text) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
+					return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> 0::Int) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
+					{-
+					if null timestampResult 
+						then return $ Just $ JS.object [("timestamp", JS.toJSON (0::Int) )]
+						else
+							let Value a = timestampResult !! 0
+							in return $ Just $ JS.object [("timestamp", JS.toJSON a )]
+					-}
 				_ -> return Nothing
 
 		
 
+			{-
 		getTranslationLanguageSupply :: GHandler App App [Text]
 		getTranslationLanguageSupply = do
 			languageResult <- runDB $ C.runResourceT $ withStmt
 				"SELECT book_language from cache_book_translang GROUP BY book_language" 
 				[] C.$$ CL.consume
 			return $ map (\language -> either (\_ -> "") Prelude.id $ fromPersistValue (language !! 0)) languageResult
+			-}
 
 data DownloadRequest = DownloadRequest 
 	{ requestBooks :: [Int]
@@ -348,10 +386,11 @@ postVocabtrainMobileFilingDownloadR = do
 			selectionResult <- runDB $ selectList [ VocabSelectionUserId ==. userId] []
 			liftIO $ withTempFile "filingdownload" (\ file fileh  -> do
 				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
-					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrainMobile]
-					forM_ filingResult $ \row -> runSqlConn' dbh $ insert $ exportMobileFiling $ entityVal row
-					forM_ filingDataResult $ \row -> runSqlConn' dbh $ insert $ exportMobileFilingData $ entityVal row
-					forM_ selectionResult $ \row -> runSqlConn' dbh $ insert $ exportMobileSelection $ entityVal row
+					runSqlConn' dbh $ do
+						runMigration migrateVocabtrainMobile
+						forM_ filingResult     $ \row -> insert $ exportMobileFiling     $ entityVal row
+						forM_ filingDataResult $ \row -> insert $ exportMobileFilingData $ entityVal row
+						forM_ selectionResult  $ \row -> insert $ exportMobileSelection  $ entityVal row
 				content <- liftIO $ BS.hGetContents fileh
 				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
@@ -443,12 +482,18 @@ postVocabtrainMobileFilingUploadR = do
 					$(logInfo) "b"
 		--			return (aa::[Entity VocabFiling])
 					runInnerHandler $ do
-						runDB $ deleteWhere [VocabFilingUserId ==. userId]
-						runDB $ deleteWhere [VocabFilingDataUserId ==. userId]
-						runDB $ deleteWhere [VocabSelectionUserId ==. userId]
-						mapM_ (\row -> runDB $ insert $ importMobileFiling userId $ entityVal row) (filingList :: [Entity VocabMobileFiling])
-						mapM_ (\row -> runDB $ insert $ importMobileFilingData userId $ entityVal row) (filingDataList :: [Entity VocabMobileFilingData])
-						mapM_ (\row -> runDB $ insert $ importMobileSelection userId $ entityVal row) (selectionList :: [Entity VocabMobileSelection])
+						runDB $ do
+							deleteWhere [VocabFilingUserId ==. userId]
+							deleteWhere [VocabFilingDataUserId ==. userId]
+							deleteWhere [VocabSelectionUserId ==. userId]
+							mapM_ (\row -> insert $ importMobileFiling userId $ entityVal row) (filingList :: [Entity VocabMobileFiling])
+							mapM_ (\row -> insert $ importMobileFilingData userId $ entityVal row) (filingDataList :: [Entity VocabMobileFilingData])
+							mapM_ (\row -> insert $ importMobileSelection userId $ entityVal row) (selectionList :: [Entity VocabMobileSelection])
+							execute "DELETE FROM filing WHERE filing_card_id IN ( SELECT filing_card_id FROM filing LEFT JOIN cards ON filing_card_id = cards._id WHERE cards._id IS NULL);" []
+							execute "DELETE FROM selection WHERE selection_card_id IN ( SELECT selection_card_id FROM selection LEFT JOIN cards ON selection_card_id = cards._id WHERE cards._id IS NULL);" []
+							--deleteWhere [VocabFilingUserId ==. userId]
+							--deleteWhere [VocabFilingDataUserId ==. userId]
+							--deleteWhere [VocabSelectionUserId ==. userId]
 				return $ RepPlain $ toContent (""::Text)
 			where
 				runSqlConn' pers conn = runSqlConn conn pers
@@ -483,22 +528,25 @@ postVocabtrainMobileDownloadR = do
 					Text.concat 
 						[ "select distinct on (translation_card_id) ?? from translations where translation_card_id in "
 						, selectRawList cardResult
-						, " and _id not in "
-						, selectRawList translationResult
+						, if null translationResult 
+							then "" 
+							else Text.concat
+								[ " and _id not in "
+								, selectRawList translationResult
+								]
 						, ";"]
 				) [] :: GHandler App App [Entity VocabTranslation]
 				--"SELECT _id, book_name, book_language, extract(epoch from book_timestamp) AS book_timestamp FROM books ORDER BY book_name ASC;"
 			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
-				C.runResourceT $ withSqliteConn (Text.pack file) (\dbh -> do
-					_ <- runSqlConn' dbh $ mapM_ runMigration [migrateVocabtrainMobile]
---					runSqlConn' dbh $ runMigration $ migrate $ entityDefs -- (undefined :: VocabFiling)
-					forM_ bookResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
-					forM_ chapterResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
-					forM_ contentResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
-					forM_ cardResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
-					forM_ translationResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
-					forM_ translationMissingResult (\row -> runSqlConn' dbh $ insertKey (entityKey row) (entityVal row) )
-					)
+				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
+					runSqlConn' dbh $ do
+						_ <- runMigration migrateVocabtrainMobile
+						forM_ bookResult               (\row -> insertKey (entityKey row) (entityVal row) )
+						forM_ chapterResult            (\row -> insertKey (entityKey row) (entityVal row) )
+						forM_ contentResult            (\row -> insertKey (entityKey row) (entityVal row) )
+						forM_ cardResult               (\row -> insertKey (entityKey row) (entityVal row) )
+						forM_ translationResult        (\row -> insertKey (entityKey row) (entityVal row) )
+						forM_ translationMissingResult (\row -> insertKey (entityKey row) (entityVal row) )
 				content <- liftIO $ BS.hGetContents fileh
 				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	

@@ -56,9 +56,10 @@ sort -b "$datadir/available_languages.txt" | uniq > "$datadir/available_language
 mv "$datadir/available_languages.txt2" "$datadir/available_languages.txt"
 cp "$scriptdir/sphinx.conf.head" "$datadir/sphinx.conf"
 ./genSphinxConf "$postgresconfig" "$env" >> "$datadir/sphinx.conf"
-sed -i "s!@LOGDIR@$logdir@g" "$datadir/sphinx.conf"
-sed -i "s!@DATADIR@$datadir@g" "$datadir/sphinx.conf"
+sed -i "s;@LOGDIR@;$logdir;g" "$datadir/sphinx.conf"
+sed -i "s;@DATADIR@;$datadir;g" "$datadir/sphinx.conf"
 mkdir -p "$datadir/sphinx/vocabtrain"
+mkdir -p "$datadir/sphinx/tatoeba"
 indexer --config "$datadir/sphinx.conf" --all
 searchd --config "$datadir/sphinx.conf" 
 

@@ -46,6 +46,8 @@ library
                      MyQQ
                      GlobalLayout
                      Widgets 
+                     TatoebaLanguageWidget
+                     BarefootSQL
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -98,8 +100,12 @@ library
                  , blaze-markup
                  , path-pieces
                  , MaybeT
+                 , resourcet
+                 , monad-logger
                  , time
                  , wai
+                 , warp-tls
+                 , esqueleto
                  , attoparsec
                  , ghc-prim
                  , aeson

@@ -30,9 +30,10 @@ BookNewHeader: New book
 
 CardReplaceDuplicateWithThis: Replace Duplicate with this card
 CardReplaceDuplicateHeader title@Text: Search the original card for #{title}
-CardSearchOriginal: Search Original
+CardSearchOriginalStrict: Search Original
+CardSearchOriginalFuzzy: Fuzzy Search Original
 CardDuplicateReplaced: Duplicate is successfully replaced with the original.
-TooltipVocabtrainCardDuplicateSearchR: Is Duplicate
+TooltipVocabtrainCardDuplicateSearchR: Is Duplicate of ...
 
 CardDuplicateCannotReplaceWithItself: You cannot replace a card with itself!
 
@@ -44,10 +45,16 @@ BreadcrumbChapterLog _id@Text: Log Chapter ##{_id}
 BreadcrumbCardDuplicateSearch _id@Text: Search original for ##{_id}
 BreadcrumbCardReplaceDuplicate dupCardId@Text origCardId@Text: Replace card ##{dupCardId} with ##{origCardId}
 BreadcrumbBookInsert: Insert Book
-BreadcrumbCardQuery language@Text searchPhrase@Text: Search #{searchPhrase} in #{language}
+BreadcrumbCardQuery language@Text searchPhrase@Text: Search #{language}'s cards containing #{searchPhrase}
+BreadcrumbTatoebaQuery language@Text searchPhrase@Text: Search #{language}'s sentences containing #{searchPhrase}
+BreadcrumbTatoebaQueryLanguage language@Text: Random sentence in #{language}'s
+BreadcrumbTatoebaQueryRandom: Random sentence
+BreadcrumbTatoebaLanguages: Available Languages
 BreadcrumbCardSearch: Search Cards
 BreadcrumbOrphanedCards: Orphaned Cards
 BreadcrumbUserUpdate _id@Text: Update User ##{_id}
+
+CardAlreadyInChapter cardId@Text chapterId@Text: This card ##{cardId} belongs already to this chapter ##{chapterId}!
 
 BreadcrumbBookUpdate bookId@Text: Update Book ##{bookId}
 BreadcrumbBookDelete bookId@Text: Delete Book ##{bookId}
@@ -94,7 +101,8 @@ CardNewHeader: New card
 
 CardSearchHeader title@Text: Search for cards containing `#{title}'
 CardOrphanedHeader: Orphaned Cards
-CardSearch: Search Card
+CardSearchStrict: Search Card
+CardSearchFuzzy: Fuzzy-Search Card
 CardChapterSearchHeader: Search cards to add to this chapter
 FieldSearchCard: Search Card
 CardFoundInTheFollowingChapters: Belongs to

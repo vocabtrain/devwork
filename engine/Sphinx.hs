@@ -13,8 +13,9 @@ querySphinx lang queryStr = do
 		SphinxT.Ok res -> return $ map SphinxT.documentId $ SphinxT.matches res
 		_ -> return []
 
-		where config = Sphinx.defaultConfig {
-			Sphinx.port = 9312
-		,	Sphinx.mode = SphinxT.Any
-		}
+		where config = Sphinx.defaultConfig 
+			{ Sphinx.port = 9312
+			, Sphinx.sort = SphinxT.Relevance
+			, Sphinx.mode = SphinxT.Any
+			}
 

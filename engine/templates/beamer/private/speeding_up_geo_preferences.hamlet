@@ -82,6 +82,56 @@
             as the Euclidian metric is the smallest possible distance in terms of net metrices.
         <li>Clearly, for all \( o \in \Omega \) we can now exploit our previously calculated net-distance-matrix.
 
+<div .slide>
+    <h1>Unleashing the Power of Dijkstra I
+    <p>Current Situation
+    <ul>
+        <li>
+            Search of a NEARBY-Preference is coupled by a call of the pgrouting-function
+            <br>
+            <pre>
+                <code .C>
+                    shortest_path(sql text, source_id integer, target_id integer, ...)
+        <li>
+            <kbd>shortest_path
+            is using the Dijkstra-Algorithm to calculate the net distance between 
+            <kbd>source_id
+            and
+            <kbd>target_id
+        <li>We have to call this function for each POI - this is inefficient!
+
+<div .slide>
+    <h1>Unleashing the Power of Dijkstra II
+    <p>Desired Situation
+    <ul>
+        <li>Dijkstra can be modified to solve the "single source multiple destinations shortest path"-problem
+        <li>
+            Given a set of POIs
+            <kbd>target_ids
+            , we want to get a list of \( \left( \distance{\textrm{source_id}}{\textrm{target_ids}_j} \right)_j \)
+        <li>We only want to call a routing function one time to retrieve all necessary data for a NEARBY-preference.
+<div .slide>
+    <h1>Dijkstra: Pareto meets Nearby
+    <p>
+        We can combine a complex preference expression of the form
+        \\[ \pareto{\textrm{nearby}(x)}{\textrm{nearby}(y)} \left[ \otimes \textrm{nearby}(z) ...\right] \]
+        to a single preference constructor
+        \\[ \textrm{nearbyMulti}(x,y,...) \]
+        by adding concurrency to Dijkstra - see
+        <q>Multi-source Skyline Query Processing in Road Networks 
+        by Ke Deng, Xiaofang Zhou, Heng Tao Shen
+
+
+<div .slide>
+    <h1>Conclusion
+    <p>We're speeding up
+    <ul>
+        <li>POI Search by
+            <ul>
+                <li>apriori-pruning
+                <li>multi-destination Dijkstra
+        <li>Trajectorial searches
+        <li>Pareto-NEARBY queries
 
 <div .slide>
     <h1>Potential Geo-Preferences

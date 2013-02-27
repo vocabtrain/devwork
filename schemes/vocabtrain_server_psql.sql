@@ -12,7 +12,7 @@ filing_difficulty FLOAT DEFAULT 0,
 filing_sequence INTEGER DEFAULT 12, 
 constraint filing_pkey PRIMARY KEY(_id), 
 constraint filing_unique UNIQUE(filing_card_id, filing_sequence),
-constraint filing_filing_card_id_fkey foreign key (filing_card_id) references cards (_id) ON DELETE CASCADE,
+constraint filing_filing_card_id_fkey foreign key (filing_card_id) references cards (_id) ON DELETE CASCADE deferrable initially deferred,
 constraint filing_filing_user_id_fkey foreign key (filing_user_id) references benutzer (id) ON DELETE CASCADE
 );
 
@@ -34,5 +34,6 @@ selection_card_id INTEGER not null,
 selection_forgotten BOOLEAN not null default false,
 constraint selection_pkey PRIMARY KEY (_id),
 constraint selection_unique UNIQUE (selection_user_id, selection_card_id),
+constraint selection_selection_card_id_fkey foreign key (selection_card_id) references cards (_id) ON DELETE CASCADE deferrable initially deferred,
 constraint selection_selection_user_id_fkey foreign key (selection_user_id) references benutzer (id) ON DELETE CASCADE
 );

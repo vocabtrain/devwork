@@ -13,6 +13,7 @@ instance YesodBreadcrumbs App where
 	breadcrumb (UserR _) = return ("",Nothing)
 	breadcrumb (BeamerSlidePrivateR _) = return ("",Nothing)
 	breadcrumb (BeamerSlidePublicR _) = return ("",Nothing)
+	breadcrumb VocabtrainMobileVeecheckR = return ("",Nothing)
 
 -- SOAP
 	breadcrumb (VocabtrainTranslationR _) = return ("",Nothing)
@@ -54,10 +55,10 @@ instance YesodBreadcrumbs App where
 	breadcrumb TatoebaWebServiceR = return("例えば Webservice", Just DKProjectHomeR)
 	breadcrumb BeamerSlidesR = return("Slides", Just DKProjectHomeR)
 --tatoeba
-	breadcrumb TatoebaLanguagesR = return("例えば", Just TatoebaWebServiceR)
-	breadcrumb (TatoebaQueryR _ _)= return("例えば", Just TatoebaWebServiceR)
-	breadcrumb (TatoebaQueryLanguageR _)= return("例えば", Just TatoebaWebServiceR)
-	breadcrumb TatoebaQueryRandomR = return("例えば", Just TatoebaWebServiceR)
+	breadcrumb TatoebaLanguagesR = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbTatoebaLanguages, Just TatoebaWebServiceR)
+	breadcrumb (TatoebaQueryR language searchPhrase) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbTatoebaQuery (msg $ toAppMessage language) searchPhrase,  Just TatoebaWebServiceR)
+	breadcrumb (TatoebaQueryLanguageR language) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbTatoebaQueryLanguage (msg $ toAppMessage language), Just TatoebaWebServiceR)
+	breadcrumb TatoebaQueryRandomR = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbTatoebaQueryRandom, Just TatoebaWebServiceR)
 
 --vocabtrain
 	breadcrumb (VocabtrainBookLogR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookLog . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)

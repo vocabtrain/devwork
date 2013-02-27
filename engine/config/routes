@@ -10,7 +10,7 @@
 /tatoeba/app TatoebaAppR GET
 /tatoeba/languages TatoebaLanguagesR GET
 /tatoeba/query/#TatoebaLanguage/#Text TatoebaQueryR GET
-/tatoeba/query/#TatoebaLanguage TatoebaQueryLanguageR
+/tatoeba/query/#TatoebaLanguage TatoebaQueryLanguageR GET
 /tatoeba/query TatoebaQueryRandomR GET
 
 /vocabtrain VocabtrainR GET

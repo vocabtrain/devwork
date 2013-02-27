@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS cache_book_translang;
 CREATE TABLE IF NOT EXISTS cache_book_translang (
+	id SERIAL,
     book_id INT NOT NULL,
     book_language TEXT NOT NULL,
     CONSTRAINT cache_book_foreign_book FOREIGN KEY (book_id) REFERENCES books (_id),
