@@ -1,0 +1,3 @@
+<h1>_{MsgMissingTranslationForCardsTitle (vocabBookName book) $ msgShow $ toAppMessage language}
+
+^{cardListWidget}

@@ -1,0 +1,5 @@
+_{MsgSearchMissingTranslationForCardsTitle}
+$forall language <- bookLanguages
+    <a href=@{VocabtrainMissingTranslationForCardsR bookId language} rel="tooltip" data-placement="bottom" title="_{MsgTooltipSearchMissingTranslationForCards $ msgShow $ toAppMessage language}">
+        ^{tatoebaLanguageWidget language}
+
