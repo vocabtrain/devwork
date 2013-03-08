@@ -52,10 +52,15 @@ BreadcrumbTatoebaQueryRandom: Random sentence
 BreadcrumbTatoebaLanguages: Available Languages
 BreadcrumbCardSearch: Search Cards
 BreadcrumbOrphanedCards: Orphaned Cards
+BreadcrumbNotTranslatedCards: Not Translated Cards
 BreadcrumbUserUpdate _id@Text: Update User ##{_id}
 
 CardAlreadyInChapter cardId@Text chapterId@Text: This card ##{cardId} belongs already to this chapter ##{chapterId}!
+SearchMissingTranslationForCardsTitle: Search for missing translations
+TooltipSearchMissingTranslationForCards language@Text: Search for missing translations in #{language}
+MissingTranslationForCardsTitle bookTitle@Text language@Text: Missing #{language} translations for book #{bookTitle}
 
+BreadcrumbMissingTranslationForCards bookId@Text language@Text: Missing #{language} translations for book ##{bookId}
 BreadcrumbBookUpdate bookId@Text: Update Book ##{bookId}
 BreadcrumbBookDelete bookId@Text: Delete Book ##{bookId}
 BreadcrumbChapter chapterId@Text: Chapter ##{chapterId}
@@ -101,6 +106,7 @@ CardNewHeader: New card
 
 CardSearchHeader title@Text: Search for cards containing `#{title}'
 CardOrphanedHeader: Orphaned Cards
+CardNotTranslatedHeader: Cards without translation
 CardSearchStrict: Search Card
 CardSearchFuzzy: Fuzzy-Search Card
 CardChapterSearchHeader: Search cards to add to this chapter

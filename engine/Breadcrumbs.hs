@@ -31,6 +31,7 @@ instance YesodBreadcrumbs App where
 	breadcrumb (VocabtrainCardQueryR language searchPhrase) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbCardQuery (msg $ toAppMessage language) searchPhrase, Just VocabtrainR)
 	breadcrumb (VocabtrainCardSearchR) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbCardSearch, Just VocabtrainR)
 	breadcrumb (VocabtrainOrphanedCardsR) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbOrphanedCards, Just VocabtrainR)
+	breadcrumb (VocabtrainNotTranslatedCardsR) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbNotTranslatedCards, Just VocabtrainR)
 	breadcrumb (UserUpdateR userId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbUserUpdate . fromRightText . fromPersistValue . unKey $ userId, Just VocabtrainR)
 
 --root
@@ -75,6 +76,7 @@ instance YesodBreadcrumbs App where
 	breadcrumb VocabtrainR = return("Vocabtrain", Just HomeR)
 	breadcrumb (VocabtrainBookUpdateR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookUpdate . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
 	breadcrumb (VocabtrainBookDeleteR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbBookDelete . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)
+	breadcrumb (VocabtrainMissingTranslationForCardsR bookId language) = getMessageRender >>= \msg -> return(msg $ MsgBreadcrumbMissingTranslationForCards (fromRightText . fromPersistValue . unKey $ bookId) (msg $ toAppMessage language), Just VocabtrainR)
 
 	breadcrumb (VocabtrainChapterR chapterId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapter . fromRightText . fromPersistValue . unKey $ chapterId, Just VocabtrainR)
 	breadcrumb (VocabtrainChapterInsertR bookId) = getMessageRender >>= \msg -> return(msg . MsgBreadcrumbChapterInsert . fromRightText . fromPersistValue . unKey $ bookId, Just VocabtrainR)

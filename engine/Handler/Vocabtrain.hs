@@ -71,7 +71,7 @@ getVocabtrainR = do
 	maid <- maybeAuth
 	bookResult <- runDB $ selectList [] [Asc VocabBookName] --VocabBookId ==. (Key $ toPersistValue (1::Int)) ] [] 
 	chapterResults <- forM bookResult (\bookEntity -> runDB $ selectList [VocabChapterBookId ==. (entityKey $ bookEntity)] [Asc VocabChapterVolume])
-	results <- return $ Prelude.zip bookResult chapterResults -- $ forM bookResult (\bookEntity -> return $ runDB $ selectList [VocabChapterId ==. (entityKey $ bookEntity)] []) 
+	let results = Prelude.zip bookResult chapterResults -- $ forM bookResult (\bookEntity -> return $ runDB $ selectList [VocabChapterId ==. (entityKey $ bookEntity)] []) 
 	let a = either (\_ -> ""::Text) Prelude.id $ fromPersistValue $ unKey $ entityKey $ (bookResult!!0)
 	(bookFormWidget, bookFormEnctype) <- generateFormPost $ renderDivs $ bookForm Nothing
 
@@ -268,25 +268,53 @@ postVocabtrainChapterUpdateR chapterId = do
 						setTitleI MsgChapterPleaseCorrectEntry
 						toWidget $(whamletFile "templates/vocabtrain/chapter_update.hamlet") 
 
+
+getVocabtrainCardList :: [Entity VocabCard] -> Maybe ( Entity VocabCard -> GWidget App App ()) -> GWidget App App ()
+getVocabtrainCardList cardResults cardListExtraButtonWidget = do
+	msgShow <- lift $ getMessageRender
+	maid <- lift $ maybeAuth
+	translationResults <- forM cardResults (\cardEntity -> lift $ runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
+	let results = Prelude.zip cardResults translationResults
+	toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
+
+noCardListExtraButtonWidget :: Maybe ( Entity VocabCard -> GWidget App App ())
+noCardListExtraButtonWidget = Nothing
+
+getVocabtrainMissingTranslationForCardsWidget :: VocabBookId -> GWidget App App ()
+getVocabtrainMissingTranslationForCardsWidget bookId = do
+	msgShow <- lift $ getMessageRender
+	cacheResult <- lift $ runDB $ selectList [VocabBookCacheBookId ==. bookId] [Asc VocabBookCacheBookLanguage]
+	let bookLanguages = map (vocabBookCacheBookLanguage . entityVal) cacheResult
+	toWidget $(whamletFile "templates/vocabtrain/book_missing_translations_widget.hamlet")
+
+getVocabtrainMissingTranslationForCardsR :: VocabBookId -> TatoebaLanguage -> GHandler App App RepHtml
+getVocabtrainMissingTranslationForCardsR bookId language = do
+	msgShow <- getMessageRender
+	setUltDestCurrent
+	mbook <- runDB $ get bookId
+	case mbook of
+		Nothing -> notFound
+		Just book -> do
+		cardResults <- runDB $ getVocabtrainTranslationsMissingForBook bookId language
+		let cardListWidget = getVocabtrainCardList cardResults noCardListExtraButtonWidget
+		vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_missing_translations.hamlet")
+
+getVocabtrainNotTranslatedCardsR :: GHandler App App RepHtml
+getVocabtrainNotTranslatedCardsR = do
+	setUltDestCurrent
+	cardResults <- runDB getVocabtrainNotTranslatedCards
+	let cardListWidget = getVocabtrainCardList cardResults noCardListExtraButtonWidget
+	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_not_translated.hamlet")
+
 getVocabtrainOrphanedCardsR :: GHandler App App RepHtml
 getVocabtrainOrphanedCardsR = do
-	msgShow <- getMessageRender
-	maid <- maybeAuth
-	cardResults <- runDB getVocabtrainOrphanedCardsSQL
-{-	cardResults <- runDB $ rawSql
-		"SELECT ?? FROM cards WHERE NOT EXISTS ( SELECT 1 FROM content WHERE content_card_id = cards._id);"
-		[]
-		:: GHandler App App [Entity VocabCard] -}
-	translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
-	results <- return $ Prelude.zip cardResults translationResults
 	setUltDestCurrent
-	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
-		where cardListExtraButtonWidget = Nothing :: Maybe ( Entity VocabCard -> GWidget App App ())
+	cardResults <- runDB getVocabtrainOrphanedCardsSQL 
+	let cardListWidget = getVocabtrainCardList cardResults noCardListExtraButtonWidget
 	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_orphaned.hamlet")
 
 getVocabtrainChapterR :: VocabChapterId -> GHandler App App RepHtml
 getVocabtrainChapterR chapterId = do
-	msgShow <- getMessageRender
 	maid <- maybeAuth
 	mchapter <- runDB $ get chapterId 
 	case mchapter of
@@ -299,16 +327,13 @@ getVocabtrainChapterR chapterId = do
 			Just book -> do
 			cardResults <- runDB $ getVocabtrainCardsOfChapterSQL chapterId
 			chapterResults <- runDB $ selectList [ VocabChapterBookId ==. bookId] []
-			translationResults <- forM cardResults (\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
-			results <- return $ Prelude.zip cardResults translationResults
+			let cardListWidget = getVocabtrainCardList cardResults $ Just $ widgetCardListTatoebaSearch $ vocabBookLanguage book
 			
 			setUltDestCurrent
 			widgetChapter <- widgetToPageContent $ widgetVocabtrainChapterCreate' bookId
 			let vocabChapterLayout widget = globalLayout $ (vocabLayoutSheet widget) { 
 						 sheetNav = Just $(whamletFile "templates/vocabtrain/navchapter.hamlet")
 						}
-			let cardListExtraButtonWidget = Just $ widgetCardListTatoebaSearch $ vocabBookLanguage book
-			let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
 			vocabChapterLayout $ toWidget $(whamletFile "templates/vocabtrain/chapter.hamlet")
 
 widgetCardListTatoebaSearch :: TatoebaLanguage -> Entity VocabCard -> GWidget App App ()
@@ -900,13 +925,9 @@ getVocabtrainCardQueryR language searchPhrase = getVocabtrainCardSearch True lan
 
 getVocabtrainCardSearch :: Bool -> TatoebaLanguage -> Text -> Maybe ( Entity VocabCard -> GWidget App App ()) -> GHandler App App RepHtml
 getVocabtrainCardSearch isFuzzy language searchPhrase cardListExtraButtonWidget = do
-	msgShow <- getMessageRender
 	maid <- maybeAuth 
 	cardResults <- getCardResults isFuzzy
-	translationResults <- forM cardResults 
-		(\cardEntity -> runDB $ selectList [VocabTranslationCardId ==. (entityKey $ cardEntity)] [Asc VocabTranslationContent])
-	results <- return $ Prelude.zip cardResults translationResults
-	let cardListWidget = toWidget $(whamletFile "templates/vocabtrain/card_list.hamlet")
+	let cardListWidget = getVocabtrainCardList cardResults cardListExtraButtonWidget
 	vocabLayout $ toWidget $(whamletFile "templates/vocabtrain/card_search.hamlet")
 	where
 		getCardResults :: Bool -> GHandler App App [Entity VocabCard]

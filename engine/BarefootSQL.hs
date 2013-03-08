@@ -18,6 +18,8 @@ import Import (runDB)
 maxSQL :: UnsafeSqlFunctionArgument a => a -> SqlExpr (Value b)
 maxSQL = unsafeSqlFunction "MAX"
 
+isSQL :: SqlExpr (Value a) -> SqlExpr (Value b) -> SqlExpr (Value c)
+isSQL = unsafeSqlBinOp " IS "
 
 isVocabtrainCardAlreadyInChapterSQL :: (MonadLogger m, MonadResourceBase m) => VocabCardId -> SqlPersist m [Value Int]
 isVocabtrainCardAlreadyInChapterSQL cardId =
@@ -58,3 +60,28 @@ getVocabtrainCardsOfChapterSQL chapterId =
 	where_ ( card ^. VocabCardId ==. content ^. VocabContentCardId)
 	where_ (content ^. VocabContentChapterId ==. val chapterId)
 	return card
+-- select * from books join chapters on books._id = chapter_book_id join content on content_chapter_id = chapters._id join cards on content_card_id = cards._id left join translations on translation_card_id = cards._id and translation_language = 'deu' where books._id = 3 and translation_language is null;
+getVocabtrainTranslationsMissingForBook :: (MonadLogger m, MonadResourceBase m) => VocabBookId -> TatoebaLanguage -> SqlPersist m [Entity VocabCard]
+getVocabtrainTranslationsMissingForBook bookId language =
+	select $ from $ \( chapter `InnerJoin` content `InnerJoin` card `LeftOuterJoin` translation) -> do
+	where_ (chapter ^. VocabChapterBookId ==. val bookId)
+	on $ (translation ^. VocabTranslationCardId ==. card ^. VocabCardId) &&. (translation ^. VocabTranslationLanguage ==. val language)
+	on $ card ^. VocabCardId ==. content ^. VocabContentCardId
+	on $ chapter ^. VocabChapterId ==. content ^. VocabContentChapterId
+	where_ $ translation ^. VocabTranslationLanguage `isSQL` nothing
+	return card
+
+-- select * from cards where cards._id NOT IN (SELECT translation_card_id FROM translations);
+deleteVocabtrainNotTranslatedCards :: (MonadLogger m, MonadResourceBase m) => SqlPersist m ()
+deleteVocabtrainNotTranslatedCards = 
+	let subquery = from $ \translation -> return $ translation ^. VocabTranslationCardId
+	in delete $ from $ \card -> do
+		where_ $ card ^. VocabCardId `notIn` subList_select subquery
+
+getVocabtrainNotTranslatedCards :: (MonadLogger m, MonadResourceBase m) => SqlPersist m [Entity VocabCard]
+getVocabtrainNotTranslatedCards = 
+	let subquery = from $ \translation -> return $ translation ^. VocabTranslationCardId
+	in select $ from $ \card -> do
+		where_ $ card ^. VocabCardId `notIn` subList_select subquery
+		return card
+

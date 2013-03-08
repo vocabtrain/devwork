@@ -2,6 +2,7 @@
     <ul .nav .nav-tabs>
         <li>
             <a href=@{VocabtrainOrphanedCardsR}>_{MsgCardOrphanedHeader}
+            <a href=@{VocabtrainNotTranslatedCardsR}>_{MsgCardNotTranslatedHeader}
         <li .nav-header>_{MsgBooks}
         $forall result <- results
             <li>

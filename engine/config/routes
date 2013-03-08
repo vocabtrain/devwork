@@ -18,6 +18,7 @@
 /vocabtrain/books/log/#VocabBookId VocabtrainBookLogR GET
 /vocabtrain/books/update/#VocabBookId VocabtrainBookUpdateR GET POST
 /vocabtrain/books/delete/#VocabBookId VocabtrainBookDeleteR GET POST
+/vocabtrain/books/missing_translation/#VocabBookId/#TatoebaLanguage VocabtrainMissingTranslationForCardsR GET
 
 /vocabtrain/chapter/#VocabChapterId VocabtrainChapterR GET
 /vocabtrain/chapter/log/#VocabChapterId VocabtrainChapterLogR GET
@@ -57,6 +58,7 @@
 /vocabtrain/card/query/#TatoebaLanguage/#Text VocabtrainCardQueryR GET
 /vocabtrain/cardsearch VocabtrainCardSearchR POST
 /vocabtrain/orphanedcards VocabtrainOrphanedCardsR GET
+/vocabtrain/nottranslatedcards VocabtrainNotTranslatedCardsR GET
 
 /user/#UserId UserR GET
 /user/update/#UserId UserUpdateR GET POST

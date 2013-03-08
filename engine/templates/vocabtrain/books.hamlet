@@ -26,6 +26,7 @@
                                         <i .icon-calendar>
                                         _{MsgBookLog}
                     <p>_{MsgBookLastChanged $ vocabBookTimestamp $ entityVal $ fst result}
+                    ^{getVocabtrainMissingTranslationForCardsWidget bookId}
                     <h3>_{MsgChapterListHeader}
                     <ol>
                         $forall chapterEntity <- snd result

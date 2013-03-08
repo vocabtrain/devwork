@@ -547,6 +547,7 @@ postVocabtrainMobileDownloadR = do
 						forM_ cardResult               (\row -> insertKey (entityKey row) (entityVal row) )
 						forM_ translationResult        (\row -> insertKey (entityKey row) (entityVal row) )
 						forM_ translationMissingResult (\row -> insertKey (entityKey row) (entityVal row) )
+						deleteVocabtrainNotTranslatedCards
 				content <- liftIO $ BS.hGetContents fileh
 				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
