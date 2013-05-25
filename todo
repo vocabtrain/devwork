@@ -46,3 +46,5 @@ yesod SSL
 Vocabtrain: Wenn Translation noch nicht existiert, legt Android translation an -> server sync? Error?
 
 Book: Show cards missing translation of a certain language
+
+AndroidApp: While Training: Discard Card does not change upper right stats!

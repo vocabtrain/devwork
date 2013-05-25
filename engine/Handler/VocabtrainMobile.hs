@@ -39,6 +39,7 @@ import Control.Monad.Primitive
 import System.IO
 import Data.Word (Word8)
 import qualified Data.List as List
+import Control.Monad.Logger
 
 import UserManipType
 --import UserManipLog
@@ -385,17 +386,16 @@ postVocabtrainMobileFilingDownloadR = do
 			filingDataResult <- runDB $ selectList [ VocabFilingDataUserId ==. userId] []
 			selectionResult <- runDB $ selectList [ VocabSelectionUserId ==. userId] []
 			liftIO $ withTempFile "filingdownload" (\ file fileh  -> do
-				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
-					runSqlConn' dbh $ do
-						runMigration migrateVocabtrainMobile
-						forM_ filingResult     $ \row -> insert $ exportMobileFiling     $ entityVal row
-						forM_ filingDataResult $ \row -> insert $ exportMobileFilingData $ entityVal row
-						forM_ selectionResult  $ \row -> insert $ exportMobileSelection  $ entityVal row
+				runStdoutLoggingT $ 
+					C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
+						runSqlConn' dbh $ do
+							runMigration migrateVocabtrainMobile
+							forM_ filingResult     $ \row -> insert $ exportMobileFiling     $ entityVal row
+							forM_ filingDataResult $ \row -> insert $ exportMobileFilingData $ entityVal row
+							forM_ selectionResult  $ \row -> insert $ exportMobileSelection  $ entityVal row
 				content <- liftIO $ BS.hGetContents fileh
 				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
-			where
-				runSqlConn' pers conn = runSqlConn conn pers
 		_ -> permissionDenied ""
 
 importMobileFiling :: UserId -> VocabMobileFiling -> VocabFiling
@@ -468,35 +468,34 @@ postVocabtrainMobileFilingUploadR = do
 		--	let requestBodyString = BS.concat bss
 			liftIO $ withTempFile "filing_upload" $ \file fileh  -> do
 				BSL.hPut fileh $ decompress $ BSL.fromChunks bss
-				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
---					$(logInfo) $ fromPersistValue $ unKey userId
-{-					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `filing` ADD COLUMN `filing_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
-					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `filing_data` ADD COLUMN `filing_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
-					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `selection` ADD COLUMN `selection_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) [] -}
-					$(logInfo) "a"
-		--			runSqlConn' dbh $ updateWhere [] [VocabFilingUserId =. 1] -- TODO = 1
-		--			filingList <- runSqlConn' dbh $ selectList [] [] 
-					filingList <- runSqlConn' dbh $ selectList [] [] 
-					filingDataList <- runSqlConn' dbh $ selectList [] []
-					selectionList <- runSqlConn' dbh $ selectList [] []
-					$(logInfo) "b"
-		--			return (aa::[Entity VocabFiling])
-					runInnerHandler $ do
-						runDB $ do
-							deleteWhere [VocabFilingUserId ==. userId]
-							deleteWhere [VocabFilingDataUserId ==. userId]
-							deleteWhere [VocabSelectionUserId ==. userId]
-							mapM_ (\row -> insert $ importMobileFiling userId $ entityVal row) (filingList :: [Entity VocabMobileFiling])
-							mapM_ (\row -> insert $ importMobileFilingData userId $ entityVal row) (filingDataList :: [Entity VocabMobileFilingData])
-							mapM_ (\row -> insert $ importMobileSelection userId $ entityVal row) (selectionList :: [Entity VocabMobileSelection])
-							execute "DELETE FROM filing WHERE filing_card_id IN ( SELECT filing_card_id FROM filing LEFT JOIN cards ON filing_card_id = cards._id WHERE cards._id IS NULL);" []
-							execute "DELETE FROM selection WHERE selection_card_id IN ( SELECT selection_card_id FROM selection LEFT JOIN cards ON selection_card_id = cards._id WHERE cards._id IS NULL);" []
-							--deleteWhere [VocabFilingUserId ==. userId]
-							--deleteWhere [VocabFilingDataUserId ==. userId]
-							--deleteWhere [VocabSelectionUserId ==. userId]
+				runStdoutLoggingT $ 
+					C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
+	--					$(logInfo) $ fromPersistValue $ unKey userId
+	{-					_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `filing` ADD COLUMN `filing_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
+						_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `filing_data` ADD COLUMN `filing_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) []
+						_ <- runSqlConn' dbh $ execute (Text.concat ["ALTER TABLE `selection` ADD COLUMN `selection_user_id` default '", either (\_ -> "0") Prelude.id $ fromPersistValue $ unKey userId, "';"]) [] -}
+						$(logInfo) "a"
+			--			runSqlConn' dbh $ updateWhere [] [VocabFilingUserId =. 1] -- TODO = 1
+			--			filingList <- runSqlConn' dbh $ selectList [] [] 
+						filingList <- runSqlConn' dbh $ selectList [] [] 
+						filingDataList <- runSqlConn' dbh $ selectList [] []
+						selectionList <- runSqlConn' dbh $ selectList [] []
+						$(logInfo) "b"
+			--			return (aa::[Entity VocabFiling])
+						runInnerHandler $ do
+							runDB $ do
+								deleteWhere [VocabFilingUserId ==. userId]
+								deleteWhere [VocabFilingDataUserId ==. userId]
+								deleteWhere [VocabSelectionUserId ==. userId]
+								mapM_ (\row -> insert $ importMobileFiling userId $ entityVal row) (filingList :: [Entity VocabMobileFiling])
+								mapM_ (\row -> insert $ importMobileFilingData userId $ entityVal row) (filingDataList :: [Entity VocabMobileFilingData])
+								mapM_ (\row -> insert $ importMobileSelection userId $ entityVal row) (selectionList :: [Entity VocabMobileSelection])
+								execute "DELETE FROM filing WHERE filing_card_id IN ( SELECT filing_card_id FROM filing LEFT JOIN cards ON filing_card_id = cards._id WHERE cards._id IS NULL);" []
+								execute "DELETE FROM selection WHERE selection_card_id IN ( SELECT selection_card_id FROM selection LEFT JOIN cards ON selection_card_id = cards._id WHERE cards._id IS NULL);" []
+								--deleteWhere [VocabFilingUserId ==. userId]
+								--deleteWhere [VocabFilingDataUserId ==. userId]
+								--deleteWhere [VocabSelectionUserId ==. userId]
 				return $ RepPlain $ toContent (""::Text)
-			where
-				runSqlConn' pers conn = runSqlConn conn pers
 		_ -> permissionDenied ""
 
 postVocabtrainMobileDownloadR :: GHandler App App RepSqlite
@@ -538,25 +537,27 @@ postVocabtrainMobileDownloadR = do
 				) [] :: GHandler App App [Entity VocabTranslation]
 				--"SELECT _id, book_name, book_language, extract(epoch from book_timestamp) AS book_timestamp FROM books ORDER BY book_name ASC;"
 			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
-				C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
-					runSqlConn' dbh $ do
-						_ <- runMigration migrateVocabtrainMobile
-						forM_ bookResult               (\row -> insertKey (entityKey row) (entityVal row) )
-						forM_ chapterResult            (\row -> insertKey (entityKey row) (entityVal row) )
-						forM_ contentResult            (\row -> insertKey (entityKey row) (entityVal row) )
-						forM_ cardResult               (\row -> insertKey (entityKey row) (entityVal row) )
-						forM_ translationResult        (\row -> insertKey (entityKey row) (entityVal row) )
-						forM_ translationMissingResult (\row -> insertKey (entityKey row) (entityVal row) )
-						deleteVocabtrainNotTranslatedCards
+				runStdoutLoggingT $ 
+					C.runResourceT $ withSqliteConn (Text.pack file) $ \dbh -> do
+						runSqlConn' dbh $ do
+							_ <- runMigration migrateVocabtrainMobile
+							forM_ bookResult               (\row -> insertKey (entityKey row) (entityVal row) )
+							forM_ chapterResult            (\row -> insertKey (entityKey row) (entityVal row) )
+							forM_ contentResult            (\row -> insertKey (entityKey row) (entityVal row) )
+							forM_ cardResult               (\row -> insertKey (entityKey row) (entityVal row) )
+							forM_ translationResult        (\row -> insertKey (entityKey row) (entityVal row) )
+							forM_ translationMissingResult (\row -> insertKey (entityKey row) (entityVal row) )
+							deleteVocabtrainNotTranslatedCards
 				content <- liftIO $ BS.hGetContents fileh
 				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
 			where
-				runSqlConn' pers conn = runSqlConn conn pers
-
 				selectRawList :: Show a => [Entity a] -> Text
 				selectRawList l = Prelude.flip Text.snoc ')' $ Text.cons '(' $ Text.init . Text.tail . Text.pack . show $ 
 					(map (\key -> either (\_ -> 0) Prelude.id $ fromPersistValue $ unKey $ entityKey key) l :: [Int] )
+
+runSqlConn' :: MonadBaseControl IO m => Connection -> SqlPersist m a -> m a
+runSqlConn' pers conn = runSqlConn conn pers
 
 withTempFile :: String -> (FilePath -> Handle -> IO a) -> IO a
 withTempFile pattern func = do

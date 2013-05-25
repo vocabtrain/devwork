@@ -133,33 +133,3 @@
         <li>Trajectorial searches
         <li>Pareto-NEARBY queries
 
-<div .slide>
-    <h1>Potential Geo-Preferences
-    <h2>Idea
-    <ul>
-        <li>NEARBY of multiple POIs
-        <li>Do not want to be exactly at one POI
-        <li>Instead give me a good compromise of the distances to all POIs
-    <p>
-        <b>That means:
-        I do not want extremas that we get in skyline queries.
-<div .slide>
-    <h1>Definition of Potential Geo-Preferences
-    <p>
-        Let \(P \) be a Geo-Preference (such as <code>WITHIN, ONROUTE</code>, ...).
-        We define the constructor
-        \\[ P \textrm{ POTENTIAL } o,\phi \]
-        Particularly we can use mulitple points for a <code>NEARBY</code> preference
-        \\[ NEARBY \textrm{ POTENTIAL } [(o,\phi),...] \]
-        where \( o \) is a geo object like a point or polygon and \( \phi \) the potential field of object \( o \).
-        More exactly, we're passing our new constructor a set of potential-points 
-        \\( e_i = (p_i, \phi_i) \) with \( p_i \in \R^3 \) and \( \phi_i \in C^\{\infty}_c(\R^3) \).
-        The potential preference then generates a score of the kind
-        \\[ \textrm{score}(q) := \sum_i \phi_i(q - p_i) \]
-        where \( q \in \R^3 \) is an arbitrary point.
-        In order to be able to computate this preference,
-        we'll have to restrict the set of all points \( q \).
-        Therefore we introduce a lattice \( L_d \) where \( d \) denotes the width/height.
-        In order to generate our previous uncomputable preference, we can use a potential kernel like
-        \\[ \phi(x) := e^\{-x^2} - c e^\{-2x^2} \]
-

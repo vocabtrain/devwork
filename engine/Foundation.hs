@@ -40,6 +40,8 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Generated (TatoebaLanguage (..), BeamerSlidePrivate (..), BeamerSlidePublic (..) )
+import System.Log.FastLogger (Logger)
+
 
 import qualified Data.Text as Text
 import Data.Text (Text)
@@ -50,13 +52,14 @@ import Data.Text (Text)
 -- access to the data present here.
 
 data App = App
-    { settings :: AppConfig DefaultEnv Extra
-    , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
-    , httpManager :: Manager
-    , persistConfig :: Settings.PersistConfig
+	{ settings :: AppConfig DefaultEnv Extra
+	, getStatic :: Static -- ^ Settings for static file serving.
+	, connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+	, httpManager :: Manager
+	, persistConfig :: Settings.PersistConfig
+	, appLogger :: Logger
 --	, getDominikSub :: DominikSub
-    }
+	}
 
 --data DominikSub = DominikSub App
 --mkYesodSubData "DominikSub" [] $(parseRoutesFile "config/routes.dominik")
@@ -159,6 +162,8 @@ instance Yesod App where
     -- in development, and warnings and errors in production.
     shouldLog _ _source level =
         development || level == LevelWarn || level == LevelError
+
+    getLogger = return . appLogger
 
 -- How to run database actions.
 instance YesodPersist App where

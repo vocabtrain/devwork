@@ -93,7 +93,7 @@ library
                  , monad-control                 >= 0.3        && < 0.4
                  , wai-extra                     >= 1.3        && < 1.4
                  , yaml                          >= 0.8        && < 0.9
-                 , http-conduit                  >= 1.5        && < 1.9
+                 , http-conduit                  >= 1.5        && < 2.0
                  , directory                     >= 1.1     
                  , warp                          >= 1.3        && < 1.4
                  , blaze-html
@@ -102,9 +102,10 @@ library
                  , MaybeT
                  , resourcet
                  , monad-logger
+                 , fast-logger
                  , time
                  , wai
-                 , warp-tls
+--                 , warp-tls
                  , esqueleto
                  , attoparsec
                  , ghc-prim
