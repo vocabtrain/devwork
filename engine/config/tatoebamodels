@@ -1,0 +1,10 @@
+TatoebaSentence id=sentence_id sql=tatoeba_sentences
+	language TatoebaLanguage sql=sentence_language
+	text Text sql=sentence_text
+	deriving Show
+TatoebaLink sql=tatoeba_links
+	sentenceId TatoebaSentenceId sql=link_sentence_id
+	translationId TatoebaSentenceId sql=link_translation_id
+	Link sentenceId translationId
+	deriving Show
+

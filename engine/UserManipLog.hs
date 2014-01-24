@@ -14,9 +14,9 @@ data UserManipLog = UserManipLog
 	, userManipContent :: Text
 	}
 class ToUserManipLog a where
-	toUserManipLog :: a -> GHandler App App UserManipLog
+	toUserManipLog :: a -> HandlerT App IO UserManipLog
 
-getUserNick :: UserId -> GHandler App App (Maybe Text)
+getUserNick :: UserId -> HandlerT App IO (Maybe Text)
 getUserNick userId = do
 	muser <- runDB $ get userId
 	case muser of
@@ -69,8 +69,10 @@ getUserManipTypeIcon USERMANIP_UPDATE = "icon-refresh"
 getUserManipTypeIcon USERMANIP_PUT = "icon-star"
 getUserManipTypeIcon USERMANIP_REMOVE = "icon-trash"
 
-userManipTypeWidget :: UserManipType -> GWidget App App()
+
+--userManipTypeWidget :: (MonadTrans t, ToWidget (HandlerSite (t m)) MonadWidget (t m), MonadHandler m, RenderMessage (HandlerSite m) AppMessage) => UserManipType -> t m ()
+userManipTypeWidget :: UserManipType -> WidgetT App IO()
 userManipTypeWidget t = do
-	msgShow <- lift $ getMessageRender
+	msgShow <- getMessageRender
 	toWidget $ [hamlet|<i .#{getUserManipTypeIcon t} title=#{msgShow $ toAppMessage t} data-placement="bottom" rel="tooltip"> |]
 

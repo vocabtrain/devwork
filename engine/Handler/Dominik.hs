@@ -5,16 +5,17 @@ import Import
 import qualified Prelude
 import qualified Text.Blaze.Html
 import GlobalLayout
+import BibtexWidget
 
 showTenth :: Int -> String
 showTenth i
 	| i < 10 = "0" ++ show i
 	| otherwise = show i
 
-getHomeR :: GHandler App App RepHtml
+getHomeR :: Handler Html
 getHomeR = redirect DKHomeR
 
-dominikLayoutSheet :: GWidget App App () -> SheetLayout App (Route App)
+dominikLayoutSheet :: Widget -> SheetLayout App (Route App)
 dominikLayoutSheet widget = SheetLayout 
 	{ sheetTitle = "Dominik Köppl"
 	, sheetNav = Nothing
@@ -22,18 +23,18 @@ dominikLayoutSheet widget = SheetLayout
 	, sheetContent = widget
 	}
 
-courseLayout :: GWidget App App () -> GHandler App App RepHtml
+courseLayout :: Widget -> Handler Html
 courseLayout widget = globalLayout $ (dominikLayoutSheet widget) { sheetNav = Just $(whamletFile "templates/dominik/navcourse.hamlet") }
-projectLayout :: GWidget App App () -> GHandler App App RepHtml
+projectLayout :: Widget -> Handler Html
 projectLayout widget = globalLayout $ (dominikLayoutSheet widget) { sheetNav = Just $(whamletFile "templates/dominik/navproject.hamlet") }
 
 
-getQtProjectListR :: GHandler App App RepHtml
+getQtProjectListR :: Handler Html
 getQtProjectListR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtprojectlist.hamlet") 
 	addStylesheet $ StaticR css_gallery_css
 
-handleJavaProjectR :: Int -> GHandler App App RepHtml
+handleJavaProjectR :: Int -> Handler Html
 handleJavaProjectR projectId
 	| (projectId < 0 || projectId >= Prelude.length getJavaProjects) = invalidArgs [ "Wrong Project Id" ]
 	| otherwise = courseLayout $ do
@@ -41,59 +42,59 @@ handleJavaProjectR projectId
 		toWidget $(whamletFile "templates/dominik/javaproject.hamlet")
 			where project = getJavaProjects !! projectId
 
-getDKHomeR :: GHandler App App RepHtml
+getDKHomeR :: Handler Html
 getDKHomeR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/homecourse.hamlet")
-getDKProjectHomeR :: GHandler App App RepHtml
+getDKProjectHomeR :: Handler Html
 
-getOpenGLR :: GHandler App App RepHtml
+getOpenGLR :: Handler Html
 getOpenGLR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/opengl.hamlet")
 
-getQtGalleryR :: GHandler App App RepHtml
+getQtGalleryR :: Handler Html
 getQtGalleryR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtgallery.hamlet")
 	addStylesheet $ StaticR css_gallery_css
 
-getQtDescR :: GHandler App App RepHtml
+getQtDescR :: Handler Html
 getQtDescR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtdesc.hamlet") 
 
-getQtOpenGLR :: GHandler App App RepHtml
+getQtOpenGLR :: Handler Html
 getQtOpenGLR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtopengl.hamlet") 
 
-getQtDossierR :: GHandler App App RepHtml
+getQtDossierR :: Handler Html
 getQtDossierR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/qtkurs.hamlet") 
 
-getJavaDescR :: GHandler App App RepHtml
+getJavaDescR :: Handler Html
 getJavaDescR  = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/javadesc.hamlet") 
 
-getJavaProjectListR :: GHandler App App RepHtml
+getJavaProjectListR :: Handler Html
 getJavaProjectListR  = courseLayout $ do
 	toWidget javaProjectList 
 
-dominikContact :: GWidget App App ()
+dominikContact :: Widget
 dominikContact = toWidget $(whamletFile "templates/dominik/contact.hamlet") 
-javaProjectList :: GWidget App App ()
+javaProjectList :: Widget
 javaProjectList = toWidget $(whamletFile "templates/dominik/javaprojectlist.hamlet") 
 
-getJavaDossierR :: GHandler App App RepHtml
+getJavaDossierR :: Handler Html
 getJavaDossierR = courseLayout $ do
 	toWidget $(whamletFile "templates/dominik/javakurs.hamlet") 
 
-getTatoebaWebServiceR :: GHandler App App RepHtml
+getTatoebaWebServiceR :: Handler Html
 getTatoebaWebServiceR = projectLayout $ do
 	toWidget $(whamletFile "templates/dominik/tatoebawebservice.hamlet") 
-getTatoebaAppR :: GHandler App App RepHtml
+getTatoebaAppR :: Handler Html
 getTatoebaAppR = projectLayout $ do
 	toWidget $(whamletFile "templates/dominik/tatoebaapp.hamlet") 
-getProjectAnnualR :: GHandler App App RepHtml
+getProjectAnnualR :: Handler Html
 getProjectAnnualR = projectLayout $ do
 	toWidget $(whamletFile "templates/dominik/annual.hamlet") 
-getProjectFritzContactR :: GHandler App App RepHtml
+getProjectFritzContactR :: Handler Html
 getProjectFritzContactR = projectLayout $ do
 	toWidget $(whamletFile "templates/dominik/fritzcontact.hamlet") 
 getDKProjectHomeR  = projectLayout $ do

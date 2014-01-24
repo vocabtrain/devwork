@@ -7,6 +7,7 @@ import Database.HDBC
 import Database.HDBC.PostgreSQL
 import System.Environment
 import MyTools
+import qualified Database.PostgreSQL.Simple as PG
 
 languagesWithStemmer :: [String]
 languagesWithStemmer = [
@@ -68,10 +69,24 @@ genLang (SqlByteString langB) =
 					else "") ++
 				"}\n\n"
 					where lang = B.toString langB
-genLang _ =  ""
+
+genSource :: PG.ConnectInfo -> String
+genSource ci = 
+	"source default {\n" ++
+	"type = pgsql \n" ++
+	"sql_host = " ++ (PG.connectHost ci) ++ "\n" ++
+	"sql_user = " ++ (PG.connectUser ci) ++ "\n" ++
+	"sql_pass = " ++ (PG.connectPassword ci) ++ "\n" ++
+	"sql_db = " ++ (PG.connectDatabase ci) ++ "\n" ++
+	"sql_port = " ++ (show $ PG.connectPort ci) ++ "\n" ++
+	"}\n"
+
+
+
 main :: IO ()
 main = do
 	args <- getArgs
+	getPostgresConnectionConfig (args!!0) (read $ args!!1) >>= (putStr . genSource)
 	connectionString <- getPostgresConnectionString (args!!0) (read $ args!!1)
 	dbh <- connectPostgreSQL $ B.toString connectionString
 	langs <- quickQuery' dbh "SELECT sentence_language FROM tatoeba_sentences GROUP BY sentence_language" []
@@ -87,3 +102,6 @@ main = do
 	forM_ langs (\lang -> putStr $ "\t local = vocabtrain_" ++ ( fromSql (lang !! 0) ) ++ "\n")
 	putStr "}\n"
 	disconnect dbh
+
+
+-- todo: read postgres yaml for sphinx.conf

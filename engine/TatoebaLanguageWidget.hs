@@ -5,8 +5,8 @@ import qualified Data.Text as Text
 import ToAppMessage 
 import PostGenerated () 
 
-tatoebaLanguageWidget :: TatoebaLanguage -> GWidget App App()
+tatoebaLanguageWidget :: TatoebaLanguage -> Widget
 tatoebaLanguageWidget lang = do
-	msgShow <- lift $ getMessageRender
+	msgShow <- getMessageRender
 	toWidget $ [hamlet|<i .flag-#{Text.pack $ show $ lang} title=#{msgShow $ toAppMessage lang} data-placement="bottom" rel="tooltip"> |]
 

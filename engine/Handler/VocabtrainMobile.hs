@@ -20,8 +20,8 @@ import qualified Data.Conduit as C
 import qualified Data.Conduit.List as CL
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Database.Persist.GenericSql.Raw (withStmt,execute)
-import Database.Persist.GenericSql
+--import Database.Persist.GenericSql.Raw (withStmt,execute)
+import Database.Persist.Sql
 import Database.Persist.Sqlite
 
 import Data.Conduit.Lazy
@@ -45,11 +45,11 @@ import UserManipType
 --import UserManipLog
 import Data.Time (getCurrentTime) 
 
-import Database.Persist.Store
+import Database.Persist
 
 data BasicAuthResult = BasicAuthAuthorized UserId | BasicAuthNothing | BasicAuthInvalidEncoding | BasicAuthWrongCreds
 
-basicAuth :: GHandler App App BasicAuthResult
+basicAuth :: HandlerT App IO BasicAuthResult
 basicAuth = do 
 	wr <- waiRequest
 	case lookup "Authorization" $ Wai.requestHeaders wr of
@@ -74,7 +74,7 @@ basicAuth = do
 		basicHTTPAuthPrefix :: BS.ByteString
 		basicHTTPAuthPrefix = "basic "
 
-tokenAuth :: GHandler App App BasicAuthResult
+tokenAuth :: HandlerT App IO BasicAuthResult
 tokenAuth = do 
 	wr <- waiRequest
 	case lookup "Authorization" $ Wai.requestHeaders wr of
@@ -101,7 +101,7 @@ generateTokenString g = do
 		c :: Char -> Word8
 		c = fromIntegral . fromEnum
 
-postVocabtrainMobileDeltaR :: GHandler App App RepPlain
+postVocabtrainMobileDeltaR :: HandlerT App IO RepPlain
 postVocabtrainMobileDeltaR = do
 --	let auth = BasicAuthAuthorized (Key $ PersistInt64 1)
 	auth <- tokenAuth
@@ -113,12 +113,12 @@ postVocabtrainMobileDeltaR = do
 			let mayBeDecoded = JSP.parse JS.json requestBodyString
 			obtainParsed mayBeDecoded
 			where
-				obtainParsed :: JSP.IResult BS.ByteString JS.Value -> GHandler App App RepPlain
+				obtainParsed :: JSP.IResult BS.ByteString JS.Value -> HandlerT App IO RepPlain
 				obtainParsed (JSP.Fail _ errlist err) = invalidArgs ([Text.pack err] ++ map Text.pack errlist)
 				obtainParsed (JSP.Partial cont) = obtainParsed $ (cont BS.empty) -- invalidArgs [ "Could only parse partial"::Text, continuation cont ]
 				obtainParsed (JSP.Done _ res) = readRequest $ (JS.fromJSON res :: JS.Result VocabtrainDelta)
 
-				readRequest :: JS.Result VocabtrainDelta -> GHandler App App RepPlain
+				readRequest :: JS.Result VocabtrainDelta -> HandlerT App IO RepPlain
 				readRequest (JS.Error err) = invalidArgs [ Text.pack err ]
 				readRequest (JS.Success delta) = do
 					time <- liftIO getCurrentTime
@@ -161,7 +161,7 @@ postVocabtrainMobileDeltaR = do
 		successKeyword :: Text
 		successKeyword = "erfolgreich"
 
-getVocabtrainMobileAuthTokenR :: GHandler App App RepPlain
+getVocabtrainMobileAuthTokenR :: HandlerT App IO RepPlain
 getVocabtrainMobileAuthTokenR = do 
 	auth <- basicAuth
 	case auth of 
@@ -280,7 +280,7 @@ instance JS.ToJSON (Entity VocabBook, [Entity VocabBookCache]) where
 				book_id = entityKey ebook
 				book = entityVal ebook
 
-postVocabtrainMobileBooksR :: Handler RepJson
+postVocabtrainMobileBooksR :: Handler JS.Value
 postVocabtrainMobileBooksR = do
 	bookSupply <- getBookSupply
 --	languageSupply <- getTranslationLanguageSupply
@@ -290,7 +290,7 @@ postVocabtrainMobileBooksR = do
 	$(logDebug) $ Text.pack $ show $ (maybe [] (\t -> [("userdata", t)]) userData)
 	jsonToRepJson $ JS.object ( [ ("books", JS.toJSON bookSupply), ("translation_languages", JS.toJSON $ map (\(Value a) -> a) languageSupply)] ++ (maybe [] (\t -> [("userdata", t)]) userData)   )
 	where
-		getBookSupply :: GHandler App App [(Entity VocabBook, [Entity VocabBookCache])]
+		getBookSupply :: HandlerT App IO [(Entity VocabBook, [Entity VocabBookCache])]
 		getBookSupply = do
 			bookResults <- runDB $ selectList [] [Asc VocabBookName]
 			forM bookResults $ \bookResult -> do
@@ -320,18 +320,21 @@ postVocabtrainMobileBooksR = do
 						[] C.$$ CL.consume
 					return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> 0::Int) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
 		-}
-		getUserData :: GHandler App App (Maybe JS.Value)
+		getUserData :: HandlerT App IO (Maybe JS.Value)
 		getUserData = do
 			--auth <- tokenAuth
 			let auth = BasicAuthAuthorized (Key $ PersistInt64 1)
 			case auth of 
 				BasicAuthAuthorized userId -> do
---					timestampResult <- runDB $ getVocabtrainMaximumFilingTimestampOfUserSQL userId
-					
-					timestampResult <- runDB $ C.runResourceT $ withStmt
-						"SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = ?;"
-						[unKey $ userId] C.$$ CL.consume
-					return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> 0::Int) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
+					timestampResult <- runDB $ getVocabtrainMaximumFilingTimestampOfUserSQL userId
+					case timestampResult !! 0  of
+						Value (Just t) -> return $ Just $ JS.object [("timestamp", JS.toJSON t) ]
+						Value Nothing -> return Nothing
+
+--					timestampResult <- runDB $ C.runResourceT $ withStmt
+--						"SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = ?;"
+--						[unKey $ userId] C.$$ CL.consume
+--					return $ Just $ JS.object [("timestamp", JS.toJSON $ either (\_ -> 0::Int) Prelude.id $ fromPersistValue (timestampResult !! 0 !! 0) )]
 					{-
 					if null timestampResult 
 						then return $ Just $ JS.object [("timestamp", JS.toJSON (0::Int) )]
@@ -370,14 +373,21 @@ instance JS.FromJSON DownloadRequest where
 typeSqlite :: ContentType
 typeSqlite = "application/x-sqlite3"
 
-newtype RepOctet = RepOctet Content
-instance HasReps RepOctet where
-    chooseRep (RepOctet c) _ = return (typeOctet, c)
-newtype RepSqlite = RepSqlite Content
-instance HasReps RepSqlite where
-    chooseRep (RepSqlite c) _ = return (typeSqlite, c)
+-- newtype RepOctet = RepOctet Content
+-- instance HasReps RepOctet where
+--    chooseRep (RepOctet c) _ = return (typeOctet, c)
+-- newtype RepSqlite = RepSqlite Content
+-- instance HasReps RepSqlite where
+--    chooseRep (RepSqlite c) _ = return (typeSqlite, c)
 
-postVocabtrainMobileFilingDownloadR :: GHandler App App RepSqlite
+
+newtype RepSqlite = RepSqlite Content
+instance ToContent RepSqlite where
+    toContent (RepSqlite x) = toContent $ x
+instance ToTypedContent RepSqlite where
+    toTypedContent (RepSqlite text) = TypedContent typeSqlite text
+
+postVocabtrainMobileFilingDownloadR :: Handler TypedContent -- App App RepSqlite
 postVocabtrainMobileFilingDownloadR = do
 	auth <- tokenAuth
 	case auth of 
@@ -394,7 +404,7 @@ postVocabtrainMobileFilingDownloadR = do
 							forM_ filingDataResult $ \row -> insert $ exportMobileFilingData $ entityVal row
 							forM_ selectionResult  $ \row -> insert $ exportMobileSelection  $ entityVal row
 				content <- liftIO $ BS.hGetContents fileh
-				return $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
+				return $ toTypedContent $ RepSqlite $ toContent $ compress $ BSL.fromChunks [ content ]
 				)	
 		_ -> permissionDenied ""
 
@@ -455,7 +465,7 @@ exportMobileSelection mf = VocabMobileSelection
 
 
 
-postVocabtrainMobileFilingUploadR :: GHandler App App RepPlain
+postVocabtrainMobileFilingUploadR :: HandlerT App IO RepPlain
 postVocabtrainMobileFilingUploadR = do
 	auth <- tokenAuth
 	case auth of 
@@ -490,15 +500,17 @@ postVocabtrainMobileFilingUploadR = do
 								mapM_ (\row -> insert $ importMobileFiling userId $ entityVal row) (filingList :: [Entity VocabMobileFiling])
 								mapM_ (\row -> insert $ importMobileFilingData userId $ entityVal row) (filingDataList :: [Entity VocabMobileFilingData])
 								mapM_ (\row -> insert $ importMobileSelection userId $ entityVal row) (selectionList :: [Entity VocabMobileSelection])
-								execute "DELETE FROM filing WHERE filing_card_id IN ( SELECT filing_card_id FROM filing LEFT JOIN cards ON filing_card_id = cards._id WHERE cards._id IS NULL);" []
-								execute "DELETE FROM selection WHERE selection_card_id IN ( SELECT selection_card_id FROM selection LEFT JOIN cards ON selection_card_id = cards._id WHERE cards._id IS NULL);" []
+								deleteVocabtrainFilingWhereCardMissing
+								deleteVocabtrainSelectionWhereCardMissing
+--								rawExecute "DELETE FROM filing WHERE filing_card_id IN ( SELECT filing_card_id FROM filing LEFT JOIN cards ON filing_card_id = cards._id WHERE cards._id IS NULL);" []
+--								rawExecute "DELETE FROM selection WHERE selection_card_id IN ( SELECT selection_card_id FROM selection LEFT JOIN cards ON selection_card_id = cards._id WHERE cards._id IS NULL);" []
 								--deleteWhere [VocabFilingUserId ==. userId]
 								--deleteWhere [VocabFilingDataUserId ==. userId]
 								--deleteWhere [VocabSelectionUserId ==. userId]
 				return $ RepPlain $ toContent (""::Text)
 		_ -> permissionDenied ""
 
-postVocabtrainMobileDownloadR :: GHandler App App RepSqlite
+postVocabtrainMobileDownloadR :: HandlerT App IO RepSqlite
 postVocabtrainMobileDownloadR = do
 	wr <- waiRequest
 	bss <- lift $ lazyConsume $ requestBody wr
@@ -506,12 +518,12 @@ postVocabtrainMobileDownloadR = do
 	let mayBeDecoded = JSP.parse JS.json requestBodyString
 	obtainParsed mayBeDecoded
 	where
-		obtainParsed :: JSP.IResult t JS.Value -> GHandler App App RepSqlite
+		obtainParsed :: JSP.IResult t JS.Value -> HandlerT App IO RepSqlite
 		obtainParsed (JSP.Fail _ _ err) = invalidArgs [Text.pack err]
 		obtainParsed (JSP.Partial _) = invalidArgs [ "Could only parse partial"::Text ]
 		obtainParsed (JSP.Done _ res) = readRequest $ (JS.fromJSON res :: JS.Result DownloadRequest)
 
-		readRequest :: JS.Result DownloadRequest -> GHandler App App RepSqlite
+		readRequest :: JS.Result DownloadRequest -> HandlerT App IO RepSqlite
 		readRequest (JS.Error err) = invalidArgs [ Text.pack err ]
 		readRequest (JS.Success request) = do
 			bookResult <- runDB $ selectList [ VocabBookId <-. (map (\i -> Key $ toPersistValue i) (requestBooks request))] []
@@ -534,7 +546,7 @@ postVocabtrainMobileDownloadR = do
 								, selectRawList translationResult
 								]
 						, ";"]
-				) [] :: GHandler App App [Entity VocabTranslation]
+				) [] :: HandlerT App IO [Entity VocabTranslation]
 				--"SELECT _id, book_name, book_language, extract(epoch from book_timestamp) AS book_timestamp FROM books ORDER BY book_name ASC;"
 			liftIO $ withTempFile "bookdownload" (\ file fileh  -> do
 				runStdoutLoggingT $ 

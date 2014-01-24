@@ -11,20 +11,25 @@ import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Handlers
-import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
-import qualified Database.Persist.Store
-import Database.Persist.GenericSql (runMigration)
-import Network.HTTP.Conduit (newManager, def)
+import Network.Wai.Middleware.RequestLogger
+	( mkRequestLogger, outputFormat, OutputFormat (..), IPAddrSource (..), destination
+	)
+import qualified Network.Wai.Middleware.RequestLogger as RequestLogger
+import qualified Database.Persist
+import Database.Persist.Sql (runMigration)
+import Network.HTTP.Conduit (newManager, conduitManagerSettings)
 import Control.Monad.Logger (runLoggingT)
-import System.IO (stdout)
-import System.Log.FastLogger (mkLogger)
+import System.Log.FastLogger (newLoggerSet, defaultBufSize)
+import Network.Wai.Logger (clockDateCacher)
+import Data.Default (def)
+import Yesod.Core.Types (loggerSet, Logger (Logger))
+import qualified GHC.IO.FD
 
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import Handler.Dominik
 import Handler.Beamer
-import Handler.Root
 import Handler.Tatoeba
 import Handler.Vocabtrain
 import Handler.VocabtrainMobile
@@ -42,27 +47,38 @@ mkYesodDispatch "App" resourcesApp
 makeApplication :: AppConfig DefaultEnv Extra -> IO Application
 makeApplication conf = do
 	foundation <- makeFoundation conf
+
+	-- Initialize the logging middleware
+	logWare <- mkRequestLogger def
+		{ outputFormat =
+			if development
+				then Detailed True
+				else Apache FromSocket
+		, destination = RequestLogger.Logger $ loggerSet $ appLogger foundation
+		}
+	-- Create the WAI application and apply middlewares
 	app <- toWaiAppPlain foundation
 	return $ logWare app
-  where
-	logWare   = if development then logStdoutDev
-							   else logStdout
 
 makeFoundation :: AppConfig DefaultEnv Extra -> IO App
 makeFoundation conf = do
-	manager <- newManager def
+	manager <- newManager conduitManagerSettings
 	s <- staticSite
 	dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
-			  Database.Persist.Store.loadConfig >>=
-			  Database.Persist.Store.applyEnv
-	p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
-	logger <- mkLogger True stdout
+			  Database.Persist.loadConfig >>=
+			  Database.Persist.applyEnv
+	p <- Database.Persist.createPoolConfig (dbconf :: Settings.PersistConfig)
+
+	loggerSet' <- newLoggerSet defaultBufSize GHC.IO.FD.stdout
+	(getter, _) <- clockDateCacher
+
+	let logger = Yesod.Core.Types.Logger loggerSet' getter
 	let foundation = App conf s p manager dbconf logger
 
 	runLoggingT
-		(Database.Persist.Store.runPool dbconf (mapM_ runMigration [migrateServer]) p)
+		(Database.Persist.runPool dbconf (mapM_ runMigration [migrateServer]) p)
 		(messageLoggerSource foundation logger)
-	--Database.Persist.Store.runPool dbconf (mapM_ runMigration [migrateCore, migrateVocabtrain, migrateVocabtrainServer]) p
+	--Database.Persist.runPool dbconf (mapM_ runMigration [migrateCore, migrateVocabtrain, migrateVocabtrainServer]) p
 --	return $ App conf s p manager dbconf --DominikSub
 	return foundation
 
@@ -71,6 +87,6 @@ getApplicationDev :: IO (Int, Application)
 getApplicationDev =
 	defaultDevelApp loader makeApplication
   where
-	loader = loadConfig (configSettings Development)
+	loader = Yesod.Default.Config.loadConfig (configSettings Development)
 		{ csParseExtra = parseExtra
 		}

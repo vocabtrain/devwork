@@ -2,9 +2,10 @@
 module CardType where
 import Prelude
 import Data.Text (Text)
-import Database.Persist.Store
+import Database.Persist
 import qualified Data.Aeson as JS
 import Control.Applicative (pure)
+import Database.Persist.Sql
 
 
 
@@ -107,7 +108,9 @@ getCardTypeBounds' t = [snd v, fst v]
 instance PersistField CardType where
 	toPersistValue = toPersistValue . fromEnum
 	fromPersistValue value = either Left (Right . toEnum) (fromPersistValue value :: (Either Text Int))
-	sqlType = sqlType . fromEnum 
+instance PersistFieldSql CardType where
+	--sqlType = sqlType . fromEnum 
+	sqlType _ = SqlInt32
 
 instance JS.FromJSON CardType where
 	parseJSON = JS.withNumber "Integral" (\t -> pure $ toEnum $ floor t) 

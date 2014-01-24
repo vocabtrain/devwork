@@ -32,15 +32,15 @@ import Yesod.Default.Util (addStaticContentExternal)
 import Network.HTTP.Conduit (Manager)
 import qualified Settings
 import Settings.Development (development)
-import qualified Database.Persist.Store
 --import Settings.StaticFiles
-import Database.Persist.GenericSql
+import Database.Persist
+import Database.Persist.Sql (SqlPersistT)
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Generated (TatoebaLanguage (..), BeamerSlidePrivate (..), BeamerSlidePublic (..) )
-import System.Log.FastLogger (Logger)
+import Yesod.Core.Types (Logger)
 
 
 import qualified Data.Text as Text
@@ -54,7 +54,7 @@ import Data.Text (Text)
 data App = App
 	{ settings :: AppConfig DefaultEnv Extra
 	, getStatic :: Static -- ^ Settings for static file serving.
-	, connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+	, connPool :: Database.Persist.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
 	, httpManager :: Manager
 	, persistConfig :: Settings.PersistConfig
 	, appLogger :: Logger
@@ -88,9 +88,11 @@ mkMessage "App" "messages" "en"
 -- split these actions into two functions and place them in separate files.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm App App (FormResult x, Widget)
+--type Form x = Html -> MForm App App (FormResult x, Widget)
+type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
-isUser :: YesodAuth m => GHandler s m AuthResult
+
+isUser :: YesodAuth s => HandlerT s IO AuthResult
 isUser = do
 	mu <- maybeAuthId
 	return $ case mu of
@@ -104,11 +106,15 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = do
-        key <- getKey "config/client_session_key.aes"
-        let timeout = 120 * 60 -- 120 minutes
-        (getCachedDate, _closeDateCache) <- clientSessionDateCacher timeout
-        return . Just $ clientSessionBackend2 key getCachedDate
+    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
+        (120 * 60) -- 120 minutes
+        "config/client_session_key.aes"
+
+--   makeSessionBackend _ = do
+--       key <- getKey "config/client_session_key.aes"
+--       let timeout = 120 * 60 -- 120 minutes
+--       (getCachedDate, _closeDateCache) <- clientSessionDateCacher timeout
+--       return . Just $ clientSessionBackend2 key getCachedDate
 --        return . Just $ clientSessionBackend key timeout
 	
     --defaultLayout = globalLayout' "/dev/work"
@@ -163,19 +169,23 @@ instance Yesod App where
     shouldLog _ _source level =
         development || level == LevelWarn || level == LevelError
 
-    getLogger = return . appLogger
+    makeLogger = return . appLogger
 
 -- How to run database actions.
+-- instance YesodPersist App where
+-- 	type YesodPersistBackend App = SqlPersistT
+-- 	runDB f = do
+-- 		master <- getYesod
+-- 		Database.Persist.runPool
+-- 			(persistConfig master)
+-- 			f
+-- 			(connPool master)
 instance YesodPersist App where
-    type YesodPersistBackend App = SqlPersist
-    runDB f = do
-        master <- getYesod
-        Database.Persist.Store.runPool
-            (persistConfig master)
-            f
-            (connPool master)
-
-isAdmin :: GHandler App App AuthResult
+    type YesodPersistBackend App = SqlPersistT
+    runDB = defaultRunDB persistConfig connPool
+instance YesodPersistRunner App where
+    getDBRunner = defaultGetDBRunner connPool
+isAdmin :: HandlerT App IO AuthResult
 isAdmin = do
 	mu <- maybeAuth
 	msgShow <- getMessageRender
@@ -189,7 +199,7 @@ isAdmin = do
 
 
 
-isTrustedUser :: GHandler App App AuthResult
+isTrustedUser :: HandlerT App IO AuthResult
 isTrustedUser = do
 	mu <- maybeAuth
 	msgShow <- getMessageRender
@@ -210,15 +220,16 @@ instance YesodAuth App where
     -- Where to send a user after logout
     logoutDest _ = HomeR
 
+
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
             Just (Entity uid _) -> return $ Just uid
             Nothing -> do
                 fmap Just $ insert $ User (credsIdent creds) Nothing Nothing Nothing
-
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [authBrowserId, authGoogleEmail]
+    authPlugins _ = [authBrowserId def, authGoogleEmail]
+
 
     authHttpManager = httpManager
 
@@ -251,7 +262,7 @@ data SheetLayout sub url = SheetLayout {
 }
 --}
 
-widgetToHtmlUrlI :: GWidget App App () -> msg -> url -> GWidget App App ()
+widgetToHtmlUrlI :: WidgetT App IO () -> msg -> url -> WidgetT App IO ()
 widgetToHtmlUrlI hu _msgRender _urlRender = hu
 hamletToHtmlUrlI :: (t2 -> t1) -> t -> t2 -> t1
 hamletToHtmlUrlI hu _msgRender _urlRender = hu _urlRender

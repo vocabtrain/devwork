@@ -332,6 +332,21 @@ Lang_nan: Teochew
 Lang_roh: Romansh
 Lang_sjn: Sindarin 
 
+Lang_arq: Algerian Arabic
+Lang_aze: Azerbaijani
+Lang_bod: Tibetan
+
+Lang_ckt: Chukchi
+Lang_cor: Cornish
+Lang_grc: Greek, Ancient
+Lang_hil: Hiligaynon
+Lang_khm: Central Khmer
+Lang_lao: Lao
+Lang_mlt: Maltese
+Lang_npi: Nepali
+Lang_pcd: Picard
+Lang_prg: Old Prussian
+
 VocabWelcome: Welcome to Vocabtrain
 VocabIntroduction: Upset with the current supply of vocabulary trainers with insufficient control or bad vocabulary?  Then try Vocabtrain, a new approach of community-driven vocabulary-creation with optimization for asian languages (CJK).  Instead of writing for each training book all vocabulary by hand (which is error-prone), you can simply import already inserted vocabulary from other books (even with already inserted translations). Use the book-list on the left for navigation.
 

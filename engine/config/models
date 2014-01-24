@@ -4,6 +4,7 @@ User sql=benutzer
     UniqueUser email
     password Text Maybe
 	authToken Text Maybe
+	deriving Typeable
 VocabUserLanguageFilter
 	userId UserId
 	language TatoebaLanguage

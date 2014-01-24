@@ -3,4 +3,7 @@
     ^{dominikContact}
 
     <br>
-    <h2>Arbeiten
+    <h2>Paper
+    ^{bibtexWidget bibtex_refereed_bib}
+    <h2>Theses
+    ^{bibtexWidget bibtex_theses_bib}

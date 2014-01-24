@@ -4,10 +4,16 @@ echo $DIR
 source "$DIR/../environment.sh"
 
 #sphinx
-indexer --rotate --all --config "$datadir/sphinx.conf" --quiet
-[[ -z  `ps -A | grep searchd` ]] && searchd --config "$datadir/sphinx.conf"
+indexer --rotate --quiet --all --config "$datadir/sphinx.conf" --quiet
+SPHINX_PID=`cat $logdir/logsearchd.pid`
+if kill -0 "$SPHINX_PID" 2>/dev/null && cat "/proc/$SPHINX_PID/cmdline" | grep -q searchd; then
+	;
+else
+	 searchd --config "$datadir/sphinx.conf"
+fi
 
 #backup
+mkdir -p "$backupdir"
 cd "$backupdir"
 pg_dump -i -U postgres -F c -b -v -f "$backupdir/dump" devwork
 git commit -a -m "Autocommit `date`"

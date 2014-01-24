@@ -2,10 +2,11 @@ module UserManipType where
 import Prelude
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Database.Persist.Store
+import Database.Persist.Sql
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import ShowText
+import Control.Monad
 
 data UserManipType = USERMANIP_UPDATE | USERMANIP_INSERT | USERMANIP_PUT | USERMANIP_REMOVE
 	deriving(Eq,Show)
@@ -34,5 +35,7 @@ instance Read UserManipType where
 instance PersistField UserManipType where
 	toPersistValue = toPersistValue . showText 
 	fromPersistValue value = either Left (Right . read . Text.unpack) (fromPersistValue value :: (Either Text Text))
-	sqlType = sqlType . showText
+instance PersistFieldSql UserManipType where
+--	sqlType a = sqlType $ fmap showText a
+	sqlType _ = SqlString
 

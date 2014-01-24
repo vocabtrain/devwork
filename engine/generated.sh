@@ -292,7 +292,7 @@ class (Show a, Read a) => BeamerSlide a where
 	getBeamerSlideTitleDefault slide = Text.intercalate " " $ List.drop 2 $ map (\word -> Text.cons (Char.toUpper . Text.head $ word) (Text.tail word)) $ Text.words $ Text.toLower $ Text.replace "_" " " $ Text.pack $ show slide
 	getBeamerSlideTitle :: a -> Text
 	getBeamerSlideTitle = getBeamerSlideTitleDefault
-	getBeamerSlideWidget :: a -> GWidget App App ()
+	getBeamerSlideWidget :: a -> Widget
 
 EOF
 	cd "$p/$beamerpublicslidesdir" && beamerSlidesPost "BeamerSlidePublic" "$beamerpublicslidesdir"

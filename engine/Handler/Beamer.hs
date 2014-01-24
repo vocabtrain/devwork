@@ -7,7 +7,7 @@ import Text.Hamlet (hamletFile)
 import Handler.Dominik
 import PostGenerated
 
-beamerLayout :: Text -> GWidget App App () -> GHandler App App RepHtml
+beamerLayout :: Text -> Widget -> Handler Html
 beamerLayout title widget = do
 	pc <- widgetToPageContent widget
 	PageContent _ headTags bodyTags <- widgetToPageContent $ do
@@ -16,7 +16,7 @@ beamerLayout title widget = do
 		setTitle $ toHtml title
 	hamletToRepHtml $(hamletFile "templates/beamer/overall.hamlet")
 
-getBeamerSlidesR :: GHandler App App RepHtml
+getBeamerSlidesR :: Handler Html
 getBeamerSlidesR = do
 	setUltDestCurrent	
 	let slides =  [(minBound::BeamerSlidePublic)..(maxBound::BeamerSlidePublic)]
@@ -29,16 +29,16 @@ getBeamerSlidesR = do
 				Authorized -> return [(minBound::BeamerSlidePrivate)..(maxBound::BeamerSlidePrivate)]
 				_ -> return []
 
-getBeamerSlidePublicR :: BeamerSlidePublic -> GHandler App App RepHtml
+getBeamerSlidePublicR :: BeamerSlidePublic -> Handler Html
 getBeamerSlidePublicR = getBeamerSlideR
-getBeamerSlidePrivateR :: BeamerSlidePrivate -> GHandler App App RepHtml
+getBeamerSlidePrivateR :: BeamerSlidePrivate -> Handler Html
 getBeamerSlidePrivateR slide = do
 	trusted <- isTrustedUser
 	case trusted of
 		Authorized -> getBeamerSlideR slide
 		_ -> permissionDenied "Login to obtain permission"
 
-getBeamerSlideR :: (BeamerSlide a) => a -> GHandler App App RepHtml
+getBeamerSlideR :: (BeamerSlide a) => a -> Handler Html
 getBeamerSlideR beamerslide = beamerLayout (getBeamerSlideTitle beamerslide) (toWidget $ getBeamerSlideWidget beamerslide)
 
 

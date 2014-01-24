@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances  #-}
 module Model where
 
 import Prelude
@@ -9,7 +9,9 @@ import Data.Time (UTCTime, getCurrentTime)
 import Generated
 import CardType
 import UserManipType 
-import Database.Persist.Store
+import Database.Persist
+import Data.Typeable (Typeable)
+
 {-
 data CardTypePrimary = CARDTYPE_VERB | CARDTYPE_NOUN deriving(Enum,Show,Eq,Read, Bounded)
 data CardTypeSecondary = CARDTYPE_TRANSITIVE | CARDTYPE_INTRANSITIVE deriving(Enum,Show,Eq,Read, Bounded)
@@ -50,11 +52,12 @@ share [mkPersist sqlSettings, mkMigrate "migrateVocabtrainServer", mkDeleteCasca
     $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
 -}
 
-share [mkPersist sqlSettings, mkDeleteCascade sqlSettings] $
+share [mkPersist sqlOnlySettings, mkDeleteCascade sqlOnlySettings] $
 	 $(persistFileWith lowerCaseSettings "config/models") 
 	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainmodels")
 	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
 	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainmobilemodels")
+	 ++ $(persistFileWith lowerCaseSettings "config/tatoebamodels")
 
 share [mkMigrate "migrateVocabtrainMobile"] $
 	$(persistFileWith lowerCaseSettings "config/vocabtrainmodels")
@@ -64,6 +67,7 @@ share [mkMigrate "migrateServer"] $
 	 $(persistFileWith lowerCaseSettings "config/models") 
 	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainmodels") 
 	 ++ $(persistFileWith lowerCaseSettings "config/vocabtrainservermodels")
+	 ++ $(persistFileWith lowerCaseSettings "config/tatoebamodels")
 
 --instance ToMessage VocabBookId where
 --    toMessage i = Data.Text.pack $ show i

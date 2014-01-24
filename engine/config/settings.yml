@@ -3,25 +3,26 @@ Default: &defaults
   port: 3000
   ssl: True
 #  approot: "http://www.devwork.org/a/"
-  approot: "http://ursaminor.informatik.uni-augsburg.de/koeppl"
+#  approot: "http://ursaminor.informatik.uni-augsburg.de/koeppl"
+  approot: "http://eris:3000"
   copyright: Copyright 2012,2013 Dominik Köppl, CC-BY DE 3.0
   #analytics: UA-YOURCODE
 
 Development:
   host: "*4" # any IPv4 host
-  port: 4000
-  ssl: True
+#  port: 4000
+#  ssl: True
   #approot: "http://eos.informatik.uni-augsburg.de"
-  approot: "http://ursamajor.informatik.uni-augsburg.de:2235"
+#  approot: "http://ursamajor.informatik.uni-augsburg.de:2235"
   <<: *defaults
 
 Testing:
-  port: 3000
-  approot: "http://fb-sagittarius.informatik.uni-augsburg.de"
+#  port: 3000
+#  approot: "http://fb-sagittarius.informatik.uni-augsburg.de"
   <<: *defaults
 
 Staging:
-  approot: "http://eos.informatik.uni-augsburg.de"
+#  approot: "http://eos.informatik.uni-augsburg.de"
   <<: *defaults
 
 Production:

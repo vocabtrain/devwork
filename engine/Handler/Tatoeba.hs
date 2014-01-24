@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections, OverloadedStrings #-}
 module Handler.Tatoeba where
 
-import Import
+import Import 
 import GlobalLayout
 import TatoebaLanguageWidget
 import Data.Maybe
@@ -13,45 +13,19 @@ import Text.XML
 
 import Sphinx
 
-import qualified Data.Conduit as C
-import qualified Data.Conduit.List as CL
-import Database.Persist.Store
-import Database.Persist.GenericSql.Raw (withStmt)
+import BarefootSQL
 
 import Data.String
+import Control.Monad
 
-data TatoebaSentence = TatoebaSentence {
-	tatoebaSentenceId :: Int,
-	tatoebaSentenceLanguage :: TatoebaLanguage,
-	tatoebaSentenceText :: Text
-	}
-	deriving Show
+data TatoebaRelation = TatoebaRelation (Entity TatoebaSentence) [Entity TatoebaSentence] deriving Show
 
-data TatoebaRelation = TatoebaRelation TatoebaSentence [TatoebaSentence] deriving Show
-
-tatoebaSentenceFromQuery :: [PersistValue] -> TatoebaSentence
-tatoebaSentenceFromQuery values = TatoebaSentence
-	(either (\_ -> -1) Prelude.id $ fromPersistValue (values !! 0)) 
-	(either (\_ -> LANG_UND) Prelude.id $ fromPersistValue (values !! 1)) 
-	(either (\_ -> ""::Text) Prelude.id $ fromPersistValue (values !! 2)) 
-	
-
-tatoebaTranslationsFromQuery :: Int -> GHandler App App ([TatoebaSentence])
-tatoebaTranslationsFromQuery sentence_id = do
-	translationResult <- runDB $ C.runResourceT $ withStmt
-		"SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences JOIN tatoeba_links ON sentence_id = link_translation_id WHERE link_sentence_id = ?"
-		[toPersistValue sentence_id] C.$$ CL.consume
-	return $ map (\translation -> tatoebaSentenceFromQuery translation) translationResult
-
-tatoebaRelationFromQuery :: [PersistValue] -> GHandler App App (Maybe TatoebaRelation)
-tatoebaRelationFromQuery mainSentenceResult = do
-	if null mainSentenceResult
-		then do
-			return Nothing
-		else do
-			let sentence_id = either (\_ -> -1) Prelude.id $ fromPersistValue (mainSentenceResult !! 0)
-			translations <- tatoebaTranslationsFromQuery sentence_id
-			return $ Just $ TatoebaRelation (tatoebaSentenceFromQuery $ mainSentenceResult) translations
+tatoebaRelationFromQuery :: Maybe (Entity TatoebaSentence) -> Handler (Maybe TatoebaRelation)
+tatoebaRelationFromQuery mainSentenceResult = case mainSentenceResult of
+	Nothing -> return Nothing
+	Just mainSentence -> do
+		translations <- runDB . getTatoebaTranslationsSQL $ entityKey mainSentence
+		return .  Just $ TatoebaRelation mainSentence translations
 
 relationsToXml :: [TatoebaRelation] -> Element
 relationsToXml relations = Element "relations" Map.empty $ map (NodeElement . relationToXml) relations
@@ -59,11 +33,18 @@ relationsToXml relations = Element "relations" Map.empty $ map (NodeElement . re
 relationToXml :: TatoebaRelation -> Element
 relationToXml (TatoebaRelation sentence translations) = 
 	Element "relation" Map.empty ([ 
-		NodeElement $ Element "mainsentence" (Map.fromList [("id", Text.pack . show $ tatoebaSentenceId sentence), ("language", Text.pack $ show $ tatoebaSentenceLanguage sentence)  ]) [ NodeContent $ tatoebaSentenceText sentence]
+		NodeElement $ Element "mainsentence" (Map.fromList 
+			[("id", Text.pack . show $ entityKey sentence), 
+			 ("language", Text.pack $ show $ tatoebaSentenceLanguage $ entityVal sentence)  ]) 
+			[ NodeContent $ tatoebaSentenceText $ entityVal sentence]
 		]  ++ map sentenceToXml translations)
 
-sentenceToXml :: TatoebaSentence -> Node
-sentenceToXml sentence = NodeElement $ Element "sentence" (Map.fromList [("id", Text.pack . show $ tatoebaSentenceId sentence), ("language", Text.pack $ show $ tatoebaSentenceLanguage sentence)  ]) [ NodeContent $ tatoebaSentenceText sentence]
+sentenceToXml :: Entity TatoebaSentence -> Node
+sentenceToXml sentence = NodeElement $ Element "sentence" 
+	(Map.fromList 
+		[("id", Text.pack . show $ entityKey sentence), 
+		 ("language", Text.pack $ show $ tatoebaSentenceLanguage $ entityVal sentence)  ]) 
+	[ NodeContent $ tatoebaSentenceText $ entityVal sentence]
 
 
 
@@ -85,23 +66,17 @@ getVocabtrainMobileVeecheckR = do
 		veecheckActions :: [(Text, Text)]
 		veecheckActions = [ ("1.0.0", "com.example.app.ACTION_UPGRADE") ]
 
-data RepHtmlXml = RepHtmlXml Content Content
-instance HasReps RepHtmlXml where
-	chooseRep (RepHtmlXml html xml) = chooseRep
-		[ (typeXml, xml)
-		, (typeHtml, html)
-		]
 
 -- QueryR
 
-getTatoebaQueryR :: TatoebaLanguage -> Text -> Handler RepHtmlXml
+getTatoebaQueryR :: TatoebaLanguage -> Text -> Handler TypedContent
 getTatoebaQueryR language queryString = do
 	relations <- tatoebaQuerySentences language queryString
-	RepHtml html <- tatoebaRelationsToHtml relations
-	RepXml  xml  <- tatoebaRelationsToXml  relations
-	return $ RepHtmlXml html xml
+	selectRep $ do
+		provideRep $ tatoebaRelationsToHtml relations
+		provideRep $ tatoebaRelationsToXml  relations
 
-tatoebaRelationsToHtml :: [TatoebaRelation] -> Handler RepHtml
+tatoebaRelationsToHtml :: [TatoebaRelation] -> Handler Html
 tatoebaRelationsToHtml relations = do
 	globalLayout' "search" $(widgetFile "tatoeba/search")
 
@@ -110,26 +85,28 @@ tatoebaRelationsToXml relations = do
 	let content = toContent $ renderText def $ Document (Prologue [] Nothing []) (relationsToXml relations) []
 	return $ RepXml content
 
-tatoebaQuerySentences ::  TatoebaLanguage -> Text -> GHandler App App [TatoebaRelation]
+tatoebaQuerySentences ::  TatoebaLanguage -> Text -> Handler [TatoebaRelation]
 tatoebaQuerySentences language queryString = do
 	sphinxResult <- liftIO $ querySphinx (Text.pack . show $ language) queryString
-	fmap catMaybes $ sequence $ map (\sentence_id -> do
-		textResult <- runDB $ C.runResourceT $ withStmt
-			"SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences WHERE sentence_id = ?"
-			[toPersistValue sentence_id] C.$$ CL.consume
-		tatoebaRelationFromQuery $ textResult !! 0
-		) sphinxResult
+	relations <- forM sphinxResult $ \sentence_id -> do
+		let key = Key $ PersistInt64 sentence_id :: TatoebaSentenceId
+		textResult <- runDB $ get key 
+		case textResult of
+			Just sentence -> tatoebaRelationFromQuery $ Just $ Entity { entityKey = key, entityVal = sentence }
+			Nothing -> return $ Nothing
+	return $ catMaybes relations
+
 
 -- tatoebaLanguageR
-getTatoebaQueryLanguageR :: TatoebaLanguage -> Handler RepHtmlXml
+getTatoebaQueryLanguageR :: TatoebaLanguage -> Handler TypedContent
 getTatoebaQueryLanguageR language = do
 	mrelation <- tatoebaQueryRandomSentenceIn language
-	RepHtml html <- tatoebaRelationToHtml mrelation
-	RepXml  xml  <- tatoebaRelationToXml  mrelation
-	return $ RepHtmlXml html xml
+	selectRep $ do
+		provideRep $ tatoebaRelationToHtml mrelation
+		provideRep $ tatoebaRelationToXml  mrelation
 
 
-tatoebaRelationToHtml :: Maybe TatoebaRelation -> Handler RepHtml
+tatoebaRelationToHtml :: Maybe TatoebaRelation -> Handler Html
 tatoebaRelationToHtml mrelation = do
 	case mrelation of
 		Just relation -> tatoebaRelationsToHtml [relation]
@@ -142,44 +119,26 @@ tatoebaRelationToXml mrelation = return $ RepXml $ toContent $ renderText def $ 
 		getContent Nothing = Element "relation" Map.empty []
 		getContent (Just relation) = relationToXml relation
 	
-tatoebaQueryRandomSentenceIn :: TatoebaLanguage -> GHandler App App (Maybe TatoebaRelation)
-tatoebaQueryRandomSentenceIn language = do
-	textResult <- runDB $ C.runResourceT $ withStmt
-		"SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences WHERE sentence_language = ? ORDER BY RANDOM() LIMIT 1;" 
-		[toPersistValue language] C.$$ CL.consume
-	tatoebaRelationFromQuery $ textResult !! 0
+tatoebaQueryRandomSentenceIn :: TatoebaLanguage -> Handler (Maybe TatoebaRelation)
+tatoebaQueryRandomSentenceIn language = (runDB $ getTatoebaRandomSentenceWithLanguageSQL language) >>= tatoebaRelationFromQuery
 
 -- TatoebaQueryRandomR
 
-getTatoebaQueryRandomR :: Handler RepHtmlXml
+getTatoebaQueryRandomR :: Handler TypedContent
 getTatoebaQueryRandomR = do
 	mrelation <- queryRandomSentence
-	RepHtml html <- tatoebaRelationToHtml mrelation
-	RepXml  xml  <- tatoebaRelationToXml  mrelation
-	return $ RepHtmlXml html xml
+	selectRep $ do
+		provideRep $ tatoebaRelationToHtml mrelation
+		provideRep $ tatoebaRelationToXml  mrelation
 
-queryRandomSentence :: GHandler App App (Maybe TatoebaRelation)
-queryRandomSentence = do
-	textResult <- runDB $ C.runResourceT $ withStmt
-		"SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences ORDER BY RANDOM() LIMIT 1;" 
-		[] C.$$ CL.consume
-	tatoebaRelationFromQuery $ textResult !! 0
+queryRandomSentence :: Handler (Maybe TatoebaRelation)
+queryRandomSentence = (runDB $ getTatoebaRandomSentenceSQL) >>= tatoebaRelationFromQuery
 
 -- TatoebaLanguagesR
 
 getTatoebaLanguagesR :: Handler RepXml
 getTatoebaLanguagesR = do
-	textResult <- runDB $ C.runResourceT $ withStmt
-		"SELECT sentence_language from tatoeba_sentences group by sentence_language;"
-		[] C.$$ CL.consume
-	let content = toContent $ renderText def $ Document (Prologue [] Nothing []) 
-		(Element "languages" Map.empty $ catMaybes $ map 
-			(\languageResult -> either 
-				(\_ -> Nothing) 
-				(\language -> Just $ NodeElement $ Element "language" Map.empty [NodeContent language])
-				$ fromPersistValue (languageResult !! 0)
-			) textResult
+	runDB getTatoebaLanguagesSQL >>= (\langResult -> do
+		let body = Element "languages" Map.empty $ map (\lang -> NodeElement $ Element "language" Map.empty [NodeContent $ Text.pack $ show lang ]) langResult 
+		return $ RepXml $ toContent $ renderText def $ Document (Prologue [] Nothing []) body []
 		)
-		[]
-	return $ RepXml content
-

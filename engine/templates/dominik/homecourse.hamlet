@@ -7,6 +7,12 @@
     <h3>
         <img src=@{StaticR img_unidesign_siegel_uni_augsburg_png} alt="Siegel" .uni-siegel>
         Universität Augsburg
+    <h4>WiSe 13/14
+    <ul>
+        <li>Mitbetreuer der Vorlesung <a href="http://www.informatik.uni-augsburg.de/lehrstuehle/dbis/db/lectures/ws1314/datenbanksysteme1/">Datenbanksysteme I</a>
+    <h4>SoSe 13
+    <ul>
+        <li>Mitbetreuer der Vorlesung <a href="http://www.informatik.uni-augsburg.de/lehrstuehle/dbis/db/lectures/ss13/se/">Suchmaschinen</a>
     <h4>WiSe 12/13
     <ul>
         <li>Mitbetreuer der Vorlesung <a href="http://www.informatik.uni-augsburg.de/lehrstuehle/dbis/db/lectures/ws1213/datenbanksysteme1/">Datenbanksysteme I</a>

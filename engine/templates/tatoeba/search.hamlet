@@ -2,10 +2,10 @@
     <ul>
         $forall TatoebaRelation mainsentence sentences <- relations
             <li>
-                ^{tatoebaLanguageWidget $ tatoebaSentenceLanguage mainsentence}
-                #{tatoebaSentenceText mainsentence}
+                ^{tatoebaLanguageWidget $ tatoebaSentenceLanguage $ entityVal mainsentence}
+                #{tatoebaSentenceText $ entityVal mainsentence}
                 $forall sentence <- sentences
                     <ul>
                         <li>
-                            ^{tatoebaLanguageWidget $ tatoebaSentenceLanguage sentence}
-                            #{tatoebaSentenceText sentence}
+                            ^{tatoebaLanguageWidget $ tatoebaSentenceLanguage $ entityVal sentence}
+                            #{tatoebaSentenceText $ entityVal sentence}

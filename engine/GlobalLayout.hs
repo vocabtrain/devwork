@@ -12,18 +12,18 @@ import Breadcrumbs ()
 
 data SheetLayout sub url = SheetLayout {
 	  sheetTitle :: Text
-	, sheetNav :: Maybe (GWidget sub App ())
-	, sheetBanner :: Maybe (GWidget sub App ())
-	, sheetContent :: GWidget sub App ()
+	, sheetNav :: Maybe Widget
+	, sheetBanner :: Maybe Widget
+	, sheetContent :: Widget
 }
 
-globalLayout' :: Text -> GWidget sub App () -> GHandler sub App RepHtml
+globalLayout' :: Text -> Widget -> Handler Html
 globalLayout' title widget = globalLayout $ SheetLayout title Nothing Nothing widget
 
 
 
 
-globalLayout :: SheetLayout sub (Route App) -> GHandler sub App RepHtml
+globalLayout :: SheetLayout sub (Route App) -> Handler Html
 --globalLayout subtitle contents = do
 globalLayout sheet = do
 	master <- getYesod
@@ -44,7 +44,7 @@ globalLayout sheet = do
 		addStylesheet $ StaticR css_main_css
 	hamletToRepHtml $(hamletFile "templates/skeleton/overall.hamlet")
 	where
-		readSheetWidget :: Maybe (GWidget sub App()) -> GHandler sub App (Maybe (PageContent (Route App)))
+		readSheetWidget :: Maybe Widget -> Handler (Maybe (PageContent (Route App)))
 		readSheetWidget mwidget =
 			case mwidget of
 				Nothing -> return Nothing

@@ -1,0 +1,17 @@
+<div .tabbable .tabs-left>
+    $forall entry <- entries
+        <div .bibtex-entry>
+            <span .label .label-default>#{Entry.entryType entry}
+
+            $maybe author <- lookup "author" $ Entry.fields entry
+                <span .bibtex-author>#{texEscapeToHtml author}
+            $maybe url <- lookup "url" $ Entry.fields entry
+                <span .bibtex-url>
+                    <a href=#{url}>
+                        $maybe title <- lookup "title" $ Entry.fields entry
+                            <span .bibtex-title>#{texEscapeToHtml title}
+            $nothing
+                   $maybe title <- lookup "title" $ Entry.fields entry
+                    <span .bibtex-title>#{texEscapeToHtml title}
+            $maybe year <- lookup "year" $ Entry.fields entry
+                <span .bibtex-year>#{year}

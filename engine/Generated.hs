@@ -52,18 +52,24 @@ data TatoebaLanguage = LANG_ACM
 	 | LANG_AIN
 	 | LANG_ANG
 	 | LANG_ARA
+	 | LANG_ARQ
 	 | LANG_ARZ
 	 | LANG_AST
+	 | LANG_AVK
+	 | LANG_AZE
 	 | LANG_BEL
 	 | LANG_BEN
 	 | LANG_BER
+	 | LANG_BOD
 	 | LANG_BOS
 	 | LANG_BRE
 	 | LANG_BUL
 	 | LANG_CAT
 	 | LANG_CES
 	 | LANG_CHA
+	 | LANG_CKT
 	 | LANG_CMN
+	 | LANG_COR
 	 | LANG_CYCL
 	 | LANG_CYM
 	 | LANG_DAN
@@ -82,8 +88,10 @@ data TatoebaLanguage = LANG_ACM
 	 | LANG_GLA
 	 | LANG_GLE
 	 | LANG_GLG
+	 | LANG_GRC
 	 | LANG_GRN
 	 | LANG_HEB
+	 | LANG_HIL
 	 | LANG_HIN
 	 | LANG_HRV
 	 | LANG_HSB
@@ -99,17 +107,21 @@ data TatoebaLanguage = LANG_ACM
 	 | LANG_JPN
 	 | LANG_KAT
 	 | LANG_KAZ
+	 | LANG_KHM
 	 | LANG_KOR
 	 | LANG_KSH
 	 | LANG_KUR
 	 | LANG_LAD
+	 | LANG_LAO
 	 | LANG_LAT
 	 | LANG_LIT
 	 | LANG_LLD
 	 | LANG_LVS
 	 | LANG_LZH
 	 | LANG_MAL
+	 | LANG_MAR
 	 | LANG_MLG
+	 | LANG_MLT
 	 | LANG_MON
 	 | LANG_MRI
 	 | LANG_NAN
@@ -118,14 +130,17 @@ data TatoebaLanguage = LANG_ACM
 	 | LANG_NOB
 	 | LANG_NON
 	 | LANG_NOV
+	 | LANG_NPI
 	 | LANG_OCI
 	 | LANG_ORV
 	 | LANG_OSS
+	 | LANG_PCD
 	 | LANG_PES
 	 | LANG_PMS
 	 | LANG_PNB
 	 | LANG_POL
 	 | LANG_POR
+	 | LANG_PRG
 	 | LANG_QUE
 	 | LANG_QYA
 	 | LANG_ROH
@@ -143,11 +158,13 @@ data TatoebaLanguage = LANG_ACM
 	 | LANG_SWH
 	 | LANG_TAT
 	 | LANG_TEL
+	 | LANG_TGK
 	 | LANG_TGL
 	 | LANG_THA
 	 | LANG_TLH
 	 | LANG_TOKI
 	 | LANG_TPI
+	 | LANG_TPW
 	 | LANG_TUR
 	 | LANG_UIG
 	 | LANG_UKR
@@ -170,18 +187,24 @@ instance Read TatoebaLanguage where
 		, ("ain",LANG_AIN)
 		, ("ang",LANG_ANG)
 		, ("ara",LANG_ARA)
+		, ("arq",LANG_ARQ)
 		, ("arz",LANG_ARZ)
 		, ("ast",LANG_AST)
+		, ("avk",LANG_AVK)
+		, ("aze",LANG_AZE)
 		, ("bel",LANG_BEL)
 		, ("ben",LANG_BEN)
 		, ("ber",LANG_BER)
+		, ("bod",LANG_BOD)
 		, ("bos",LANG_BOS)
 		, ("bre",LANG_BRE)
 		, ("bul",LANG_BUL)
 		, ("cat",LANG_CAT)
 		, ("ces",LANG_CES)
 		, ("cha",LANG_CHA)
+		, ("ckt",LANG_CKT)
 		, ("cmn",LANG_CMN)
+		, ("cor",LANG_COR)
 		, ("cycl",LANG_CYCL)
 		, ("cym",LANG_CYM)
 		, ("dan",LANG_DAN)
@@ -200,8 +223,10 @@ instance Read TatoebaLanguage where
 		, ("gla",LANG_GLA)
 		, ("gle",LANG_GLE)
 		, ("glg",LANG_GLG)
+		, ("grc",LANG_GRC)
 		, ("grn",LANG_GRN)
 		, ("heb",LANG_HEB)
+		, ("hil",LANG_HIL)
 		, ("hin",LANG_HIN)
 		, ("hrv",LANG_HRV)
 		, ("hsb",LANG_HSB)
@@ -217,17 +242,21 @@ instance Read TatoebaLanguage where
 		, ("jpn",LANG_JPN)
 		, ("kat",LANG_KAT)
 		, ("kaz",LANG_KAZ)
+		, ("khm",LANG_KHM)
 		, ("kor",LANG_KOR)
 		, ("ksh",LANG_KSH)
 		, ("kur",LANG_KUR)
 		, ("lad",LANG_LAD)
+		, ("lao",LANG_LAO)
 		, ("lat",LANG_LAT)
 		, ("lit",LANG_LIT)
 		, ("lld",LANG_LLD)
 		, ("lvs",LANG_LVS)
 		, ("lzh",LANG_LZH)
 		, ("mal",LANG_MAL)
+		, ("mar",LANG_MAR)
 		, ("mlg",LANG_MLG)
+		, ("mlt",LANG_MLT)
 		, ("mon",LANG_MON)
 		, ("mri",LANG_MRI)
 		, ("nan",LANG_NAN)
@@ -236,14 +265,17 @@ instance Read TatoebaLanguage where
 		, ("nob",LANG_NOB)
 		, ("non",LANG_NON)
 		, ("nov",LANG_NOV)
+		, ("npi",LANG_NPI)
 		, ("oci",LANG_OCI)
 		, ("orv",LANG_ORV)
 		, ("oss",LANG_OSS)
+		, ("pcd",LANG_PCD)
 		, ("pes",LANG_PES)
 		, ("pms",LANG_PMS)
 		, ("pnb",LANG_PNB)
 		, ("pol",LANG_POL)
 		, ("por",LANG_POR)
+		, ("prg",LANG_PRG)
 		, ("que",LANG_QUE)
 		, ("qya",LANG_QYA)
 		, ("roh",LANG_ROH)
@@ -261,11 +293,13 @@ instance Read TatoebaLanguage where
 		, ("swh",LANG_SWH)
 		, ("tat",LANG_TAT)
 		, ("tel",LANG_TEL)
+		, ("tgk",LANG_TGK)
 		, ("tgl",LANG_TGL)
 		, ("tha",LANG_THA)
 		, ("tlh",LANG_TLH)
 		, ("toki",LANG_TOKI)
 		, ("tpi",LANG_TPI)
+		, ("tpw",LANG_TPW)
 		, ("tur",LANG_TUR)
 		, ("uig",LANG_UIG)
 		, ("ukr",LANG_UKR)
@@ -290,18 +324,24 @@ instance Show TatoebaLanguage where
 	show(LANG_AIN)="ain"
 	show(LANG_ANG)="ang"
 	show(LANG_ARA)="ara"
+	show(LANG_ARQ)="arq"
 	show(LANG_ARZ)="arz"
 	show(LANG_AST)="ast"
+	show(LANG_AVK)="avk"
+	show(LANG_AZE)="aze"
 	show(LANG_BEL)="bel"
 	show(LANG_BEN)="ben"
 	show(LANG_BER)="ber"
+	show(LANG_BOD)="bod"
 	show(LANG_BOS)="bos"
 	show(LANG_BRE)="bre"
 	show(LANG_BUL)="bul"
 	show(LANG_CAT)="cat"
 	show(LANG_CES)="ces"
 	show(LANG_CHA)="cha"
+	show(LANG_CKT)="ckt"
 	show(LANG_CMN)="cmn"
+	show(LANG_COR)="cor"
 	show(LANG_CYCL)="cycl"
 	show(LANG_CYM)="cym"
 	show(LANG_DAN)="dan"
@@ -320,8 +360,10 @@ instance Show TatoebaLanguage where
 	show(LANG_GLA)="gla"
 	show(LANG_GLE)="gle"
 	show(LANG_GLG)="glg"
+	show(LANG_GRC)="grc"
 	show(LANG_GRN)="grn"
 	show(LANG_HEB)="heb"
+	show(LANG_HIL)="hil"
 	show(LANG_HIN)="hin"
 	show(LANG_HRV)="hrv"
 	show(LANG_HSB)="hsb"
@@ -337,17 +379,21 @@ instance Show TatoebaLanguage where
 	show(LANG_JPN)="jpn"
 	show(LANG_KAT)="kat"
 	show(LANG_KAZ)="kaz"
+	show(LANG_KHM)="khm"
 	show(LANG_KOR)="kor"
 	show(LANG_KSH)="ksh"
 	show(LANG_KUR)="kur"
 	show(LANG_LAD)="lad"
+	show(LANG_LAO)="lao"
 	show(LANG_LAT)="lat"
 	show(LANG_LIT)="lit"
 	show(LANG_LLD)="lld"
 	show(LANG_LVS)="lvs"
 	show(LANG_LZH)="lzh"
 	show(LANG_MAL)="mal"
+	show(LANG_MAR)="mar"
 	show(LANG_MLG)="mlg"
+	show(LANG_MLT)="mlt"
 	show(LANG_MON)="mon"
 	show(LANG_MRI)="mri"
 	show(LANG_NAN)="nan"
@@ -356,14 +402,17 @@ instance Show TatoebaLanguage where
 	show(LANG_NOB)="nob"
 	show(LANG_NON)="non"
 	show(LANG_NOV)="nov"
+	show(LANG_NPI)="npi"
 	show(LANG_OCI)="oci"
 	show(LANG_ORV)="orv"
 	show(LANG_OSS)="oss"
+	show(LANG_PCD)="pcd"
 	show(LANG_PES)="pes"
 	show(LANG_PMS)="pms"
 	show(LANG_PNB)="pnb"
 	show(LANG_POL)="pol"
 	show(LANG_POR)="por"
+	show(LANG_PRG)="prg"
 	show(LANG_QUE)="que"
 	show(LANG_QYA)="qya"
 	show(LANG_ROH)="roh"
@@ -381,11 +430,13 @@ instance Show TatoebaLanguage where
 	show(LANG_SWH)="swh"
 	show(LANG_TAT)="tat"
 	show(LANG_TEL)="tel"
+	show(LANG_TGK)="tgk"
 	show(LANG_TGL)="tgl"
 	show(LANG_THA)="tha"
 	show(LANG_TLH)="tlh"
 	show(LANG_TOKI)="toki"
 	show(LANG_TPI)="tpi"
+	show(LANG_TPW)="tpw"
 	show(LANG_TUR)="tur"
 	show(LANG_UIG)="uig"
 	show(LANG_UKR)="ukr"
@@ -415,7 +466,7 @@ getOpenGLQtLessons :: [OpenGLQtLesson]
 getOpenGLQtLessons = [ OpenGLQtLesson{openGLQtLessonNumber=1,openGLQtLessonPackage=bin_pkg_nehe_lesson01_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=01"},OpenGLQtLesson{openGLQtLessonNumber=2,openGLQtLessonPackage=bin_pkg_nehe_lesson02_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=02"},OpenGLQtLesson{openGLQtLessonNumber=3,openGLQtLessonPackage=bin_pkg_nehe_lesson03_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=03"},OpenGLQtLesson{openGLQtLessonNumber=4,openGLQtLessonPackage=bin_pkg_nehe_lesson04_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=04"},OpenGLQtLesson{openGLQtLessonNumber=5,openGLQtLessonPackage=bin_pkg_nehe_lesson05_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=05"},OpenGLQtLesson{openGLQtLessonNumber=6,openGLQtLessonPackage=bin_pkg_nehe_lesson06_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=06"},OpenGLQtLesson{openGLQtLessonNumber=7,openGLQtLessonPackage=bin_pkg_nehe_lesson07_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=07"},OpenGLQtLesson{openGLQtLessonNumber=8,openGLQtLessonPackage=bin_pkg_nehe_lesson08_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=08"},OpenGLQtLesson{openGLQtLessonNumber=9,openGLQtLessonPackage=bin_pkg_nehe_lesson09_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=09"},OpenGLQtLesson{openGLQtLessonNumber=11,openGLQtLessonPackage=bin_pkg_nehe_lesson11_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=11"},OpenGLQtLesson{openGLQtLessonNumber=12,openGLQtLessonPackage=bin_pkg_nehe_lesson12_zip,openGLQtLessonLink="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=12"}]
 data BeamerSlidePublic = BEAMER_SILDE_SPEICHERANALYSE_VON_B_TREES|BEAMER_SILDE_TEST
 	deriving(Show,Eq,Read,Enum,Bounded)
-data BeamerSlidePrivate = BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS|BEAMER_SILDE_CONTAINS_PREFERENCE|BEAMER_SILDE_SPEEDING_UP_GEO_PREFERENCES
+data BeamerSlidePrivate = BEAMER_SILDE_COMBINED_PRUNING_LEVEL_OF_BETTER_THAN_GRAPHS|BEAMER_SILDE_CONTAINS_PREFERENCE|BEAMER_SILDE_POTENTIAL_GEO_PREFS|BEAMER_SILDE_SPEEDING_UP_GEO_PREFERENCES
 	deriving(Show,Eq,Read,Enum,Bounded)
 instance PathPiece TatoebaLanguage where
 	fromPathPiece text = case reads $ Text.unpack text of

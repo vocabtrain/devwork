@@ -48,6 +48,7 @@ library
                      Widgets 
                      TatoebaLanguageWidget
                      BarefootSQL
+                     BibtexWidget
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -68,17 +69,18 @@ library
                 EmptyDataDecls
                 NoMonomorphismRestriction
                 TypeSynonymInstances
+                DeriveDataTypeable
 
     build-depends: base                          >= 4          && < 5
                  -- , yesod-platform                >= 1.1        && < 1.2
-                 , yesod                         >= 1.1        && < 1.2
-                 , yesod-core                    >= 1.1.2      && < 1.2
-                 , yesod-auth                    >= 1.1        && < 1.2
-                 , yesod-static                  >= 1.1        && < 1.2
-                 , yesod-default                 >= 1.1        && < 1.2
+                 , yesod                         >= 1.1        && < 1.3
+                 , yesod-core                    >= 1.1.2      && < 1.3
+                 , yesod-auth                    >= 1.1        && < 1.3
+                 , yesod-static                  >= 1.1        && < 1.3
+                 , yesod-default                 >= 1.1        && < 1.3
                  , yesod-form                    >= 1.1        
-                 , yesod-test                    >= 0.3        && < 0.4
-                 , clientsession                 >= 0.8        && < 0.9
+                 , yesod-test                    >= 0.3      
+                 , clientsession                 >= 0.8        && < 0.10
                  , bytestring                    >= 0.9
                  , text                          >= 0.11       && < 0.12
                  , persistent                    >= 1.0.2        
@@ -91,11 +93,11 @@ library
                  , shakespeare-text              >= 1.0        && < 1.1
                  , hjsmin                        >= 0.1        && < 0.2
                  , monad-control                 >= 0.3        && < 0.4
-                 , wai-extra                     >= 1.3        && < 1.4
+                 , wai-extra                     >= 1.3       
                  , yaml                          >= 0.8        && < 0.9
-                 , http-conduit                  >= 1.5        && < 2.0
+                 , http-conduit                  >= 1.5       
                  , directory                     >= 1.1     
-                 , warp                          >= 1.3        && < 1.4
+                 , warp                          >= 1.3      
                  , blaze-html
                  , blaze-markup
                  , path-pieces
@@ -105,6 +107,7 @@ library
                  , fast-logger
                  , time
                  , wai
+                 , wai-logger
 --                 , warp-tls
                  , esqueleto
                  , attoparsec
@@ -121,6 +124,9 @@ library
                  , conduit
                  , primitive
                  , zlib
+                 , regex-compat-tdfa 
+                 , parsec
+                 , bibtex
 --                 , zlib-conduit 
                  , mwc-random
                  , persistent-template

@@ -1,13 +1,3 @@
-source default {
-    type = pgsql
-	sql_host		= localhost
-	sql_user		= postgres
-	sql_pass		=
-	sql_db			= devwork
-	sql_port		= 5432
-
-}
-
 index common_index
 {
     index_exact_words      = 1

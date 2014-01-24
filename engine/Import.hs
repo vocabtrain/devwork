@@ -34,6 +34,8 @@ infixr 5 <>
 (<>) = mappend
 #endif
 
+foreach :: [a] -> (a -> r) -> [r]
+foreach xs f = map f xs
 	
 fromRightText :: Either a Text -> Text
 fromRightText (Right c) = c

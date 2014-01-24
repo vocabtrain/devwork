@@ -2,7 +2,7 @@
 module BarefootSQL where
 
 import Database.Esqueleto
-import qualified Database.Persist.Query as OldQuery
+--import qualified Database.Persist.Query as OldQuery
 import Model
 --import Prelude (map, ($))
 import Prelude 
@@ -12,6 +12,7 @@ import Data.Int
 import Database.Esqueleto.Internal.Sql
 import Generated
 import PostGenerated
+import Data.Maybe (listToMaybe)
 
 import Import (runDB)
 
@@ -20,6 +21,67 @@ maxSQL = unsafeSqlFunction "MAX"
 
 isSQL :: SqlExpr (Value a) -> SqlExpr (Value b) -> SqlExpr (Value c)
 isSQL = unsafeSqlBinOp " IS "
+
+-- "SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences JOIN tatoeba_links ON sentence_id = link_translation_id WHERE link_sentence_id = ?"
+getTatoebaTranslationsSQL :: (MonadLogger m, MonadResourceBase m) => TatoebaSentenceId -> SqlPersist m [Entity TatoebaSentence]
+getTatoebaTranslationsSQL sentence_id =
+	select $ from $ \(sentence `InnerJoin` link) -> do
+	on $ sentence ^. TatoebaSentenceId ==. link ^. TatoebaLinkTranslationId
+	where_ $ link ^. TatoebaLinkSentenceId ==. val sentence_id
+	return sentence
+
+-- "SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences WHERE sentence_language = ? ORDER BY RANDOM() LIMIT 1;"
+getTatoebaRandomSentenceWithLanguageSQL :: (MonadLogger m, MonadResourceBase m) => TatoebaLanguage -> SqlPersist m (Maybe (Entity TatoebaSentence))
+getTatoebaRandomSentenceWithLanguageSQL language = (return . listToMaybe) =<<  do
+	select $ from $ \sentence -> do
+	where_ $ sentence ^. TatoebaSentenceLanguage ==. val language
+	orderBy [asc (random_ :: SqlExpr (Value Double)) ]
+	limit 1
+	return sentence
+
+-- "SELECT sentence_id, sentence_language, sentence_text FROM tatoeba_sentences ORDER BY RANDOM() LIMIT 1;" 
+getTatoebaRandomSentenceSQL :: (MonadLogger m, MonadResourceBase m) => SqlPersist m (Maybe (Entity TatoebaSentence))
+getTatoebaRandomSentenceSQL = (return . listToMaybe) =<<  do
+	select $ from $ \sentence -> do
+	orderBy [asc (random_ :: SqlExpr (Value Double)) ]
+	limit 1
+	return $ sentence
+
+-- "SELECT sentence_language from tatoeba_sentences group by sentence_language;"
+getTatoebaLanguagesSQL :: (MonadLogger m, MonadResourceBase m) =>  SqlPersist m [Value TatoebaLanguage]
+getTatoebaLanguagesSQL =
+	select $ from $ \sentence -> do
+	groupBy $ sentence ^. TatoebaSentenceLanguage
+	return $ sentence ^. TatoebaSentenceLanguage
+
+-- "DELETE FROM filing WHERE filing_card_id IN ( SELECT filing_card_id FROM filing LEFT JOIN cards ON filing_card_id = cards._id WHERE cards._id IS NULL);"
+deleteVocabtrainFilingWhereCardMissing :: (MonadLogger m, MonadResourceBase m) => SqlPersist m ()
+deleteVocabtrainFilingWhereCardMissing =
+	let subquery = from $ \(filing `LeftOuterJoin` card) -> do
+		on $ filing ^. VocabFilingCardId ==. card ^. VocabCardId
+		where_ $ card ^. VocabCardId `isSQL` nothing
+		return $ filing ^. VocabFilingCardId
+	in delete $ from $ \filing -> where_ $ filing ^. VocabFilingCardId `in_` subList_select subquery
+
+
+-- "DELETE FROM selection WHERE selection_card_id IN ( SELECT selection_card_id FROM selection LEFT JOIN cards ON selection_card_id = cards._id WHERE cards._id IS NULL);"
+deleteVocabtrainSelectionWhereCardMissing :: (MonadLogger m, MonadResourceBase m) => SqlPersist m ()
+deleteVocabtrainSelectionWhereCardMissing =
+	let subquery = from $ \(selection `LeftOuterJoin` card) -> do
+		on $ selection ^. VocabSelectionCardId ==. card ^. VocabCardId
+		where_ $ card ^. VocabCardId `isSQL` nothing
+		return $ selection ^. VocabSelectionCardId
+	in delete $ from $ \selection -> where_ $ selection ^. VocabSelectionCardId `in_` subList_select subquery
+
+-- select ?? from chapters join content on content_chapter_id = chapters._id where content_card_id = 2;
+getVocabtrainChaptersWithContainingCardSQL :: (MonadLogger m, MonadResourceBase m) => VocabCardId -> SqlPersist m [Entity VocabChapter]
+getVocabtrainChaptersWithContainingCardSQL cardId =
+	select $ from $ \(chapter `InnerJoin` content) -> do
+	where_ $ content ^. VocabContentCardId ==. val cardId
+	on $ chapter ^. VocabChapterId ==. content ^. VocabContentChapterId
+	orderBy [asc (chapter ^. VocabChapterVolume)]
+	return chapter
+
 
 isVocabtrainCardAlreadyInChapterSQL :: (MonadLogger m, MonadResourceBase m) => VocabCardId -> SqlPersist m [Value Int]
 isVocabtrainCardAlreadyInChapterSQL cardId =
@@ -44,14 +106,14 @@ getVocabtrainTranslationLanguagesSQL =
 	groupBy (l ^. VocabBookCacheBookLanguage)
 	return (l ^. VocabBookCacheBookLanguage)
 
-{-
+
 -- "SELECT max(filing_timestamp) FROM filing_data WHERE filing_user_id = ?;"
-getVocabtrainMaximumFilingTimestampOfUserSQL :: (MonadLogger m, MonadResourceBase m) => UserId -> SqlPersist m [Value Int64]
+getVocabtrainMaximumFilingTimestampOfUserSQL :: (MonadLogger m, MonadResourceBase m) => UserId -> SqlPersist m [Value (Maybe Int)]
 getVocabtrainMaximumFilingTimestampOfUserSQL userId =
 	select $ from $ \filing -> do
 	where_ (filing ^. VocabFilingDataUserId ==. val userId)
-	return $ maxSQL $ filing ^. VocabFilingDataTimestamp
--}	
+	return $ max_ $ filing ^. VocabFilingDataTimestamp -- TODO: Does this work?
+	
 
 -- "SELECT ?? FROM cards JOIN content ON content_card_id = cards._id JOIN chapters ON content_chapter_id = chapters._id WHERE chapters._id = ?;"
 getVocabtrainCardsOfChapterSQL :: (MonadLogger m, MonadResourceBase m) => VocabChapterId -> SqlPersist m [Entity VocabCard]
