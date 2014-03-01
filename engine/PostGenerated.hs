@@ -21,8 +21,10 @@ class (Show a, Read a) => BeamerSlide a where
 	getBeamerSlideWidget :: a -> Widget
 
 instance BeamerSlide BeamerSlidePublic where
+	getBeamerSlideWidget BEAMER_SILDE_NORMALFORMEN = $(whamletFile "templates/beamer/public/normalformen.hamlet")
 	getBeamerSlideWidget BEAMER_SILDE_SPEICHERANALYSE_VON_B_TREES = $(whamletFile "templates/beamer/public/speicheranalyse_von_b_trees.hamlet")
 	getBeamerSlideWidget BEAMER_SILDE_TEST = $(whamletFile "templates/beamer/public/test.hamlet")
+	getBeamerSlideTitle BEAMER_SILDE_NORMALFORMEN = "Normalformen"
 	getBeamerSlideTitle BEAMER_SILDE_SPEICHERANALYSE_VON_B_TREES = "Speicheranalyse von B-Bäumen"
 	getBeamerSlideTitle a = getBeamerSlideTitleDefault a
 instance BeamerSlide BeamerSlidePrivate where

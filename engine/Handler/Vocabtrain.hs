@@ -19,14 +19,7 @@ import GlobalLayout
 import Data.Maybe
 import Control.Monad.Maybe
 
---import Database.Persist.Query.Join.Sql (runJoin)
---import Database.Persist.Query.Join (SelectOneMany (..), selectOneMany, runJoin)
-
 import Control.Monad
-
---import Database.Persist.GenericSql.Raw (SqlBackend)
-import Database.Persist.Sql
-import Database.Persist
 
 import Data.Time (getCurrentTime) 
 
@@ -1321,5 +1314,5 @@ instance JS.ToJSON (Entity VocabCard) where
 getVocabtrainCardQueryJR :: TatoebaLanguage -> Text -> Handler JS.Value
 getVocabtrainCardQueryJR language searchPhrase = do
 	cardResults <- vocabtrainCardFuzzyQuery language searchPhrase
-	jsonToRepJson $ map JS.toJSON cardResults
+	returnJson $ map JS.toJSON cardResults
 

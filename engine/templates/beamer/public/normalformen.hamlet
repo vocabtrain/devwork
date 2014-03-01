@@ -1,0 +1,225 @@
+<!-- Normalformen -->
+<div .slide>
+    <h1>Verlustfreie Zerlegung
+    <p>
+        <span .given>Gegeben:
+        <ul>
+            <li>\(\menge{R_1,...,R_k}\) eine Zerlegung von \(R\)
+            <li>\(F\): FD-Menge auf \(R\)
+
+    \\( \menge{R_1,...,R_k} \) ist 
+    <span .def> verlustfrei 
+    bzgl. \(F\) \(:\Leftrightarrow\) für jede Instanz \(r\) von \(R\)
+    \\[ r = \pi_\{R_1}(r) \Join \cdots \Join \pi_\{R_k}(r) \]
+    gilt,
+    wobei \(\pi_\{S}(r)\) die kanonische Projektion einer Instanz \(r\) von \(R\) auf die Relation \(S \subset R\) ist.
+
+<div .slide>
+    <h1>FD-Projektion
+    Projeziere die Abhängigkeiten auf eine Teilrelation:
+    \\[ \pi_X{F} := \menge{ (A \rightarrow B) \in F^+ : AB \subset X} \]
+    wobei
+        <ul>
+            <li>\(X\) : Menge von Attributen
+            <li>\(F\) : FD-Menge
+            <li>\(F^+\) : Transitive Hülle von \(F\)
+    <p>Achtung: Es gibt Projektion von Abhängigkeiten als auch Projektion von Attributen!
+
+<div .slide>
+    <h1>Abhängigkeitserhaltende Zerlegung
+    <p>
+        <span .given>Gegeben:
+        <ul>
+            <li>\(\menge{R_1,...,R_k}\) eine Zerlegung von \(R\)
+            <li>\(F\) eine Menge von FDs auf \(R\)
+    <p>
+        \\(\menge{R_1,...,R_k}\) ist 
+        <span .def>abhängigkeitserhaltend
+        bzgl. \(F\) \(:\Leftrightarrow\) 
+        \\[\left( \bigcup_\{i = 1}^k \pi_\{R_i} F \right)^+ = F^+\]
+
+
+
+
+<div .slide>
+    <h1>Schlüssel
+    <p>
+        <span .given>Gegeben: 
+        \\(R = (A_1,...,A_n)\) Relation
+        <ul>
+            <li>\( X \subseteq \menge{A_1,...,A_n} \)
+                heißt 
+                <span .def>Schlüsselkandidat 
+                falls
+                <ul>
+                    <li>\( (X \rightarrow A_1...A_n) \in F^+\)
+                    <li>Es gibt kein \(Y \subsetneq X\) mit dieser Eigenschaft
+            <li>
+                <span .given>Gegeben: 
+                \\(A\) Attribut
+                <br>
+                \\(A\) ist 
+                <span .def>prim
+                \\(:\Leftrightarrow\) \(A\) ist Element eines Schlüsselkandidaten
+            <li>
+                <span .given>Gegeben: 
+                \\(X,Y\) Attributmenge, \(X\) Schlüsselkandidat
+                <br>
+                \\(Y\) heißt
+                <span .def>Oberschlüssel 
+                von \(X :\Leftrightarrow X \subset Y \)
+
+<div .slide>
+    <h1>Normalformen
+    Sei \( F' := \menge{ (X \rightarrow A) \in F : A \not\in X}\)
+    <ul>
+        <li>\(R\) in 
+            <span .def>2NF
+            \\(:\Leftrightarrow\) für alle 
+            \\( (X \rightarrow A) \in F' \) folgt, dass
+            \\[ A \text{ prim oder } X \text{ keine echte Teilmenge eines Schlüsselkandidaten ist.} \]
+        <li>\(R\) in 
+            <span .def>3NF
+            \\(:\Leftrightarrow\)  für alle 
+            \\( (X \rightarrow A) \in F'\) folgt, dass 
+            \\[ A \text{ prim oder } X \text{ ein Oberschlüssel ist.} \]
+        <li>3NF ist stärker als 2NF, da ein Oberschlüssel keine echte Teilmenge eines Schlüsselkandidaten sein kann.
+        <li>\(R\) in 
+            <span .def>BCNF
+            \\(:\Leftrightarrow\) für alle
+            \\( (X \rightarrow A) \in F'\) folgt, dass
+            \\( X \text{ ein Oberschlüssel ist.} \)
+
+
+<div .slide>
+    <h1>Merkregel 
+    <div style="text-align: center">
+        <cite>Der Schlüssel, <br>
+            der ganze Schlüssel <br>
+            und nichts als der Schlüssel. <br>
+            So wahr mir Codd helfe!
+    <ul>
+        <li>1NF:
+            <ul>
+                <li>
+                    <quot>Der Schlüssel 
+                <li>Jede Relation hat einen Schlüsselkandidaten, alle Attribute atomar
+        <li>2NF:
+            <ul>
+                <li>
+                    <quot>Der ganze Schlüssel
+                <li>Jedes Attribut ist vom ganzen Schlüssel abhängig
+        <li>3NF
+            <ul>
+                <li>
+                    <qout>Nichts als der Schlüssel
+                <li>Attribute hängen nur vom Schlüssel ab
+    Achtung: Der Schlüssel \(\equiv\) Menge aller Schlüsselkandidaten
+    <p>Entnommen aus #
+        <a href="https://de.wikipedia.org/wiki/Normalisierung_%28Datenbank%29">Wikipedia
+
+<div .slide>
+    <h1>Abh.erh. Zerl. in BCNF
+    <p>Im Allgemeinen kann eine Relation nicht abhängigkeitserhaltend in BCNF zerlegt werden.
+
+    <p>
+        <span .proof>Beweis durch Gegenbeispiel
+    <ul>
+        <li>Sei \(R := ABC\) mit \(F := \menge{AB \rightarrow C, C \rightarrow A}\).
+        <li>Dann gilt für jede Zerlegung \(\menge{R_1,...,R_n}\) von \(R\) mit \(R_i \subsetneq R\), dass 
+        \\[ (AB \rightarrow C) \not\in \pi_\{R_i} F \text{ für jedes } i = 1,...,n .\]
+
+<div .slide>
+    <h1>Zerlegung in 3NF
+    Jede Relation kann verlustfrei und abhängigkeitserhaltend in die 3NF zerlegt werden
+
+    <p>
+        <span .proof>Beweis durch Konstruktion
+    <ol .d>
+        <li>Berechne die Menge von Attributmengen
+        \\[ \rho := \menge{X \cup \menge{A} : \text{ für jedes } (X \rightarrow A) \in F \text{ mit } A \text{ Attribut}, X \text{ Menge an Attributen von } R} \]
+        <li>Falls \(\rho\) keinen Schlüsselkandidaten von \(R\) enthält,
+              <ol .d>
+                <li> wähle einen Schlüsselkandidaten \(K\) von \(R\) und
+                <li> setze \(\rho := \rho \cup \menge{K}\)
+        <li>Falls \(T := R \setminus \bigcup_\{S \in \rho} S \not= \emptyset\), dann ergänze \(\rho := \rho \cup T\)
+
+    <p>Die Zerlegung ist abhängigkeitserhaltend, weil wir bzgl. \(F\) zerlegen.
+
+
+<div .slide>
+    <h1>Wid.: Überdeckung
+    <span .given>Gegeben: 
+    \\(F,G\) FD-Mengen
+    <ol .d>
+        <li>Wir sagen \(G\) 
+            <span .def>überdeckt
+            \\(F :\Leftrightarrow\) 
+            \\( F^+ \subseteq G^+ \)
+        <li>Wir sagen \(G\) ist 
+            <span .def>äquivalent 
+            zu \(F :\Leftrightarrow F^+ \subseteq G^+ \) und \( G^+ \subseteq F^+. \)
+            <br>
+            In diesem Fall schreiben wir \(F \equiv G\).
+
+<div .slide>
+    <h1>Wid.: Minimale Überdeckung
+    <span .given>Gegeben:
+    \\(F\) FD-Menge
+
+    <p>\(F\) heißt 
+        <span .def>minimale Überdeckung
+        \\(:\Leftrightarrow\) 
+    <ul>
+        <li>F enthält nur einfache FD, d.h. Bildbereich jeder FD ist ein Attribut
+        <li>Keine FD in F ist redundant, d.h. es gibt kein 
+            \\[ f \in F : F \setminus f \equiv F \]
+        <li>Kein Attribut im Urbild einer FD von F ist redundant, 
+            d.h. für jedes \(f = (X \rightarrow A) \in F\) existiert kein Attribut \(B,\) s.d.
+            \\[F \setminus f \cup \menge{X\setminus B \rightarrow A} \equiv F\]
+
+<div .slide>
+    <h1>Beobachtung
+    <p>
+        <span .given>Gegeben: 
+        \\(F\) minimale Überdeckung
+    
+    Für jede Attributmenge \(X\):
+        <ol .d>
+            <li>Bestimme \(\menge{A_1,...,A_k} := \menge{A : (X \rightarrow A) \in F}\)
+            <li>Seien zudem Relationen der Form \(R_i = XA_i\) für jedes \(i = 1,...,k\) gegeben.
+            <li>Fasse diese Relationen zu einer einzigen Relation
+                \\[ R = XA_1,...,A_k \] 
+                zusammen.
+            <li>\(R\) verletzt nicht die BCNF-Bedingungen
+
+<div .slide>
+    <h1>Abschluß-Beispiel
+    <p>
+        <span .given>Gegeben:
+        <ul>
+            <li>\(R = ABCDEGH\)
+            <li>\( F = \menge{A \rightarrow C, A \rightarrow D, B \rightarrow E, B \rightarrow G} \)
+    
+    <ol .d>
+        <li>Primärschlüssel ist \(ABH\)
+            <ul>
+                <li>\(A, B, H\) sind prim
+                <li>\(ABH^+ = \menge{A,B,C,D,E,G,H}\)
+
+        <li>Normierung
+            <ul>
+                <li>Wir haben 1NF nach Def. der Attribute
+                <li>Zerlegung in 3NF: \(\rho = \menge{R_1,...,R_5}\) mit
+                    <ul>
+                        <li>\(R_1 := AC\) und \(R_2 := AD\)
+                        <li>\(R_3 := BE\) und \(R_4 := BG\)
+                        <li>\(R_5 := ABH\) (Schlüsselkandidat)
+
+        <li>Zusammenfassen
+            <ul>
+                <li>\(F\) ist minimale Überdeckung
+                <li>Fasse \(R_1, R_2\) zu \(S_1\) und \(R_3, R_4\) zu \(S_2\) zusammen:
+                    <ul>
+                        <li>\(S_1 := ACD\) und \(S_2 := BEG\)
+                <li>Neue Zerlegung: \(\menge{S_1,S_2,R_5}\)

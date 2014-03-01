@@ -5,11 +5,10 @@ import Prelude
 import Yesod
 import Data.Text (Text, pack)
 import Database.Persist.Quasi
-import Data.Time (UTCTime, getCurrentTime)
+import Data.Time (UTCTime)
 import Generated
 import CardType
 import UserManipType 
-import Database.Persist
 import Data.Typeable (Typeable)
 
 {-

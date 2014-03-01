@@ -6,7 +6,6 @@ import Database.Persist.Sql
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import ShowText
-import Control.Monad
 
 data UserManipType = USERMANIP_UPDATE | USERMANIP_INSERT | USERMANIP_PUT | USERMANIP_REMOVE
 	deriving(Eq,Show)

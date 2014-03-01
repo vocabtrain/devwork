@@ -14,7 +14,7 @@ beamerLayout title widget = do
 		toWidgetHead $(hamletFile "templates/beamer/head.hamlet")
 		toWidget $(hamletFile "templates/beamer/symbols.hamlet")
 		setTitle $ toHtml title
-	hamletToRepHtml $(hamletFile "templates/beamer/overall.hamlet")
+	giveUrlRenderer $(hamletFile "templates/beamer/overall.hamlet")
 
 getBeamerSlidesR :: Handler Html
 getBeamerSlidesR = do

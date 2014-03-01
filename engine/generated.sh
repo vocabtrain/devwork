@@ -139,8 +139,16 @@ EOF
 	echo "\t$a" | sed 's@ @\n\t@g'
 #	echo "\t\t|otherwise = \"und\""
 	
-	echo 'derivePersistField "TatoebaLanguage"'
+cat<<EOF
+derivePersistField "TatoebaLanguage"
 
+instance ShowText TatoebaLanguage where
+	showText = Text.pack . show
+instance JS.ToJSON TatoebaLanguage where                                                                                                                       
+	toJSON = JS.toJSON . show
+instance JS.FromJSON TatoebaLanguage where
+	parseJSON = JS.withText "Text" (\t -> pure $ read $ Text.unpack t)
+EOF
 	##
 #	##getTatoebaLanguageName
 #	echo 'getTatoebaLanguageName :: TatoebaLanguage -> Text'
@@ -215,11 +223,12 @@ import qualified Yesod.Static
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Database.Persist.TH
-import Database.Persist
 import Text.Read
 import Text.ParserCombinators.ReadP hiding (choice)
 import Web.PathPieces
-import ShowText ()
+import qualified Data.Aeson as JS
+import ShowText
+import Control.Applicative (pure)
 
 data GalleryImage = GalleryImage 
 	{ galleryImageSource :: Route Yesod.Static.Static

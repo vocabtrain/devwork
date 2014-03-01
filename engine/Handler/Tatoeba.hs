@@ -20,6 +20,9 @@ import Control.Monad
 
 data TatoebaRelation = TatoebaRelation (Entity TatoebaSentence) [Entity TatoebaSentence] deriving Show
 
+
+--TODO : Catch all Translations with IN(...) instead of catching for each sentence the translations
+
 tatoebaRelationFromQuery :: Maybe (Entity TatoebaSentence) -> Handler (Maybe TatoebaRelation)
 tatoebaRelationFromQuery mainSentenceResult = case mainSentenceResult of
 	Nothing -> return Nothing
@@ -30,24 +33,26 @@ tatoebaRelationFromQuery mainSentenceResult = case mainSentenceResult of
 relationsToXml :: [TatoebaRelation] -> Element
 relationsToXml relations = Element "relations" Map.empty $ map (NodeElement . relationToXml) relations
 
+
 relationToXml :: TatoebaRelation -> Element
 relationToXml (TatoebaRelation sentence translations) = 
 	Element "relation" Map.empty ([ 
-		NodeElement $ Element "mainsentence" (Map.fromList 
-			[("id", Text.pack . show $ entityKey sentence), 
-			 ("language", Text.pack $ show $ tatoebaSentenceLanguage $ entityVal sentence)  ]) 
-			[ NodeContent $ tatoebaSentenceText $ entityVal sentence]
-		]  ++ map sentenceToXml translations)
+		sentenceToXml  "mainsentence" sentence
+		]  ++ map (sentenceToXml "sentence") translations)
 
-sentenceToXml :: Entity TatoebaSentence -> Node
-sentenceToXml sentence = NodeElement $ Element "sentence" 
+sentenceToXml :: Name -> Entity TatoebaSentence -> Node
+sentenceToXml name sentence = NodeElement $ Element name
 	(Map.fromList 
-		[("id", Text.pack . show $ entityKey sentence), 
-		 ("language", Text.pack $ show $ tatoebaSentenceLanguage $ entityVal sentence)  ]) 
+		[("id" , sentence_id)
+		,("language", Text.pack $ show $ tatoebaSentenceLanguage $ entityVal sentence)  ]) 
 	[ NodeContent $ tatoebaSentenceText $ entityVal sentence]
+	where sentence_id =
+		case fromPersistValue . unKey . entityKey $ sentence of
+			Left _ -> ""
+			Right val -> val
 
 
-
+-- TODO: This here is lost code?
 getVocabtrainMobileVeecheckR :: Handler RepXml
 getVocabtrainMobileVeecheckR = do
 	let content = toContent $ renderText def $ Document (Prologue [] Nothing []) (Element nameVersions Map.empty $ map addVeecheckRule veecheckActions) []

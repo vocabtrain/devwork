@@ -1,3 +1,5 @@
+SET client_min_messages TO warning;
+
 DROP TABLE IF EXISTS cache_book_translang;
 CREATE TABLE IF NOT EXISTS cache_book_translang (
 	id SERIAL,

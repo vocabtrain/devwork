@@ -38,7 +38,7 @@ import Database.Persist.Sql (SqlPersistT)
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
-import Web.ClientSession (getKey)
+-- import Web.ClientSession (getKey)
 import Generated (TatoebaLanguage (..), BeamerSlidePrivate (..), BeamerSlidePublic (..) )
 import Yesod.Core.Types (Logger)
 

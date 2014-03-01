@@ -9,7 +9,7 @@ import CardType
 import Prelude (map)
 import PostGenerated () 
 import qualified Prelude
-import Data.Aeson ((.:))
+-- import Data.Aeson ((.:))
 import qualified Data.Aeson as JS
 import GHC.Generics
 
@@ -17,7 +17,7 @@ import System.Directory(getTemporaryDirectory, removeFile)
 import Control.Exception (catch, finally, IOException)
 
 import qualified Data.Conduit as C
-import qualified Data.Conduit.List as CL
+-- import qualified Data.Conduit.List as CL
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 --import Database.Persist.GenericSql.Raw (withStmt,execute)
@@ -45,7 +45,7 @@ import UserManipType
 --import UserManipLog
 import Data.Time (getCurrentTime) 
 
-import Database.Persist
+-- import Database.Persist
 
 data BasicAuthResult = BasicAuthAuthorized UserId | BasicAuthNothing | BasicAuthInvalidEncoding | BasicAuthWrongCreds
 
@@ -204,8 +204,6 @@ data DeltaTranslationColumn = DeltaTranslationColumn
 	, deltaTranslationColumnLanguage :: TatoebaLanguage
 	}
 	deriving Show
-instance JS.FromJSON TatoebaLanguage where
-	parseJSON = JS.withText "Text" (\t -> pure $ read $ Text.unpack t)
 instance JS.FromJSON DeltaTranslationColumn where
 	parseJSON (JS.Object v) = DeltaTranslationColumn <$>
 		v .: "changes_card_id" <*>
@@ -264,9 +262,6 @@ instance JS.FromJSON BookSupply where
 	parseJSON _ = mzero
 -}
 
-instance JS.ToJSON TatoebaLanguage where
-	toJSON = toJSON . show
-
 instance JS.ToJSON (Entity VocabBook, [Entity VocabBookCache]) where
 --	toJSON :: BookSupply -> JS.Value
 	toJSON (ebook, cachedLanguages) = JS.object
@@ -287,8 +282,8 @@ postVocabtrainMobileBooksR = do
 	languageSupply <- runDB $ getVocabtrainTranslationLanguagesSQL
 	userData <- getUserData
 	$(logDebug) $ Text.pack $ show userData
-	$(logDebug) $ Text.pack $ show $ (maybe [] (\t -> [("userdata", t)]) userData)
-	jsonToRepJson $ JS.object ( [ ("books", JS.toJSON bookSupply), ("translation_languages", JS.toJSON $ map (\(Value a) -> a) languageSupply)] ++ (maybe [] (\t -> [("userdata", t)]) userData)   )
+	$(logDebug) $ Text.pack $ show $ (maybe [] (\t -> [("userdata"::Text, t)]) userData)
+	returnJson $ JS.object ( [ ("books", JS.toJSON bookSupply), ("translation_languages", JS.toJSON $ map (\(Value a) -> a) languageSupply)] ++ (maybe [] (\t -> [("userdata", t)]) userData)   )
 	where
 		getBookSupply :: HandlerT App IO [(Entity VocabBook, [Entity VocabBookCache])]
 		getBookSupply = do
@@ -322,8 +317,8 @@ postVocabtrainMobileBooksR = do
 		-}
 		getUserData :: HandlerT App IO (Maybe JS.Value)
 		getUserData = do
-			--auth <- tokenAuth
-			let auth = BasicAuthAuthorized (Key $ PersistInt64 1)
+			auth <- tokenAuth
+		--	let auth = BasicAuthAuthorized (Key $ PersistInt64 1)
 			case auth of 
 				BasicAuthAuthorized userId -> do
 					timestampResult <- runDB $ getVocabtrainMaximumFilingTimestampOfUserSQL userId
@@ -568,7 +563,7 @@ postVocabtrainMobileDownloadR = do
 				selectRawList l = Prelude.flip Text.snoc ')' $ Text.cons '(' $ Text.init . Text.tail . Text.pack . show $ 
 					(map (\key -> either (\_ -> 0) Prelude.id $ fromPersistValue $ unKey $ entityKey key) l :: [Int] )
 
-runSqlConn' :: MonadBaseControl IO m => Connection -> SqlPersist m a -> m a
+runSqlConn' :: MonadBaseControl IO m => Connection -> SqlPersistT m a -> m a
 runSqlConn' pers conn = runSqlConn conn pers
 
 withTempFile :: String -> (FilePath -> Handle -> IO a) -> IO a

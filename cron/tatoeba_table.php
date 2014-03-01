@@ -23,8 +23,8 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->query('
 CREATE TABLE IF NOT EXISTS `sentences` (
 `_id` INTEGER NOT NULL,
-`lang` TEXT,
-`text` TEXT,
+`lang` VARCHAR,
+`text` VARCHAR,
 PRIMARY KEY(`_id`)
 );
 ');

@@ -42,7 +42,7 @@ globalLayout sheet = do
 		addStylesheet $ StaticR css_normalize_css
 		addStylesheet $ StaticR css_flags_css
 		addStylesheet $ StaticR css_main_css
-	hamletToRepHtml $(hamletFile "templates/skeleton/overall.hamlet")
+	giveUrlRenderer $(hamletFile "templates/skeleton/overall.hamlet")
 	where
 		readSheetWidget :: Maybe Widget -> Handler (Maybe (PageContent (Route App)))
 		readSheetWidget mwidget =
