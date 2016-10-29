@@ -26,5 +26,6 @@ Staging:
   <<: *defaults
 
 Production:
+  port: 5000
   #approot: "http://www.example.com"
   <<: *defaults

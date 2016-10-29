@@ -48,3 +48,6 @@ Vocabtrain: Wenn Translation noch nicht existiert, legt Android translation an -
 Book: Show cards missing translation of a certain language
 
 AndroidApp: While Training: Discard Card does not change upper right stats!
+
+Manip behaves bad when deleting something, because auf foreign key constraints!
+"vocab_translation_manip_translation_id_fkey" FOREIGN KEY (translation_id) REFERENCES translations(_id) 

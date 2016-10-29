@@ -18,7 +18,7 @@
 <meta name="copyright" content="Copyright &#169; 2013 Dominik K&ouml;ppl, Institute for Databases and Information Systems">
 <meta name="duration" content="5">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
-<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 <script type="text/javascript" src="@{StaticR js_jquery_zoomooz_js}">
 <script type="text/javascript" src="@{StaticR js_beamer_js}">
 <script src="http://yandex.st/highlightjs/7.3/highlight.min.js">

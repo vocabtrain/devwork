@@ -6,24 +6,31 @@
                 <tbody>
                     <tr>
                         <th>E-Mail
-                        <td><a href="mailto:dominik.koeppl@informatik.uni-augsburg.de">dominik.koeppl@informatik.uni-augsburg.de</a>
+                        <td>
+                            <a href="mailto:dominik.koeppl@tu-dortmund.de">dominik.koeppl@tu-dortmund.de
                     <tr>
                         <th>Telefon
-                        <td>+49 821 598 - 2143
+                        <td>+49 231 755 7712
                     <tr>
                         <th>Fax
-                        <td>+49 821 598 - 2274
+                        <td>+49 231 755 7740 
                     <tr>
                         <th>Raum
-                        <td>2001 N
+                        <td>209
                     <tr>
                         <th>Anschrift
                         <td>
                             <address>
-                                Universität Augsburg
+                                TU Dortmund
                                 <br>
-                                Universitätsstrasse 6a
+                                Department of Computer Science
                                 <br>
-                                86159 Augsburg
+                                Chair of Algorithm Engineering (LS11)
+                                <br>
+                                Otto-Hahn-Str. 14
+                                <br>
+                                44227 Dortmund
+                                <br>
+                                Germany
         <div .span2.>
             <img src=@{StaticR img_dominik_myself_jpg} alt="Photo" >

@@ -5,6 +5,18 @@
     <br>
     <h2>Veranstaltungen
     <h3>
+        <img src=@{StaticR img_unidesign_siegel_tu_dortmund_jpg} alt="Siegel" .uni-siegel>
+        TU Dortmund
+    <h4>WiSe 14/15
+    <ul>
+        <li>Mitbetreuer der PG 583 <a href="http://www.rahmannlab.de/lehre/pg583">Algorithmen zur Entdeckung krebsauslösender Genvarianten</a>
+        <li>Mitbetreuer des Proseminars <a href="http://ls11-www.cs.tu-dortmund.de/fischer/teaching/as-ws2014">String-Algorithmen</a>
+    <h4>SoSe 14
+    <ul>
+        <li>Mitbetreuer der PG 583 <a href="http://www.rahmannlab.de/lehre/pg583">Algorithmen zur Entdeckung krebsauslösender Genvarianten</a>
+        <li>Mitbetreuer des Proseminars <a href="http://ls11-www.cs.uni-dortmund.de/fischer/teaching/ir-ss2014">Information Retrieval</a>
+
+    <h3>
         <img src=@{StaticR img_unidesign_siegel_uni_augsburg_png} alt="Siegel" .uni-siegel>
         Universität Augsburg
     <h4>WiSe 13/14
@@ -16,7 +28,6 @@
     <h4>WiSe 12/13
     <ul>
         <li>Mitbetreuer der Vorlesung <a href="http://www.informatik.uni-augsburg.de/lehrstuehle/dbis/db/lectures/ws1213/datenbanksysteme1/">Datenbanksysteme I</a>
-
     <h3>
         <img src=@{StaticR img_unidesign_siegel_uni_regensburg_gif} alt="Siegel" .uni-siegel>
         Universität Regensburg

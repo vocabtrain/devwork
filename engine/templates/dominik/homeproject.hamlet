@@ -3,6 +3,11 @@
     ^{dominikContact}
 
     <br>
+    <h2>Research
+    <ul>
+        <li>My Erdős number is at most 4 (via Günther Wirsching → Hans Kellerer → Zsolt Tuza → P. Erdős)
+        <li>My publications at <a href="http://www.informatik.uni-trier.de/~ley/pers/hd/k/K=ouml=ppl:Dominik.html">DBLP
+
     <h2>Paper
     ^{bibtexWidget bibtex_refereed_bib}
     <h2>Theses

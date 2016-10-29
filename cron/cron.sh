@@ -32,7 +32,7 @@ fi
 #backup
 mkdir -p "$backupdir"
 cd "$backupdir"
-pg_dump -i -U postgres -F p -b -f "$backupdir/dump" devwork 
+pg_dump -i -F p -b -f "$backupdir/dump" devwork 
 git commit --no-status -q -a -m "Autocommit `date`" >/dev/null
 
 #booklanguage cache
