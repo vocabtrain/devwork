@@ -27,6 +27,7 @@ import Yesod.Static
 import Yesod.Auth
 import Yesod.Auth.BrowserId
 import Yesod.Auth.GoogleEmail
+import Yesod.Auth.Dummy
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Network.HTTP.Conduit (Manager)
@@ -221,14 +222,30 @@ instance YesodAuth App where
     logoutDest _ = HomeR
 
 
+-- TODO: These are dummy settings!!
     getAuthId creds = runDB $ do
-        x <- getBy $ UniqueUser $ credsIdent creds
+        x <- getBy $ UniqueUser "transitiv@googlemail.com"
         case x of
             Just (Entity uid _) -> return $ Just uid
             Nothing -> do
                 fmap Just $ insert $ User (credsIdent creds) Nothing Nothing Nothing
+    maybeAuthId = runDB $ do
+        x <- getBy $ UniqueUser "transitiv@googlemail.com"
+        case x of
+            Just (Entity uid _) -> return $ Just uid
+            Nothing -> do
+                fmap Just $ insert $ User "transitiv@googlemail.com" Nothing Nothing Nothing
+    authPlugins _ = [authDummy]
+-- END TODO
+
+    -- getAuthId creds = runDB $ do
+    --     x <- getBy $ UniqueUser $ credsIdent creds
+    --     case x of
+    --         Just (Entity uid _) -> return $ Just uid
+    --         Nothing -> do
+    --             fmap Just $ insert $ User (credsIdent creds) Nothing Nothing Nothing
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [authBrowserId def, authGoogleEmail]
+    -- authPlugins _ = [authBrowserId def, authGoogleEmail, authDummy]
 
 
     authHttpManager = httpManager

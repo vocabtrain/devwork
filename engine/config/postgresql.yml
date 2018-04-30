@@ -10,7 +10,8 @@ Development:
   <<: *defaults
 
 Testing:
-  database: devwork
+  database: devwork_production
+#  database: devwork
     #  database: devwork_basi
 #  database: devwork_test
   <<: *defaults
